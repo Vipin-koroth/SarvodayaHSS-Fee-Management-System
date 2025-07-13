@@ -9,6 +9,8 @@ import PaymentManagement from './PaymentManagement';
 import FeeConfiguration from './FeeConfiguration';
 import Reports from './Reports';
 import ChangePassword from '../common/ChangePassword';
+import BulkPrintBills from './BulkPrintBills';
+import DataManagement from './DataManagement';
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -27,6 +29,10 @@ const AdminDashboard: React.FC = () => {
         return <FeeConfiguration />;
       case 'reports':
         return <Reports />;
+      case 'bulk-print':
+        return <BulkPrintBills />;
+      case 'data-management':
+        return <DataManagement />;
       case 'password':
         return <ChangePassword />;
       default:

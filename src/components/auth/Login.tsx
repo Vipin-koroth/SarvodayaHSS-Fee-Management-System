@@ -104,27 +104,8 @@ const Login: React.FC = () => {
             </button>
           </form>
 
-          {/* Quick Login Options */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-600 text-center mb-4">Quick Login:</p>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => quickLogin('admin', 'admin')}
-                className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Admin
-              </button>
-              <button
-                onClick={() => quickLogin('class1a', 'admin')}
-                className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Class 1-A
-              </button>
-            </div>
-          </div>
 
           {/* Instructions */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <h3 className="text-sm font-medium text-blue-900 mb-2">Login Instructions:</h3>
             <ul className="text-xs text-blue-800 space-y-1">
               <li>• Admin: username "admin", password "admin"</li>
