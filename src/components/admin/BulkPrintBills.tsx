@@ -8,6 +8,7 @@ const BulkPrintBills: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedDivision, setSelectedDivision] = useState('');
+  const [filterDate, setFilterDate] = useState('');
 
   const getFilteredPayments = () => {
     if (printType === 'date') {
@@ -15,9 +16,17 @@ const BulkPrintBills: React.FC = () => {
         new Date(payment.paymentDate).toDateString() === new Date(selectedDate).toDateString()
       );
     } else {
-      return payments.filter(payment => 
+      let classPayments = payments.filter(payment => 
         payment.class === selectedClass && payment.division === selectedDivision
       );
+      
+      if (filterDate) {
+        classPayments = classPayments.filter(payment =>
+          new Date(payment.paymentDate).toDateString() === new Date(filterDate).toDateString()
+        );
+      }
+      
+      return classPayments;
     }
   };
 
@@ -224,6 +233,15 @@ const BulkPrintBills: React.FC = () => {
                     <option key={div} value={div}>Division {div}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Date (Optional)</label>
+                <input
+                  type="date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
               </div>
               <div className="flex items-end">
                 <button

@@ -25,8 +25,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userRole }) 
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'bulk-print', label: 'Bulk Print Bills', icon: FileText },
     { id: 'data-management', label: 'Data Management', icon: Settings },
-    { id: 'bulk-print', label: 'Bulk Print Bills', icon: FileText },
-    { id: 'data-management', label: 'Data Management', icon: Settings },
     { id: 'password', label: 'Change Password', icon: Lock },
   ];
 
