@@ -112,7 +112,6 @@ const Login: React.FC = () => {
               <li>• Teachers: username "class[X][Y]" (e.g., class1a, class12e)</li>
               <li>• Default password: "admin" (changeable after login)</li>
             </ul>
-          </div>
         </div>
       </div>
     </div>
