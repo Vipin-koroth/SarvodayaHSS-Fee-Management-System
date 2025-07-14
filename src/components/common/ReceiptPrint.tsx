@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Printer } from 'lucide-react';
-import { Payment } from '../../contexts/DataContext';
+import { Payment, useData } from '../../contexts/DataContext';
 
 interface ReceiptPrintProps {
   payment: Payment;
@@ -8,6 +8,28 @@ interface ReceiptPrintProps {
 }
 
 const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
+  const { students, feeConfig, payments } = useData();
+  
+  // Calculate balance for the student
+  const calculateBalance = () => {
+    const student = students.find(s => s.id === payment.studentId);
+    if (!student) return { developmentBalance: 0, busBalance: 0 };
+    
+    const studentPayments = payments.filter(p => p.studentId === payment.studentId);
+    const totalPaidDevelopment = studentPayments.reduce((sum, p) => sum + p.developmentFee, 0);
+    const totalPaidBus = studentPayments.reduce((sum, p) => sum + p.busFee, 0);
+    
+    const totalDevelopmentRequired = feeConfig.developmentFees[student.class] || 0;
+    const totalBusRequired = feeConfig.busStops[student.busStop] || 0;
+    
+    return {
+      developmentBalance: Math.max(0, totalDevelopmentRequired - totalPaidDevelopment),
+      busBalance: Math.max(0, totalBusRequired - totalPaidBus)
+    };
+  };
+  
+  const balance = calculateBalance();
+  
   const handlePrint = () => {
     const printContent = document.getElementById('receipt-print-content');
     if (printContent) {
@@ -94,7 +116,8 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
           <div id="receipt-print-content">
             <div className="receipt" style={{ width: '240px', height: '320px', border: '1px solid #000', padding: '10px', fontSize: '10px', lineHeight: '1.2', margin: '0 auto' }}>
               <div className="header" style={{ textAlign: 'center', borderBottom: '1px solid #000', paddingBottom: '5px', marginBottom: '8px' }}>
-                <h3 style={{ margin: '0 0 3px 0', fontSize: '12px', fontWeight: 'bold' }}>Sarvodaya School</h3>
+                <h3 style={{ margin: '0 0 3px 0', fontSize: '11px', fontWeight: 'bold' }}>Sarvodaya Higher Secondary School</h3>
+                <div style={{ fontSize: '9px', marginBottom: '2px' }}>Eachome</div>
                 <div style={{ fontSize: '8px' }}>Fee Payment Receipt</div>
               </div>
               
@@ -154,6 +177,24 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                   <span>₹{payment.totalAmount}</span>
                 </div>
               </div>
+              
+              {(balance.developmentBalance > 0 || balance.busBalance > 0) && (
+                <div style={{ borderTop: '1px solid #000', paddingTop: '5px', marginTop: '5px', fontSize: '9px' }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>Remaining Balance:</div>
+                  {balance.developmentBalance > 0 && (
+                    <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1px' }}>
+                      <span>Development:</span>
+                      <span>₹{balance.developmentBalance}</span>
+                    </div>
+                  )}
+                  {balance.busBalance > 0 && (
+                    <div className="row" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Bus Fee:</span>
+                      <span>₹{balance.busBalance}</span>
+                    </div>
+                  )}
+                </div>
+              )}
               
               <div className="footer" style={{ textAlign: 'center', marginTop: '8px', fontSize: '8px', borderTop: '1px solid #000', paddingTop: '5px' }}>
                 <div>Thank you for your payment!</div>

@@ -44,7 +44,8 @@ const Reports: React.FC = () => {
           totalStudents: 0,
           students: [],
           busNumbers: new Set(),
-          tripNumbers: new Set()
+          tripNumbers: new Set(),
+          classSummary: {}
         };
       }
       
@@ -52,6 +53,13 @@ const Reports: React.FC = () => {
       report[student.busStop].students.push(student);
       report[student.busStop].busNumbers.add(student.busNumber);
       report[student.busStop].tripNumbers.add(student.tripNumber);
+      
+      // Add class-wise breakdown
+      const classKey = `${student.class}-${student.division}`;
+      if (!report[student.busStop].classSummary[classKey]) {
+        report[student.busStop].classSummary[classKey] = 0;
+      }
+      report[student.busStop].classSummary[classKey]++;
     });
     
     return report;
@@ -260,6 +268,17 @@ const Reports: React.FC = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Trip Numbers:</span>
                     <span className="font-medium">{Array.from(data.tripNumbers).join(', ')}</span>
+                  </div>
+                  <div className="border-t pt-2 mt-2">
+                    <div className="text-gray-600 font-medium mb-1">Class-wise Distribution:</div>
+                    <div className="space-y-1">
+                      {Object.entries(data.classSummary).map(([classKey, count]) => (
+                        <div key={classKey} className="flex justify-between text-xs">
+                          <span className="text-gray-500">Class {classKey}:</span>
+                          <span className="font-medium">{count as number} students</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

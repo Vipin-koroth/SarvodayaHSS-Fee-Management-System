@@ -3,7 +3,7 @@ import { Printer, Calendar, Users, Download } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 
 const BulkPrintBills: React.FC = () => {
-  const { payments, students } = useData();
+  const { payments, students, feeConfig } = useData();
   const [printType, setPrintType] = useState<'date' | 'class'>('date');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [selectedClass, setSelectedClass] = useState('');
@@ -37,6 +37,27 @@ const BulkPrintBills: React.FC = () => {
       return;
     }
 
+    // Calculate balances for each payment
+    const paymentsWithBalance = filteredPayments.map(payment => {
+      const student = students.find(s => s.id === payment.studentId);
+      if (!student) return { ...payment, balance: { developmentBalance: 0, busBalance: 0 } };
+      
+      const studentPayments = payments.filter(p => p.studentId === payment.studentId);
+      const totalPaidDevelopment = studentPayments.reduce((sum, p) => sum + p.developmentFee, 0);
+      const totalPaidBus = studentPayments.reduce((sum, p) => sum + p.busFee, 0);
+      
+      const totalDevelopmentRequired = feeConfig.developmentFees[student.class] || 0;
+      const totalBusRequired = feeConfig.busStops[student.busStop] || 0;
+      
+      return {
+        ...payment,
+        balance: {
+          developmentBalance: Math.max(0, totalDevelopmentRequired - totalPaidDevelopment),
+          busBalance: Math.max(0, totalBusRequired - totalPaidBus)
+        }
+      };
+    });
+
     const printContent = document.getElementById('bulk-bills-print');
     if (printContent) {
       const newWindow = window.open('', '_blank');
@@ -60,7 +81,7 @@ const BulkPrintBills: React.FC = () => {
               }
               .bill {
                 width: 240px;
-                height: 320px;
+                height: 340px;
                 border: 1px solid #000;
                 padding: 8px;
                 margin-bottom: 10px;
@@ -291,10 +312,24 @@ const BulkPrintBills: React.FC = () => {
       {/* Hidden Print Content */}
       <div id="bulk-bills-print" style={{ display: 'none' }}>
         <div className="bills-container">
-          {filteredPayments.map((payment) => (
+          {filteredPayments.map((payment) => {
+            const student = students.find(s => s.id === payment.studentId);
+            const studentPayments = payments.filter(p => p.studentId === payment.studentId);
+            const totalPaidDevelopment = studentPayments.reduce((sum, p) => sum + p.developmentFee, 0);
+            const totalPaidBus = studentPayments.reduce((sum, p) => sum + p.busFee, 0);
+            
+            const totalDevelopmentRequired = student ? (feeConfig.developmentFees[student.class] || 0) : 0;
+            const totalBusRequired = student ? (feeConfig.busStops[student.busStop] || 0) : 0;
+            
+            const developmentBalance = Math.max(0, totalDevelopmentRequired - totalPaidDevelopment);
+            const busBalance = Math.max(0, totalBusRequired - totalPaidBus);
+            
+            return (
             <div key={payment.id} className="bill">
               <div className="bill-header">
-                <h3 className="bill-title">Sarvodaya School</h3>
+                <h3 className="bill-title">Sarvodaya Higher Secondary School</h3>
+                <div className="bill-subtitle">Eachome</div>
+                <div className="bill-subtitle">Eachome</div>
                 <div className="bill-subtitle">Fee Payment Receipt</div>
               </div>
               
@@ -355,12 +390,31 @@ const BulkPrintBills: React.FC = () => {
                 </div>
               </div>
               
+              {(developmentBalance > 0 || busBalance > 0) && (
+                <div style={{ borderTop: '1px solid #000', paddingTop: '4px', marginTop: '4px', fontSize: '8px' }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>Remaining Balance:</div>
+                  {developmentBalance > 0 && (
+                    <div className="bill-row">
+                      <span>Development:</span>
+                      <span>₹{developmentBalance}</span>
+                    </div>
+                  )}
+                  {busBalance > 0 && (
+                    <div className="bill-row">
+                      <span>Bus Fee:</span>
+                      <span>₹{busBalance}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+              
               <div className="bill-footer">
                 <div>Thank you for your payment!</div>
                 <div>Keep this receipt for your records</div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
