@@ -47,43 +47,61 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
               }
               .receipt { 
                 width: 2.5in; 
-                height: 3.5in; 
+                height: 4in; 
                 border: 1px solid #000; 
                 padding: 10px; 
                 margin: 0 auto;
-                font-size: 10px;
-                line-height: 1.2;
+                font-size: 11px;
+                line-height: 1.3;
               }
               .receipt h3 { 
-                margin: 0 0 8px 0; 
-                font-size: 12px; 
+                margin: 0 0 2px 0; 
+                font-size: 13px; 
                 text-align: center; 
                 font-weight: bold;
+              }
+              .receipt .school-name {
+                margin: 0 0 1px 0;
+                font-size: 13px;
+                text-align: center;
+                font-weight: bold;
+              }
+              .receipt .school-subtitle {
+                margin: 0 0 1px 0;
+                font-size: 11px;
+                text-align: center;
+                font-weight: bold;
+              }
+              .receipt .location {
+                margin: 0 0 3px 0;
+                font-size: 10px;
+                text-align: center;
               }
               .receipt .header {
                 text-align: center;
                 border-bottom: 1px solid #000;
-                padding-bottom: 5px;
-                margin-bottom: 8px;
+                padding-bottom: 6px;
+                margin-bottom: 10px;
               }
               .receipt .row { 
                 display: flex; 
                 justify-content: space-between; 
-                margin-bottom: 3px;
+                margin-bottom: 4px;
+                font-size: 11px;
               }
               .receipt .total { 
                 border-top: 1px solid #000; 
-                padding-top: 5px; 
-                margin-top: 8px;
+                padding-top: 6px; 
+                margin-top: 10px;
                 font-weight: bold;
-                font-size: 11px;
+                font-size: 12px;
               }
               .receipt .footer {
                 text-align: center;
-                margin-top: 8px;
-                font-size: 8px;
+                margin-top: 10px;
+                font-size: 9px;
                 border-top: 1px solid #000;
-                padding-top: 5px;
+                padding-top: 6px;
               }
               @media print { 
                 body { margin: 0; padding: 0; }
@@ -114,81 +132,82 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
         {/* Receipt Preview */}
         <div className="bg-gray-50 p-4 rounded-lg mb-6">
           <div id="receipt-print-content">
-            <div className="receipt" style={{ width: '240px', height: '320px', border: '1px solid #000', padding: '10px', fontSize: '10px', lineHeight: '1.2', margin: '0 auto' }}>
-              <div className="header" style={{ textAlign: 'center', borderBottom: '1px solid #000', paddingBottom: '5px', marginBottom: '8px' }}>
-                <h3 style={{ margin: '0 0 3px 0', fontSize: '11px', fontWeight: 'bold' }}>Sarvodaya Higher Secondary School</h3>
-                <div style={{ fontSize: '9px', marginBottom: '2px' }}>Eachome</div>
-                <div style={{ fontSize: '8px' }}>Fee Payment Receipt</div>
+            <div className="receipt" style={{ width: '240px', height: '380px', border: '1px solid #000', padding: '10px', fontSize: '11px', lineHeight: '1.3', margin: '0 auto' }}>
+              <div className="header" style={{ textAlign: 'center', borderBottom: '1px solid #000', paddingBottom: '6px', marginBottom: '10px' }}>
+                <div className="school-name" style={{ margin: '0 0 1px 0', fontSize: '13px', fontWeight: 'bold' }}>Sarvodaya</div>
+                <div className="school-subtitle" style={{ margin: '0 0 1px 0', fontSize: '11px', fontWeight: 'bold' }}>Higher Secondary School</div>
+                <div className="location" style={{ margin: '0 0 3px 0', fontSize: '10px' }}>Eachome</div>
+                <div style={{ fontSize: '9px' }}>Fee Payment Receipt</div>
               </div>
               
-              <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+              <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '11px' }}>
                 <span>Receipt #:</span>
                 <span>{payment.id.slice(-6)}</span>
               </div>
               
-              <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+              <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '11px' }}>
                 <span>Date:</span>
                 <span>{new Date(payment.paymentDate).toLocaleDateString()}</span>
               </div>
               
-              <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+              <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '11px' }}>
                 <span>Student:</span>
                 <span>{payment.studentName}</span>
               </div>
               
-              <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+              <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '11px' }}>
                 <span>Adm No:</span>
                 <span>{payment.admissionNo}</span>
               </div>
               
-              <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+              <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '11px' }}>
                 <span>Class:</span>
                 <span>{payment.class}-{payment.division}</span>
               </div>
               
-              <div style={{ borderTop: '1px solid #000', paddingTop: '5px', marginTop: '8px', marginBottom: '5px' }}>
-                <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>Fee Details:</div>
+              <div style={{ borderTop: '1px solid #000', paddingTop: '6px', marginTop: '10px', marginBottom: '6px' }}>
+                <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '11px' }}>Fee Details:</div>
                 
                 {payment.developmentFee > 0 && (
-                  <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                  <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px', fontSize: '11px' }}>
                     <span>Development Fee:</span>
                     <span>₹{payment.developmentFee}</span>
                   </div>
                 )}
                 
                 {payment.busFee > 0 && (
-                  <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                  <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px', fontSize: '11px' }}>
                     <span>Bus Fee:</span>
                     <span>₹{payment.busFee}</span>
                   </div>
                 )}
                 
                 {payment.specialFee > 0 && (
-                  <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                  <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px', fontSize: '11px' }}>
                     <span>{payment.specialFeeType}:</span>
                     <span>₹{payment.specialFee}</span>
                   </div>
                 )}
               </div>
               
-              <div className="total" style={{ borderTop: '1px solid #000', paddingTop: '5px', marginTop: '8px', fontWeight: 'bold', fontSize: '11px' }}>
-                <div className="row" style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div className="total" style={{ borderTop: '1px solid #000', paddingTop: '6px', marginTop: '10px', fontWeight: 'bold', fontSize: '12px' }}>
+                <div className="row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
                   <span>Total Amount:</span>
                   <span>₹{payment.totalAmount}</span>
                 </div>
               </div>
               
               {(balance.developmentBalance > 0 || balance.busBalance > 0) && (
-                <div style={{ borderTop: '1px solid #000', paddingTop: '5px', marginTop: '5px', fontSize: '9px' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>Remaining Balance:</div>
+                <div style={{ borderTop: '1px solid #000', paddingTop: '6px', marginTop: '6px', fontSize: '10px' }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>Remaining Balance:</div>
                   {balance.developmentBalance > 0 && (
-                    <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1px' }}>
+                    <div className="row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px', fontSize: '10px' }}>
                       <span>Development:</span>
                       <span>₹{balance.developmentBalance}</span>
                     </div>
                   )}
                   {balance.busBalance > 0 && (
-                    <div className="row" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <div className="row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
                       <span>Bus Fee:</span>
                       <span>₹{balance.busBalance}</span>
                     </div>
@@ -196,9 +215,9 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                 </div>
               )}
               
-              <div className="footer" style={{ textAlign: 'center', marginTop: '8px', fontSize: '8px', borderTop: '1px solid #000', paddingTop: '5px' }}>
+              <div className="footer" style={{ textAlign: 'center', marginTop: '10px', fontSize: '9px', borderTop: '1px solid #000', paddingTop: '6px' }}>
                 <div>Thank you for your payment!</div>
-                <div>Keep this receipt for your records</div>
+                <div>Keep this receipt for records</div>
               </div>
             </div>
           </div>
