@@ -29,7 +29,7 @@ export interface Payment {
 }
 
 export interface FeeConfiguration {
-  developmentFees: Record<string, number>; // class -> amount
+  developmentFees: Record<string, number>; // class -> amount (for classes 1-10) or class-division -> amount (for classes 11-12)
   busStops: Record<string, number>; // stop -> amount
 }
 
@@ -81,7 +81,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const defaultConfig: FeeConfiguration = {
         developmentFees: {
           '1': 500, '2': 600, '3': 700, '4': 800, '5': 900, '6': 1000,
-          '7': 1100, '8': 1200, '9': 1300, '10': 1400, '11': 1500, '12': 1600
+          '7': 1100, '8': 1200, '9': 1300, '10': 1400,
+          '11-A': 1500, '11-B': 1600, '11-C': 1700, '11-D': 1800, '11-E': 1900,
+          '12-A': 1600, '12-B': 1700, '12-C': 1800, '12-D': 1900, '12-E': 2000
         },
         busStops: {
           'Main Gate': 800, 'Market Square': 900, 'Railway Station': 1000,
@@ -140,6 +142,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Send SMS notification
     const student = students.find(s => s.id === payment.studentId);
     if (student) {
+      // Get the correct fee key for classes 11 and 12 (class-division) or regular classes (class only)
+      const feeKey = (student.class === '11' || student.class === '12') 
+        ? `${student.class}-${student.division}` 
+        : student.class;
+      
       const message = `Dear Parent, Payment of ₹${payment.totalAmount} received for ${student.name} (${student.admissionNo}). Date: ${new Date().toLocaleDateString()}. Thank you! - Sarvodaya School`;
       sendSMS(student.mobile, message);
     }

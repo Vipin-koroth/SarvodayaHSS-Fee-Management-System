@@ -10,10 +10,10 @@ const FeeConfiguration: React.FC = () => {
   const [newStopAmount, setNewStopAmount] = useState('');
   const [editingStop, setEditingStop] = useState<string | null>(null);
 
-  const handleDevelopmentFeeChange = (classNum: string, amount: string) => {
+  const handleDevelopmentFeeChange = (feeKey: string, amount: string) => {
     setDevelopmentFees(prev => ({
       ...prev,
-      [classNum]: parseInt(amount) || 0
+      [feeKey]: parseInt(amount) || 0
     }));
   };
 
@@ -73,7 +73,8 @@ const FeeConfiguration: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(classNum => (
+          {/* Classes 1-10 (single fee per class) */}
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(classNum => (
             <div key={classNum} className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
                 Class {classNum}
@@ -90,6 +91,30 @@ const FeeConfiguration: React.FC = () => {
               </div>
             </div>
           ))}
+          
+          {/* Classes 11-12 (separate fee for each division) */}
+          {[11, 12].map(classNum => 
+            ['A', 'B', 'C', 'D', 'E'].map(division => {
+              const feeKey = `${classNum}-${division}`;
+              return (
+                <div key={feeKey} className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Class {classNum}-{division}
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                    <input
+                      type="number"
+                      value={developmentFees[feeKey] || ''}
+                      onChange={(e) => handleDevelopmentFeeChange(feeKey, e.target.value)}
+                      className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
 
         <button

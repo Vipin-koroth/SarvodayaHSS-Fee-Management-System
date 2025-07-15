@@ -54,8 +54,11 @@ const AddPaymentModal: React.FC<AddPaymentModalProps> = ({ onClose }) => {
       const paid = calculatePaidAmounts(selectedStudentData.id);
       setPaidAmounts(paid);
       
-      // Auto-populate development fee based on class
-      const totalDevelopmentFee = feeConfig.developmentFees[selectedStudentData.class] || 0;
+      // Auto-populate development fee based on class (handle classes 11-12 with divisions)
+      const feeKey = (selectedStudentData.class === '11' || selectedStudentData.class === '12') 
+        ? `${selectedStudentData.class}-${selectedStudentData.division}` 
+        : selectedStudentData.class;
+      const totalDevelopmentFee = feeConfig.developmentFees[feeKey] || 0;
       const remainingDevelopmentFee = Math.max(0, totalDevelopmentFee - paid.developmentFee);
       
       // Auto-populate bus fee based on bus stop
@@ -139,7 +142,11 @@ const AddPaymentModal: React.FC<AddPaymentModalProps> = ({ onClose }) => {
   const getFeeStatus = () => {
     if (!selectedStudentData) return null;
     
-    const totalDevelopmentRequired = feeConfig.developmentFees[selectedStudentData.class] || 0;
+    // Get the correct fee key for classes 11 and 12 (class-division) or regular classes (class only)
+    const feeKey = (selectedStudentData.class === '11' || selectedStudentData.class === '12') 
+      ? `${selectedStudentData.class}-${selectedStudentData.division}` 
+      : selectedStudentData.class;
+    const totalDevelopmentRequired = feeConfig.developmentFees[feeKey] || 0;
     const totalBusRequired = feeConfig.busStops[selectedStudentData.busStop] || 0;
     
     return {
