@@ -69,74 +69,82 @@ const BulkPrintBills: React.FC = () => {
               body { 
                 font-family: Arial, sans-serif; 
                 margin: 0; 
-                padding: 10px; 
+                padding: 5px; 
                 background: white;
-                font-size: 10px;
+                font-size: 11px;
               }
               .bills-container {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
                 page-break-inside: avoid;
               }
               .bill {
-                width: 250px;
-                height: 380px;
+                width: 80mm;
+                min-height: 120mm;
                 border: 1px solid #000;
-                padding: 10px;
-                margin-bottom: 10px;
-                font-size: 11px;
+                padding: 8px;
+                margin-bottom: 15px;
+                font-size: 12px;
                 line-height: 1.3;
                 page-break-inside: avoid;
+                page-break-after: always;
               }
               .bill-header {
                 text-align: center;
                 border-bottom: 1px solid #000;
-                padding-bottom: 6px;
-                margin-bottom: 8px;
+                padding-bottom: 8px;
+                margin-bottom: 10px;
               }
               .school-name {
-                font-size: 13px;
+                font-size: 14px;
                 font-weight: bold;
-                margin: 0 0 1px 0;
+                margin: 0 0 2px 0;
               }
               .school-subtitle {
-                font-size: 11px;
+                font-size: 12px;
                 font-weight: bold;
-                margin: 0 0 1px 0;
+                margin: 0 0 2px 0;
               }
               .location {
-                font-size: 10px;
-                margin: 0 0 3px 0;
+                font-size: 11px;
+                margin: 0 0 4px 0;
               }
               .receipt-title {
-                font-size: 9px;
+                font-size: 10px;
                 margin: 0;
               }
               .bill-row {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 3px;
-                font-size: 11px;
+                margin-bottom: 4px;
+                font-size: 12px;
               }
               .bill-total {
                 border-top: 1px solid #000;
-                padding-top: 6px;
-                margin-top: 8px;
+                padding-top: 8px;
+                margin-top: 10px;
                 font-weight: bold;
-                font-size: 12px;
+                font-size: 13px;
               }
               .bill-footer {
                 text-align: center;
-                margin-top: 8px;
-                font-size: 9px;
+                margin-top: 10px;
+                font-size: 10px;
                 border-top: 1px solid #000;
-                padding-top: 6px;
+                padding-top: 8px;
               }
               @media print {
-                body { margin: 0; padding: 5px; }
-                .bills-container { gap: 5px; }
-                .bill { margin-bottom: 5px; }
+                body { margin: 0; padding: 0; }
+                .bills-container { gap: 0; }
+                .bill { 
+                  margin-bottom: 0; 
+                  page-break-after: always;
+                  width: 80mm;
+                }
+                .bill:last-child {
+                  page-break-after: avoid;
+                }
               }
             </style>
           </head>
