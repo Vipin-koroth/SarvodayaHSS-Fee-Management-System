@@ -69,82 +69,74 @@ const BulkPrintBills: React.FC = () => {
               body { 
                 font-family: Arial, sans-serif; 
                 margin: 0; 
-                padding: 5px; 
+                padding: 10px; 
                 background: white;
-                font-size: 11px;
+                font-size: 10px;
               }
               .bills-container {
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
                 page-break-inside: avoid;
               }
               .bill {
-                width: 80mm;
-                min-height: 120mm;
+                width: 250px;
+                height: 380px;
                 border: 1px solid #000;
-                padding: 8px;
-                margin-bottom: 15px;
-                font-size: 12px;
+                padding: 10px;
+                margin-bottom: 10px;
+                font-size: 11px;
                 line-height: 1.3;
                 page-break-inside: avoid;
-                page-break-after: always;
               }
               .bill-header {
                 text-align: center;
                 border-bottom: 1px solid #000;
-                padding-bottom: 8px;
-                margin-bottom: 10px;
+                padding-bottom: 6px;
+                margin-bottom: 8px;
               }
               .school-name {
-                font-size: 14px;
+                font-size: 13px;
                 font-weight: bold;
-                margin: 0 0 2px 0;
+                margin: 0 0 1px 0;
               }
               .school-subtitle {
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: bold;
-                margin: 0 0 2px 0;
+                margin: 0 0 1px 0;
               }
               .location {
-                font-size: 11px;
-                margin: 0 0 4px 0;
+                font-size: 10px;
+                margin: 0 0 3px 0;
               }
               .receipt-title {
-                font-size: 10px;
+                font-size: 9px;
                 margin: 0;
               }
               .bill-row {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 4px;
-                font-size: 12px;
+                margin-bottom: 3px;
+                font-size: 11px;
               }
               .bill-total {
                 border-top: 1px solid #000;
-                padding-top: 8px;
-                margin-top: 10px;
+                padding-top: 6px;
+                margin-top: 8px;
                 font-weight: bold;
-                font-size: 13px;
+                font-size: 12px;
               }
               .bill-footer {
                 text-align: center;
-                margin-top: 10px;
-                font-size: 10px;
+                margin-top: 8px;
+                font-size: 9px;
                 border-top: 1px solid #000;
-                padding-top: 8px;
+                padding-top: 6px;
               }
               @media print {
-                body { margin: 0; padding: 0; }
-                .bills-container { gap: 0; }
-                .bill { 
-                  margin-bottom: 0; 
-                  page-break-after: always;
-                  width: 80mm;
-                }
-                .bill:last-child {
-                  page-break-after: avoid;
-                }
+                body { margin: 0; padding: 5px; }
+                .bills-container { gap: 5px; }
+                .bill { margin-bottom: 5px; }
               }
             </style>
           </head>
@@ -377,7 +369,7 @@ const BulkPrintBills: React.FC = () => {
               </div>
               
               <div style={{ borderTop: '1px solid #000', paddingTop: '6px', marginTop: '8px', marginBottom: '6px' }}>
-                <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '11px' }}>Fee Details:</div>
+                <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '12px' }}>Fee Details:</div>
                 
                 {payment.developmentFee > 0 && (
                   <div className="bill-row">
@@ -409,16 +401,16 @@ const BulkPrintBills: React.FC = () => {
               </div>
               
               {(developmentBalance > 0 || busBalance > 0) && (
-                <div style={{ borderTop: '1px solid #000', paddingTop: '6px', marginTop: '6px', fontSize: '10px' }}>
+                <div style={{ borderTop: '1px solid #000', paddingTop: '8px', marginTop: '8px', fontSize: '11px' }}>
                   <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>Remaining Balance:</div>
                   {developmentBalance > 0 && (
-                    <div className="bill-row" style={{ fontSize: '10px' }}>
+                    <div className="bill-row" style={{ fontSize: '11px' }}>
                       <span>Development:</span>
                       <span>₹{developmentBalance}</span>
                     </div>
                   )}
                   {busBalance > 0 && (
-                    <div className="bill-row" style={{ fontSize: '10px' }}>
+                    <div className="bill-row" style={{ fontSize: '11px' }}>
                       <span>Bus Fee:</span>
                       <span>₹{busBalance}</span>
                     </div>
