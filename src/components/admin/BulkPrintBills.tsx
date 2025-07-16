@@ -294,7 +294,7 @@ const BulkPrintBills: React.FC = () => {
 
         {/* Summary */}
         {/* Print Format Selection */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Print Format</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <button
@@ -334,7 +334,7 @@ const BulkPrintBills: React.FC = () => {
             </button>
           </div>
           
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <div className="text-sm text-gray-600">Total Bills</div>
@@ -354,17 +354,17 @@ const BulkPrintBills: React.FC = () => {
               </div>
             </div>
           </div>
+          
+          {/* Print Button */}
+          <button
+            onClick={printBulkBills}
+            disabled={filteredPayments.length === 0}
+            className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <Printer className="h-5 w-5" />
+            <span>Print {filteredPayments.length} Bills ({printFormat.toUpperCase()})</span>
+          </button>
         </div>
-
-        {/* Print Button */}
-        <button
-          onClick={printBulkBills}
-          disabled={filteredPayments.length === 0}
-          className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <Printer className="h-5 w-5" />
-          <span>Print {filteredPayments.length} Bills ({printFormat.toUpperCase()})</span>
-        </button>
       </div>
 
       {/* Hidden Print Content */}
@@ -388,8 +388,113 @@ const BulkPrintBills: React.FC = () => {
               const busBalance = Math.max(0, totalBusRequired - totalPaidBus);
               
               return (
-              <div key={payment.id} className="bill">
-                <div className="bill-header">
+                <div key={payment.id} className="bill">
+                  <div className="header">
+                    <div className="school-name">Sarvodaya</div>
+                    <div className="school-subtitle">Higher Secondary School</div>
+                    <div className="location">Eachome</div>
+                    <div className="receipt-title">Fee Payment Receipt</div>
+                  </div>
+                  
+                  <div className="row">
+                    <span>Receipt #:</span>
+                    <span>{payment.id.slice(-6)}</span>
+                  </div>
+                  
+                  <div className="row">
+                    <span>Date:</span>
+                    <span>{new Date(payment.paymentDate).toLocaleDateString()}</span>
+                  </div>
+                  
+                  <div className="row">
+                    <span>Student:</span>
+                    <span>{payment.studentName}</span>
+                  </div>
+                  
+                  <div className="row">
+                    <span>Adm No:</span>
+                    <span>{payment.admissionNo}</span>
+                  </div>
+                  
+                  <div className="row">
+                    <span>Class:</span>
+                    <span>{payment.class}-{payment.division}</span>
+                  </div>
+                  
+                  <div style={{ 
+                    borderTop: '1px solid #000', 
+                    paddingTop: format === 'a4-9' ? '2px' : '4px', 
+                    marginTop: format === 'a4-9' ? '3px' : '6px', 
+                    marginBottom: format === 'a4-9' ? '2px' : '4px' 
+                  }}>
+                    <div style={{ 
+                      fontWeight: 'bold', 
+                      marginBottom: format === 'a4-9' ? '1px' : '2px', 
+                      fontSize: format === 'a4-9' ? '8px' : format === '3x5' ? '10px' : '11px' 
+                    }}>Fee Details:</div>
+                    
+                    {payment.developmentFee > 0 && (
+                      <div className="row">
+                        <span>Development Fee:</span>
+                        <span>₹{payment.developmentFee}</span>
+                      </div>
+                    )}
+                    
+                    {payment.busFee > 0 && (
+                      <div className="row">
+                        <span>Bus Fee:</span>
+                        <span>₹{payment.busFee}</span>
+                      </div>
+                    )}
+                    
+                    {payment.specialFee > 0 && (
+                      <div className="row">
+                        <span>{payment.specialFeeType}:</span>
+                        <span>₹{payment.specialFee}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="total">
+                    <div className="row">
+                      <span>Total Amount:</span>
+                      <span>₹{payment.totalAmount}</span>
+                    </div>
+                  </div>
+                  
+                  {(developmentBalance > 0 || busBalance > 0) && (
+                    <div className="balance-section">
+                      <div style={{ fontWeight: 'bold', marginBottom: format === 'a4-9' ? '1px' : '2px' }}>Remaining Balance:</div>
+                      {developmentBalance > 0 && (
+                        <div className="row">
+                          <span>Development:</span>
+                          <span>₹{developmentBalance}</span>
+                        </div>
+                      )}
+                      {busBalance > 0 && (
+                        <div className="row">
+                          <span>Bus Fee:</span>
+                          <span>₹{busBalance}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  <div className="footer">
+                    <div>Thank you for your payment!</div>
+                    <div>Keep this receipt for records</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default BulkPrintBills;
                   <div className="school-name">Sarvodaya</div>
                   <div className="school-subtitle">Higher Secondary School</div>
                   <div className="location">Eachome</div>
