@@ -5,7 +5,7 @@ import { Printer, Calendar, Users, FileText } from 'lucide-react';
 interface BulkPrintBillsProps {}
 
 const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
-  const { payments, students, feeStructure } = useContext(DataContext);
+  const { payments, students, feeConfig } = useContext(DataContext);
   const [printCriteria, setPrintCriteria] = useState<'date' | 'class'>('date');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedClass, setSelectedClass] = useState('1');
@@ -14,7 +14,7 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
 
   const getFilteredPayments = () => {
     if (printCriteria === 'date') {
-      return payments.filter(payment => payment.date === selectedDate);
+      return payments.filter(payment => new Date(payment.paymentDate).toISOString().split('T')[0] === selectedDate);
     } else {
       const classKey = ['11', '12'].includes(selectedClass) 
         ? `${selectedClass}-${selectedDivision}` 
@@ -37,8 +37,8 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
       ? `${student.class}-${student.division}` 
       : student.class;
 
-    const totalDevFee = feeStructure[classKey]?.developmentFee || 0;
-    const totalBusFee = feeStructure[classKey]?.busFee || 0;
+    const totalDevFee = feeConfig.developmentFees[classKey] || 0;
+    const totalBusFee = feeConfig.busStops[student.busStop] || 0;
 
     const studentPayments = payments.filter(p => p.studentId === studentId);
     const paidDevFee = studentPayments.reduce((sum, p) => sum + (p.developmentFee || 0), 0);
@@ -291,8 +291,8 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                     <div className="receipt-content">
                       <div><strong>Name:</strong> {student?.name}</div>
                       <div><strong>Class:</strong> {student?.class}{student?.division ? `-${student.division}` : ''}</div>
-                      <div><strong>Date:</strong> {payment.date}</div>
-                      <div><strong>Receipt:</strong> {payment.receiptNumber}</div>
+                      <div><strong>Date:</strong> {new Date(payment.paymentDate).toLocaleDateString()}</div>
+                      <div><strong>Receipt:</strong> {payment.id.slice(-6)}</div>
                       {payment.developmentFee > 0 && <div><strong>Dev Fee:</strong> ₹{payment.developmentFee}</div>}
                       {payment.busFee > 0 && <div><strong>Bus Fee:</strong> ₹{payment.busFee}</div>}
                       <div><strong>Total:</strong> ₹{(payment.developmentFee || 0) + (payment.busFee || 0)}</div>
@@ -323,8 +323,8 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                   <div className="receipt-content">
                     <div><strong>Name:</strong> {student?.name}</div>
                     <div><strong>Class:</strong> {student?.class}{student?.division ? `-${student.division}` : ''}</div>
-                    <div><strong>Date:</strong> {payment.date}</div>
-                    <div><strong>Receipt Number:</strong> {payment.receiptNumber}</div>
+                    <div><strong>Date:</strong> {new Date(payment.paymentDate).toLocaleDateString()}</div>
+                    <div><strong>Receipt Number:</strong> {payment.id.slice(-6)}</div>
                     {payment.developmentFee > 0 && <div><strong>Development Fee:</strong> ₹{payment.developmentFee}</div>}
                     {payment.busFee > 0 && <div><strong>Bus Fee:</strong> ₹{payment.busFee}</div>}
                     <div><strong>Total Paid:</strong> ₹{(payment.developmentFee || 0) + (payment.busFee || 0)}</div>
