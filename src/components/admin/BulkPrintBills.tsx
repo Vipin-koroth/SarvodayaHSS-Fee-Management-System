@@ -5,6 +5,7 @@ import { useData } from '../../contexts/DataContext';
 const BulkPrintBills: React.FC = () => {
   const { payments, students, feeConfig } = useData();
   const [printType, setPrintType] = useState<'date' | 'class'>('date');
+  const [printFormat, setPrintFormat] = useState<'a4-9' | '3x5' | 'a6'>('a4-9');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedDivision, setSelectedDivision] = useState('');
@@ -289,21 +290,65 @@ const BulkPrintBills: React.FC = () => {
         </div>
 
         {/* Summary */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <div className="text-sm text-gray-600">Total Bills</div>
-              <div className="text-xl font-bold text-gray-900">{filteredPayments.length}</div>
-            </div>
-            <div>
-              <div className="text-sm text-gray-600">Total Amount</div>
-              <div className="text-xl font-bold text-green-600">
-                ₹{filteredPayments.reduce((sum, p) => sum + p.totalAmount, 0).toLocaleString()}
+        {/* Print Format Selection */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Print Format</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <button
+              onClick={() => setPrintFormat('a4-9')}
+              className={`p-4 rounded-lg border-2 transition-colors ${
+                printFormat === 'a4-9' 
+                  ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="font-medium">A4 - 9 per Sheet</div>
+              <div className="text-sm text-gray-600">9 receipts per A4 page</div>
+            </button>
+            
+            <button
+              onClick={() => setPrintFormat('3x5')}
+              className={`p-4 rounded-lg border-2 transition-colors ${
+                printFormat === '3x5' 
+                  ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="font-medium">3x5 Inch</div>
+              <div className="text-sm text-gray-600">Individual 3x5 receipts</div>
+            </button>
+            
+            <button
+              onClick={() => setPrintFormat('a6')}
+              className={`p-4 rounded-lg border-2 transition-colors ${
+                printFormat === 'a6' 
+                  ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className="font-medium">A6 Size</div>
+              <div className="text-sm text-gray-600">Individual A6 receipts</div>
+            </button>
+          </div>
+          
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <div className="text-sm text-gray-600">Total Bills</div>
+                <div className="text-xl font-bold text-gray-900">{filteredPayments.length}</div>
               </div>
-            </div>
-            <div>
-              <div className="text-sm text-gray-600">Print Format</div>
-              <div className="text-xl font-bold text-blue-600">A4 (3x4 bills)</div>
+              <div>
+                <div className="text-sm text-gray-600">Total Amount</div>
+                <div className="text-xl font-bold text-green-600">
+                  ₹{filteredPayments.reduce((sum, p) => sum + p.totalAmount, 0).toLocaleString()}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-600">Print Format</div>
+                <div className="text-xl font-bold text-blue-600">
+                  {printFormat === 'a4-9' ? 'A4 (9 per sheet)' : printFormat === '3x5' ? '3x5 Inch' : 'A6 Size'}
+                </div>
+              </div>
             </div>
           </div>
         </div>
