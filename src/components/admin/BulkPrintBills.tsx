@@ -357,121 +357,136 @@ const BulkPrintBills: React.FC = () => {
         <button
           onClick={printBulkBills}
           disabled={filteredPayments.length === 0}
-          className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <Printer className="h-5 w-5" />
-          <span>Print {filteredPayments.length} Bills</span>
+          <span>Print {filteredPayments.length} Bills ({printFormat.toUpperCase()})</span>
         </button>
       </div>
 
       {/* Hidden Print Content */}
-      <div id="bulk-bills-print" style={{ display: 'none' }}>
-        <div className="bills-container">
-          {filteredPayments.map((payment) => {
-            const student = students.find(s => s.id === payment.studentId);
-            const studentPayments = payments.filter(p => p.studentId === payment.studentId);
-            const totalPaidDevelopment = studentPayments.reduce((sum, p) => sum + p.developmentFee, 0);
-            const totalPaidBus = studentPayments.reduce((sum, p) => sum + p.busFee, 0);
-            
-            const totalDevelopmentRequired = student ? (feeConfig.developmentFees[student.class] || 0) : 0;
-            const totalBusRequired = student ? (feeConfig.busStops[student.busStop] || 0) : 0;
-            
-            const developmentBalance = Math.max(0, totalDevelopmentRequired - totalPaidDevelopment);
-            const busBalance = Math.max(0, totalBusRequired - totalPaidBus);
-            
-            return (
-            <div key={payment.id} className="bill">
-              <div className="bill-header">
-                <div className="school-name">Sarvodaya</div>
-                <div className="school-subtitle">Higher Secondary School</div>
-                <div className="location">Eachome</div>
-                <div className="receipt-title">Fee Payment Receipt</div>
-              </div>
+      {['a4-9', '3x5', 'a6'].map(format => (
+        <div key={format} id={`bulk-bills-print-${format}`} style={{ display: 'none' }}>
+          <div className="bills-container">
+            {filteredPayments.map((payment) => {
+              const student = students.find(s => s.id === payment.studentId);
+              const studentPayments = payments.filter(p => p.studentId === payment.studentId);
+              const totalPaidDevelopment = studentPayments.reduce((sum, p) => sum + p.developmentFee, 0);
+              const totalPaidBus = studentPayments.reduce((sum, p) => sum + p.busFee, 0);
               
-              <div className="bill-row">
-                <span>Receipt #:</span>
-                <span>{payment.id.slice(-6)}</span>
-              </div>
+              // Get the correct fee key for classes 11 and 12 (class-division) or regular classes (class only)
+              const feeKey = (student && (student.class === '11' || student.class === '12')) 
+                ? `${student.class}-${student.division}` 
+                : student?.class || '';
+              const totalDevelopmentRequired = student ? (feeConfig.developmentFees[feeKey] || 0) : 0;
+              const totalBusRequired = student ? (feeConfig.busStops[student.busStop] || 0) : 0;
               
-              <div className="bill-row">
-                <span>Date:</span>
-                <span>{new Date(payment.paymentDate).toLocaleDateString()}</span>
-              </div>
+              const developmentBalance = Math.max(0, totalDevelopmentRequired - totalPaidDevelopment);
+              const busBalance = Math.max(0, totalBusRequired - totalPaidBus);
               
-              <div className="bill-row">
-                <span>Student:</span>
-                <span>{payment.studentName}</span>
-              </div>
-              
-              <div className="bill-row">
-                <span>Adm No:</span>
-                <span>{payment.admissionNo}</span>
-              </div>
-              
-              <div className="bill-row">
-                <span>Class:</span>
-                <span>{payment.class}-{payment.division}</span>
-              </div>
-              
-              <div style={{ borderTop: '1px solid #000', paddingTop: '6px', marginTop: '8px', marginBottom: '6px' }}>
-                <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '12px' }}>Fee Details:</div>
+              return (
+              <div key={payment.id} className="bill">
+                <div className="bill-header">
+                  <div className="school-name">Sarvodaya</div>
+                  <div className="school-subtitle">Higher Secondary School</div>
+                  <div className="location">Eachome</div>
+                  <div className="receipt-title">Fee Payment Receipt</div>
+                </div>
                 
-                {payment.developmentFee > 0 && (
-                  <div className="bill-row">
-                    <span>Development Fee:</span>
-                    <span>₹{payment.developmentFee}</span>
-                  </div>
-                )}
-                
-                {payment.busFee > 0 && (
-                  <div className="bill-row">
-                    <span>Bus Fee:</span>
-                    <span>₹{payment.busFee}</span>
-                  </div>
-                )}
-                
-                {payment.specialFee > 0 && (
-                  <div className="bill-row">
-                    <span>{payment.specialFeeType}:</span>
-                    <span>₹{payment.specialFee}</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="bill-total">
                 <div className="bill-row">
-                  <span>Total Amount:</span>
-                  <span>₹{payment.totalAmount}</span>
+                  <span>Receipt #:</span>
+                  <span>{payment.id.slice(-6)}</span>
                 </div>
-              </div>
-              
-              {(developmentBalance > 0 || busBalance > 0) && (
-                <div style={{ borderTop: '1px solid #000', paddingTop: '8px', marginTop: '8px', fontSize: '11px' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>Remaining Balance:</div>
-                  {developmentBalance > 0 && (
-                    <div className="bill-row" style={{ fontSize: '11px' }}>
-                      <span>Development:</span>
-                      <span>₹{developmentBalance}</span>
+                
+                <div className="bill-row">
+                  <span>Date:</span>
+                  <span>{new Date(payment.paymentDate).toLocaleDateString()}</span>
+                </div>
+                
+                <div className="bill-row">
+                  <span>Student:</span>
+                  <span>{payment.studentName}</span>
+                </div>
+                
+                <div className="bill-row">
+                  <span>Adm No:</span>
+                  <span>{payment.admissionNo}</span>
+                </div>
+                
+                <div className="bill-row">
+                  <span>Class:</span>
+                  <span>{payment.class}-{payment.division}</span>
+                </div>
+                
+                <div style={{ 
+                  borderTop: '1px solid #000', 
+                  paddingTop: format === 'a4-9' ? '2px' : '4px', 
+                  marginTop: format === 'a4-9' ? '3px' : '6px', 
+                  marginBottom: format === 'a4-9' ? '2px' : '4px' 
+                }}>
+                  <div style={{ 
+                    fontWeight: 'bold', 
+                    marginBottom: format === 'a4-9' ? '1px' : '2px', 
+                    fontSize: format === 'a4-9' ? '8px' : format === '3x5' ? '10px' : '11px' 
+                  }}>Fee Details:</div>
+                  
+                  {payment.developmentFee > 0 && (
+                    <div className="bill-row">
+                      <span>Development Fee:</span>
+                      <span>₹{payment.developmentFee}</span>
                     </div>
                   )}
-                  {busBalance > 0 && (
-                    <div className="bill-row" style={{ fontSize: '11px' }}>
+                  
+                  {payment.busFee > 0 && (
+                    <div className="bill-row">
                       <span>Bus Fee:</span>
-                      <span>₹{busBalance}</span>
+                      <span>₹{payment.busFee}</span>
+                    </div>
+                  )}
+                  
+                  {payment.specialFee > 0 && (
+                    <div className="bill-row">
+                      <span>{payment.specialFeeType}:</span>
+                      <span>₹{payment.specialFee}</span>
                     </div>
                   )}
                 </div>
-              )}
-              
-              <div className="bill-footer">
-                <div>Thank you for your payment!</div>
-                <div>Keep this receipt for records</div>
+                
+                <div className="bill-total">
+                  <div className="bill-row">
+                    <span>Total Amount:</span>
+                    <span>₹{payment.totalAmount}</span>
+                  </div>
+                </div>
+                
+                {(developmentBalance > 0 || busBalance > 0) && (
+                  <div className="bill-balance">
+                    <div style={{ fontWeight: 'bold', marginBottom: format === 'a4-9' ? '1px' : '2px' }}>Remaining Balance:</div>
+                    {developmentBalance > 0 && (
+                      <div className="bill-row">
+                        <span>Development:</span>
+                        <span>₹{developmentBalance}</span>
+                      </div>
+                    )}
+                    {busBalance > 0 && (
+                      <div className="bill-row">
+                        <span>Bus Fee:</span>
+                        <span>₹{busBalance}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                <div className="bill-footer">
+                  <div>Thank you for your payment!</div>
+                  <div>Keep this receipt for records</div>
+                </div>
               </div>
-            </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
+      ))}
     </div>
   );
 };
