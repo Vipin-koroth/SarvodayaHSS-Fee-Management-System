@@ -84,24 +84,27 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
             }
             ${printFormat === 'a4-9' ? `
               @page { size: A4; margin: 5mm; }
-              .receipt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; padding: 0; }
-              .receipt { width: 58mm; height: 82mm; border: 1px solid #000; padding: 2mm; font-size: 7px; line-height: 1.1; overflow: hidden; }
+              .receipt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; padding: 0; }
+              .receipt { width: 60mm; height: 85mm; border: 2px solid #000; padding: 3mm; font-size: 10px; line-height: 1.3; overflow: hidden; }
             ` : printFormat === '3x5' ? `
               @page { size: 3in 5in; margin: 2mm; }
-              .receipt { width: calc(3in - 4mm); height: calc(5in - 4mm); border: 1px solid #000; padding: 2mm; font-size: 9px; line-height: 1.2; page-break-after: always; margin: 2mm; overflow: hidden; }
+              .receipt { width: calc(3in - 4mm); height: calc(5in - 4mm); border: 2px solid #000; padding: 4mm; font-size: 12px; line-height: 1.4; page-break-after: always; margin: 2mm; overflow: hidden; }
             ` : `
               @page { size: A6; margin: 3mm; }
-              .receipt { width: calc(105mm - 6mm); height: calc(148mm - 6mm); border: 1px solid #000; padding: 3mm; font-size: 10px; line-height: 1.3; page-break-after: always; margin: 3mm; overflow: hidden; }
+              .receipt { width: calc(105mm - 6mm); height: calc(148mm - 6mm); border: 2px solid #000; padding: 5mm; font-size: 14px; line-height: 1.5; page-break-after: always; margin: 3mm; overflow: hidden; }
             `}
-            .receipt-header { text-align: center; margin-bottom: 2mm; }
-            .receipt-header .school-name { font-size: ${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '10px' : '12px'}; font-weight: bold; }
-            .receipt-header .school-subtitle { font-size: ${printFormat === 'a4-9' ? '7px' : printFormat === '3x5' ? '9px' : '10px'}; font-weight: bold; }
-            .receipt-header .location { font-size: ${printFormat === 'a4-9' ? '6px' : printFormat === '3x5' ? '8px' : '9px'}; }
-            .receipt-header .receipt-title { font-size: ${printFormat === 'a4-9' ? '6px' : printFormat === '3x5' ? '7px' : '8px'}; margin-top: 1mm; }
-            .receipt-content { margin-bottom: 1mm; font-size: ${printFormat === 'a4-9' ? '6px' : printFormat === '3x5' ? '8px' : '9px'}; line-height: 1.1; }
-            .receipt-content div { margin-bottom: 1px; }
-            .balance-section { margin-top: 1mm; padding-top: 1mm; border-top: 1px solid #000; font-size: ${printFormat === 'a4-9' ? '6px' : printFormat === '3x5' ? '8px' : '9px'}; }
-            .total-amount { font-weight: bold; border-top: 1px solid #000; padding-top: 1mm; margin-top: 1mm; }
+            .receipt-header { text-align: center; margin-bottom: 3mm; border-bottom: 2px solid #000; padding-bottom: 2mm; }
+            .receipt-header .school-name { font-size: ${printFormat === 'a4-9' ? '12px' : printFormat === '3x5' ? '16px' : '18px'}; font-weight: bold; margin-bottom: 1mm; }
+            .receipt-header .school-subtitle { font-size: ${printFormat === 'a4-9' ? '10px' : printFormat === '3x5' ? '14px' : '16px'}; font-weight: bold; margin-bottom: 1mm; }
+            .receipt-header .location { font-size: ${printFormat === 'a4-9' ? '9px' : printFormat === '3x5' ? '12px' : '14px'}; margin-bottom: 1mm; }
+            .receipt-header .receipt-title { font-size: ${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '11px' : '13px'}; margin-top: 1mm; font-weight: bold; text-decoration: underline; }
+            .receipt-content { margin-bottom: 2mm; font-size: ${printFormat === 'a4-9' ? '9px' : printFormat === '3x5' ? '11px' : '13px'}; line-height: 1.4; }
+            .receipt-content div { margin-bottom: 2px; display: flex; justify-content: space-between; }
+            .receipt-content div strong { font-weight: bold; }
+            .balance-section { margin-top: 2mm; padding-top: 2mm; border-top: 2px solid #000; font-size: ${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '10px' : '12px'}; }
+            .balance-section div { display: flex; justify-content: space-between; margin-bottom: 1px; }
+            .total-amount { font-weight: bold; border-top: 2px solid #000; padding-top: 2mm; margin-top: 2mm; font-size: ${printFormat === 'a4-9' ? '10px' : printFormat === '3x5' ? '13px' : '15px'}; text-align: center; }
+            .footer { text-align: center; margin-top: 2mm; font-size: ${printFormat === 'a4-9' ? '7px' : printFormat === '3x5' ? '9px' : '11px'}; font-style: italic; border-top: 1px dashed #000; padding-top: 1mm; }
           </style>
         </head>
         <body>
@@ -299,25 +302,32 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                       <div className="receipt-title">Fee Payment Receipt</div>
                     </div>
                     <div className="receipt-content">
-                      <div>Name: {student?.name}</div>
-                      <div>Adm: {payment.admissionNo}</div>
-                      <div>Class: {student?.class}{student?.division ? `-${student.division}` : ''}</div>
-                      <div>Date: {new Date(payment.paymentDate).toLocaleDateString()}</div>
-                      <div>Receipt: {payment.id.slice(-6)}</div>
-                      {payment.developmentFee > 0 && <div>Dev Fee: ₹{payment.developmentFee}</div>}
-                      {payment.busFee > 0 && <div>Bus Fee: ₹{payment.busFee}</div>}
-                      {payment.specialFee > 0 && <div>{payment.specialFeeType}: ₹{payment.specialFee}</div>}
+                      <div><strong>Name:</strong> <span>{student?.name}</span></div>
+                      <div><strong>Adm No:</strong> <span>{payment.admissionNo}</span></div>
+                      <div><strong>Class:</strong> <span>{student?.class}{student?.division ? `-${student.division}` : ''}</span></div>
+                      <div><strong>Date:</strong> <span>{new Date(payment.paymentDate).toLocaleDateString()}</span></div>
+                      <div><strong>Receipt #:</strong> <span>{payment.id.slice(-6)}</span></div>
+                      <div style={{ borderTop: '1px solid #000', paddingTop: '2mm', marginTop: '2mm', marginBottom: '2mm' }}>
+                        <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1mm' }}>Fee Details</div>
+                        {payment.developmentFee > 0 && <div><strong>Development Fee:</strong> <span>₹{payment.developmentFee}</span></div>}
+                        {payment.busFee > 0 && <div><strong>Bus Fee:</strong> <span>₹{payment.busFee}</span></div>}
+                        {payment.specialFee > 0 && <div><strong>{payment.specialFeeType}:</strong> <span>₹{payment.specialFee}</span></div>}
+                      </div>
                     </div>
                     <div className="total-amount">
-                      Total: ₹{payment.totalAmount}
+                      TOTAL PAID: ₹{payment.totalAmount}
                     </div>
                     {(balance.devBalance > 0 || balance.busBalance > 0) && (
                       <div className="balance-section">
-                        <div style={{ fontWeight: 'bold' }}>Balance:</div>
-                        {balance.devBalance > 0 && <div>Dev: ₹{balance.devBalance}</div>}
-                        {balance.busBalance > 0 && <div>Bus: ₹{balance.busBalance}</div>}
+                        <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1mm' }}>Remaining Balance</div>
+                        {balance.devBalance > 0 && <div><strong>Development:</strong> <span>₹{balance.devBalance}</span></div>}
+                        {balance.busBalance > 0 && <div><strong>Bus Fee:</strong> <span>₹{balance.busBalance}</span></div>}
                       </div>
                     )}
+                    <div className="footer">
+                      <div>Thank you for your payment!</div>
+                      <div>Keep this receipt for your records</div>
+                    </div>
                   </div>
                 );
               })}
@@ -335,25 +345,32 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                     <div className="receipt-title">Fee Payment Receipt</div>
                   </div>
                   <div className="receipt-content">
-                    <div>Student Name: {student?.name}</div>
-                    <div>Admission No: {payment.admissionNo}</div>
-                    <div>Class: {student?.class}{student?.division ? `-${student.division}` : ''}</div>
-                    <div>Payment Date: {new Date(payment.paymentDate).toLocaleDateString()}</div>
-                    <div>Receipt Number: {payment.id.slice(-6)}</div>
-                    {payment.developmentFee > 0 && <div>Development Fee: ₹{payment.developmentFee}</div>}
-                    {payment.busFee > 0 && <div>Bus Fee: ₹{payment.busFee}</div>}
-                    {payment.specialFee > 0 && <div>{payment.specialFeeType}: ₹{payment.specialFee}</div>}
+                   <div><strong>Student Name:</strong> <span>{student?.name}</span></div>
+                   <div><strong>Admission No:</strong> <span>{payment.admissionNo}</span></div>
+                   <div><strong>Class:</strong> <span>{student?.class}{student?.division ? `-${student.division}` : ''}</span></div>
+                   <div><strong>Payment Date:</strong> <span>{new Date(payment.paymentDate).toLocaleDateString()}</span></div>
+                   <div><strong>Receipt Number:</strong> <span>{payment.id.slice(-6)}</span></div>
+                   <div style={{ borderTop: '1px solid #000', paddingTop: '3mm', marginTop: '3mm', marginBottom: '3mm' }}>
+                     <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '2mm' }}>Fee Details</div>
+                     {payment.developmentFee > 0 && <div><strong>Development Fee:</strong> <span>₹{payment.developmentFee}</span></div>}
+                     {payment.busFee > 0 && <div><strong>Bus Fee:</strong> <span>₹{payment.busFee}</span></div>}
+                     {payment.specialFee > 0 && <div><strong>{payment.specialFeeType}:</strong> <span>₹{payment.specialFee}</span></div>}
+                   </div>
                   </div>
                   <div className="total-amount">
-                    Total Paid: ₹{payment.totalAmount}
+                   TOTAL PAID: ₹{payment.totalAmount}
                   </div>
                   {(balance.devBalance > 0 || balance.busBalance > 0) && (
                     <div className="balance-section">
-                      <div style={{ fontWeight: 'bold' }}>Balance:</div>
-                      {balance.devBalance > 0 && <div>Development Fee: ₹{balance.devBalance}</div>}
-                      {balance.busBalance > 0 && <div>Bus Fee: ₹{balance.busBalance}</div>}
+                     <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '2mm' }}>Remaining Balance</div>
+                     {balance.devBalance > 0 && <div><strong>Development Fee:</strong> <span>₹{balance.devBalance}</span></div>}
+                     {balance.busBalance > 0 && <div><strong>Bus Fee:</strong> <span>₹{balance.busBalance}</span></div>}
                     </div>
                   )}
+                 <div className="footer">
+                   <div>Thank you for your payment!</div>
+                   <div>Keep this receipt for your records</div>
+                 </div>
                 </div>
               );
             })
