@@ -11,7 +11,7 @@ const ClassPayments: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDate, setFilterDate] = useState('');
-  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [selectedPayment, setSelectedPayment] = useState<any>(null);
 
   // Filter payments for current teacher's class
   const classPayments = payments.filter(

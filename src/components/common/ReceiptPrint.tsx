@@ -39,6 +39,10 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
     const printContent = document.getElementById(`receipt-print-${printSize}`);
     if (printContent) {
       const newWindow = window.open('', '_blank');
+      if (!newWindow) {
+        alert('Please allow popups for printing');
+        return;
+      }
       
       let pageStyles = '';
       let pageSize = '';
@@ -194,7 +198,10 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
         </html>
       `);
       newWindow!.document.close();
-      newWindow!.print();
+      setTimeout(() => {
+        newWindow!.print();
+        newWindow!.close();
+      }, 500);
     }
   };
 
@@ -353,7 +360,7 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
             >
               <div id={`receipt-print-${printSize}`}>
                 {printSize === 'a4-9' ? (
-                  <div className="receipt-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', width: '600px' }}>
+                  <div className="receipt-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', width: '700px' }}>
                     {Array(9).fill(0).map((_, index) => (
                       <div key={index}>
                         {renderReceipt('a4-9')}

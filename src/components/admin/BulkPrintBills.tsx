@@ -147,7 +147,10 @@ const BulkPrintBills: React.FC = () => {
         </html>
       `);
       newWindow!.document.close();
-      newWindow!.print();
+      setTimeout(() => {
+        newWindow!.print();
+        newWindow!.close();
+      }, 500);
     }
   };
 

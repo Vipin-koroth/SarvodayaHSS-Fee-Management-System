@@ -10,7 +10,7 @@ const PaymentManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDate, setFilterDate] = useState('');
   const [filterClass, setFilterClass] = useState('');
-  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [selectedPayment, setSelectedPayment] = useState<any>(null);
 
   const filteredPayments = payments.filter(payment => {
     const matchesSearch = payment.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
