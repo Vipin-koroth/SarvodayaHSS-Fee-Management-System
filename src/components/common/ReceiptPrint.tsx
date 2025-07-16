@@ -37,172 +37,184 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
   
   const handlePrint = () => {
     const printContent = document.getElementById(`receipt-print-${printSize}`);
-    if (printContent) {
-      const newWindow = window.open('', '_blank');
-      if (!newWindow) {
-        alert('Please allow popups for printing');
-        return;
-      }
-      
-      let pageStyles = '';
-      let pageSize = '';
-      
-      switch (printSize) {
-        case 'a4-9':
-          pageSize = 'A4';
-          pageStyles = `
-            body { 
-              font-family: Arial, sans-serif; 
-              margin: 0; 
-              padding: 10mm; 
-              background: white;
-            }
-            .receipt-grid {
-              display: grid;
-              grid-template-columns: repeat(3, 1fr);
-              grid-template-rows: repeat(3, 1fr);
-              gap: 5mm;
-              width: 100%;
-              height: 100vh;
-            }
-            .receipt { 
-              width: 60mm; 
-              height: 80mm; 
-              border: 1px solid #000; 
-              padding: 3mm; 
-              font-size: 8px;
-              line-height: 1.2;
-              page-break-inside: avoid;
-            }
-            @media print { 
-              body { margin: 0; padding: 5mm; }
-              .receipt-grid { gap: 3mm; }
-            }
-          `;
-          break;
-        case '3x5':
-          pageSize = '3in 5in';
-          pageStyles = `
-            body { 
-              font-family: Arial, sans-serif; 
-              margin: 0; 
-              padding: 0; 
-              background: white;
-            }
-            .receipt { 
-              width: 3in; 
-              height: 5in; 
-              border: 1px solid #000; 
-              padding: 0.1in; 
-              font-size: 10px;
-              line-height: 1.3;
-              margin: 0;
-            }
-            @media print { 
-              body { margin: 0; padding: 0; }
-              @page { size: 3in 5in; margin: 0; }
-            }
-          `;
-          break;
-        case 'a6':
-          pageSize = 'A6';
-          pageStyles = `
-            body { 
-              font-family: Arial, sans-serif; 
-              margin: 0; 
-              padding: 0; 
-              background: white;
-            }
-            .receipt { 
-              width: 105mm; 
-              height: 148mm; 
-              border: 1px solid #000; 
-              padding: 5mm; 
-              font-size: 11px;
-              line-height: 1.4;
-              margin: 0;
-            }
-            @media print { 
-              body { margin: 0; padding: 0; }
-              @page { size: A6; margin: 0; }
-            }
-          `;
-          break;
-      }
-
-      newWindow!.document.write(`
-        <html>
-          <head>
-            <title>Payment Receipt - ${printSize.toUpperCase()}</title>
-            <style>
-              ${pageStyles}
-              .receipt .school-name {
-                margin: 0 0 1px 0;
-                font-size: ${printSize === 'a4-9' ? '9px' : printSize === '3x5' ? '11px' : '13px'};
-                text-align: center;
-                font-weight: bold;
-              }
-              .receipt .school-subtitle {
-                margin: 0 0 1px 0;
-                font-size: ${printSize === 'a4-9' ? '8px' : printSize === '3x5' ? '10px' : '11px'};
-                text-align: center;
-                font-weight: bold;
-              }
-              .receipt .location {
-                margin: 0 0 3px 0;
-                font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '9px' : '10px'};
-                text-align: center;
-              }
-              .receipt .receipt-title {
-                font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '8px' : '9px'};
-                text-align: center;
-                margin: 0 0 ${printSize === 'a4-9' ? '2px' : '3px'} 0;
-              }
-              .receipt .header {
-                text-align: center;
-                border-bottom: 1px solid #000;
-                padding-bottom: ${printSize === 'a4-9' ? '2px' : '4px'};
-                margin-bottom: ${printSize === 'a4-9' ? '3px' : '6px'};
-              }
-              .receipt .row { 
-                display: flex; 
-                justify-content: space-between; 
-                margin-bottom: ${printSize === 'a4-9' ? '1px' : '2px'};
-                font-size: ${printSize === 'a4-9' ? '8px' : printSize === '3x5' ? '10px' : '11px'};
-              }
-              .receipt .total { 
-                border-top: 1px solid #000; 
-                padding-top: ${printSize === 'a4-9' ? '2px' : '4px'}; 
-                margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
-                font-weight: bold;
-                font-size: ${printSize === 'a4-9' ? '9px' : printSize === '3x5' ? '11px' : '12px'};
-              }
-              .receipt .balance-section {
-                border-top: 1px solid #000;
-                padding-top: ${printSize === 'a4-9' ? '2px' : '4px'};
-                margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
-                font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '9px' : '10px'};
-              }
-              .receipt .footer {
-                text-align: center;
-                margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
-                font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '8px' : '9px'};
-                border-top: 1px solid #000;
-                padding-top: ${printSize === 'a4-9' ? '2px' : '4px'};
-              }
-            </style>
-          </head>
-          <body>
-            ${printContent.innerHTML}
-          </body>
-        </html>
-      `);
-      newWindow!.document.close();
-      setTimeout(() => {
-        newWindow!.print();
-        newWindow!.close();
-      }, 500);
+    if (!printContent) {
+      alert('Print content not found. Please try again.');
+      return;
     }
+    
+    const newWindow = window.open('', '_blank');
+    if (!newWindow) {
+      alert('Please allow popups for printing');
+      return;
+    }
+    
+    let pageStyles = '';
+    
+    switch (printSize) {
+      case 'a4-9':
+        pageStyles = `
+          body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 10mm; 
+            background: white;
+          }
+          .receipt-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5mm;
+            width: 100%;
+            height: 100vh;
+          }
+          .receipt { 
+            width: 60mm; 
+            height: 85mm; 
+            border: 1px solid #000; 
+            padding: 3mm; 
+            font-size: 8px;
+            line-height: 1.2;
+            page-break-inside: avoid;
+          }
+          @media print { 
+            body { margin: 0; padding: 5mm; }
+            .receipt-grid { gap: 3mm; }
+          }
+        `;
+        break;
+      case '3x5':
+        pageStyles = `
+          body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: white;
+          }
+          .receipt { 
+            width: 3in; 
+            height: 5in; 
+            border: 1px solid #000; 
+            padding: 0.1in; 
+            font-size: 10px;
+            line-height: 1.3;
+            margin: 0;
+          }
+          @media print { 
+            body { margin: 0; padding: 0; }
+            @page { size: 3in 5in; margin: 0; }
+          }
+        `;
+        break;
+      case 'a6':
+        pageStyles = `
+          body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: white;
+          }
+          .receipt { 
+            width: 105mm; 
+            height: 148mm; 
+            border: 1px solid #000; 
+            padding: 5mm; 
+            font-size: 11px;
+            line-height: 1.4;
+            margin: 0;
+          }
+          @media print { 
+            body { margin: 0; padding: 0; }
+            @page { size: A6; margin: 0; }
+          }
+        `;
+        break;
+    }
+
+    const commonStyles = `
+      .receipt .school-name {
+        margin: 0 0 1px 0;
+        font-size: ${printSize === 'a4-9' ? '9px' : printSize === '3x5' ? '11px' : '13px'};
+        text-align: center;
+        font-weight: bold;
+      }
+      .receipt .school-subtitle {
+        margin: 0 0 1px 0;
+        font-size: ${printSize === 'a4-9' ? '8px' : printSize === '3x5' ? '10px' : '11px'};
+        text-align: center;
+        font-weight: bold;
+      }
+      .receipt .location {
+        margin: 0 0 3px 0;
+        font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '9px' : '10px'};
+        text-align: center;
+      }
+      .receipt .receipt-title {
+        font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '8px' : '9px'};
+        text-align: center;
+        margin: 0 0 ${printSize === 'a4-9' ? '2px' : '3px'} 0;
+      }
+      .receipt .header {
+        text-align: center;
+        border-bottom: 1px solid #000;
+        padding-bottom: ${printSize === 'a4-9' ? '2px' : '4px'};
+        margin-bottom: ${printSize === 'a4-9' ? '3px' : '6px'};
+      }
+      .receipt .row { 
+        display: flex; 
+        justify-content: space-between; 
+        margin-bottom: ${printSize === 'a4-9' ? '1px' : '2px'};
+        font-size: ${printSize === 'a4-9' ? '8px' : printSize === '3x5' ? '10px' : '11px'};
+      }
+      .receipt .total { 
+        border-top: 1px solid #000; 
+        padding-top: ${printSize === 'a4-9' ? '2px' : '4px'}; 
+        margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
+        font-weight: bold;
+        font-size: ${printSize === 'a4-9' ? '9px' : printSize === '3x5' ? '11px' : '12px'};
+      }
+      .receipt .balance-section {
+        border-top: 1px solid #000;
+        padding-top: ${printSize === 'a4-9' ? '2px' : '4px'};
+        margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
+        font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '9px' : '10px'};
+      }
+      .receipt .footer {
+        text-align: center;
+        margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
+        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '8px' : '9px'};
+        border-top: 1px solid #000;
+        padding-top: ${printSize === 'a4-9' ? '2px' : '4px'};
+      }
+    `;
+
+    newWindow.document.write(`
+      <html>
+        <head>
+          <title>Payment Receipt - ${printSize.toUpperCase()}</title>
+          <style>
+            ${pageStyles}
+            ${commonStyles}
+          </style>
+        </head>
+        <body>
+          ${printContent.innerHTML}
+        </body>
+      </html>
+    `);
+    
+    newWindow.document.close();
+    
+    setTimeout(() => {
+      try {
+        newWindow.print();
+        setTimeout(() => {
+          newWindow.close();
+        }, 1000);
+      } catch (error) {
+        console.error('Print error:', error);
+        alert('Print failed. Please try again.');
+      }
+    }, 500);
   };
 
   const renderReceipt = (size: string) => (
