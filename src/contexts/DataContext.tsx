@@ -48,7 +48,7 @@ interface DataContextType {
   sendSMS: (mobile: string, message: string) => void;
 }
 
-const DataContext = createContext<DataContextType | undefined>(undefined);
+export const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const useData = () => {
   const context = useContext(DataContext);
