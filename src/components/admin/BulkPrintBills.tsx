@@ -16,15 +16,8 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
     if (printCriteria === 'date') {
       return payments.filter(payment => new Date(payment.paymentDate).toISOString().split('T')[0] === selectedDate);
     } else {
-      const classKey = ['11', '12'].includes(selectedClass) 
-        ? `${selectedClass}-${selectedDivision}` 
-        : selectedClass;
       return payments.filter(payment => {
-        const student = students.find(s => s.id === payment.studentId);
-        const studentClassKey = ['11', '12'].includes(student?.class || '') 
-          ? `${student?.class}-${student?.division}` 
-          : student?.class;
-        return studentClassKey === classKey;
+        return payment.class === selectedClass && payment.division === selectedDivision;
       });
     }
   };
@@ -194,22 +187,20 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                   ))}
                 </select>
               </div>
-              {['11', '12'].includes(selectedClass) && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Division
-                  </label>
-                  <select
-                    value={selectedDivision}
-                    onChange={(e) => setSelectedDivision(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {['A', 'B', 'C', 'D', 'E'].map(division => (
-                      <option key={division} value={division}>Division {division}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Division
+                </label>
+                <select
+                  value={selectedDivision}
+                  onChange={(e) => setSelectedDivision(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {['A', 'B', 'C', 'D', 'E'].map(division => (
+                    <option key={division} value={division}>Division {division}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           )}
         </div>
@@ -263,6 +254,16 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
       {/* Summary */}
       <div className="bg-gray-50 rounded-lg p-4 mb-6">
         <h3 className="font-medium text-gray-800 mb-2">Print Summary</h3>
+        {printCriteria === 'class' && (
+          <div className="mb-2 text-sm text-gray-600">
+            <span className="font-medium">Selected:</span> Class {selectedClass}-{selectedDivision}
+          </div>
+        )}
+        {printCriteria === 'date' && (
+          <div className="mb-2 text-sm text-gray-600">
+            <span className="font-medium">Selected Date:</span> {new Date(selectedDate).toLocaleDateString()}
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-gray-600">Total Bills:</span>
