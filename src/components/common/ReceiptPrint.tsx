@@ -49,107 +49,109 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
     }
     
     let pageStyles = '';
+    let pageSetup = '';
     
     switch (printSize) {
       case 'a4-9':
+        pageSetup = '@page { size: A4; margin: 5mm; }';
         pageStyles = `
           body { 
             font-family: Arial, sans-serif; 
             margin: 0; 
-            padding: 10mm; 
+            padding: 5mm; 
             background: white;
+            font-size: 8px;
           }
           .receipt-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 5mm;
+            gap: 3mm;
             width: 100%;
-            height: 100vh;
+            height: calc(100vh - 10mm);
           }
           .receipt { 
-            width: 60mm; 
-            height: 85mm; 
+            width: 58mm; 
+            height: 82mm; 
             border: 1px solid #000; 
-            padding: 3mm; 
-            font-size: 8px;
-            line-height: 1.2;
+            padding: 2mm; 
+            font-size: 7px;
+            line-height: 1.1;
             page-break-inside: avoid;
-          }
-          @media print { 
-            body { margin: 0; padding: 5mm; }
-            .receipt-grid { gap: 3mm; }
+            overflow: hidden;
           }
         `;
         break;
       case '3x5':
+        pageSetup = '@page { size: 3in 5in; margin: 2mm; }';
         pageStyles = `
           body { 
             font-family: Arial, sans-serif; 
             margin: 0; 
             padding: 0; 
             background: white;
+            font-size: 9px;
           }
           .receipt { 
-            width: 3in; 
-            height: 5in; 
+            width: calc(3in - 4mm); 
+            height: calc(5in - 4mm); 
             border: 1px solid #000; 
-            padding: 0.1in; 
-            font-size: 10px;
-            line-height: 1.3;
-            margin: 0;
-          }
-          @media print { 
-            body { margin: 0; padding: 0; }
-            @page { size: 3in 5in; margin: 0; }
+            padding: 2mm; 
+            font-size: 9px;
+            line-height: 1.2;
+            margin: 2mm;
+            overflow: hidden;
           }
         `;
         break;
       case 'a6':
+        pageSetup = '@page { size: A6; margin: 3mm; }';
         pageStyles = `
           body { 
             font-family: Arial, sans-serif; 
             margin: 0; 
             padding: 0; 
             background: white;
+            font-size: 10px;
           }
           .receipt { 
-            width: 105mm; 
-            height: 148mm; 
+            width: calc(105mm - 6mm); 
+            height: calc(148mm - 6mm); 
             border: 1px solid #000; 
-            padding: 5mm; 
-            font-size: 11px;
-            line-height: 1.4;
-            margin: 0;
-          }
-          @media print { 
-            body { margin: 0; padding: 0; }
-            @page { size: A6; margin: 0; }
+            padding: 3mm; 
+            font-size: 10px;
+            line-height: 1.3;
+            margin: 3mm;
+            overflow: hidden;
           }
         `;
         break;
     }
 
     const commonStyles = `
+      ${pageSetup}
+      @media print {
+        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .receipt { page-break-inside: avoid; }
+      }
       .receipt .school-name {
         margin: 0 0 1px 0;
-        font-size: ${printSize === 'a4-9' ? '9px' : printSize === '3x5' ? '11px' : '13px'};
+        font-size: ${printSize === 'a4-9' ? '8px' : printSize === '3x5' ? '10px' : '12px'};
         text-align: center;
         font-weight: bold;
       }
       .receipt .school-subtitle {
         margin: 0 0 1px 0;
-        font-size: ${printSize === 'a4-9' ? '8px' : printSize === '3x5' ? '10px' : '11px'};
+        font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '9px' : '10px'};
         text-align: center;
         font-weight: bold;
       }
       .receipt .location {
         margin: 0 0 3px 0;
-        font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '9px' : '10px'};
+        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '8px' : '9px'};
         text-align: center;
       }
       .receipt .receipt-title {
-        font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '8px' : '9px'};
+        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '7px' : '8px'};
         text-align: center;
         margin: 0 0 ${printSize === 'a4-9' ? '2px' : '3px'} 0;
       }
@@ -163,25 +165,26 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
         display: flex; 
         justify-content: space-between; 
         margin-bottom: ${printSize === 'a4-9' ? '1px' : '2px'};
-        font-size: ${printSize === 'a4-9' ? '8px' : printSize === '3x5' ? '10px' : '11px'};
+        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '8px' : '9px'};
+        line-height: 1.1;
       }
       .receipt .total { 
         border-top: 1px solid #000; 
         padding-top: ${printSize === 'a4-9' ? '2px' : '4px'}; 
         margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
         font-weight: bold;
-        font-size: ${printSize === 'a4-9' ? '9px' : printSize === '3x5' ? '11px' : '12px'};
+        font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '9px' : '10px'};
       }
       .receipt .balance-section {
         border-top: 1px solid #000;
         padding-top: ${printSize === 'a4-9' ? '2px' : '4px'};
         margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
-        font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '9px' : '10px'};
+        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '8px' : '9px'};
       }
       .receipt .footer {
         text-align: center;
         margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
-        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '8px' : '9px'};
+        font-size: ${printSize === 'a4-9' ? '5px' : printSize === '3x5' ? '7px' : '8px'};
         border-top: 1px solid #000;
         padding-top: ${printSize === 'a4-9' ? '2px' : '4px'};
       }
@@ -366,13 +369,13 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
           <div className="flex justify-center">
             <div 
               style={{ 
-                transform: printSize === 'a4-9' ? 'scale(0.8)' : printSize === '3x5' ? 'scale(0.9)' : 'scale(0.7)',
+                transform: printSize === 'a4-9' ? 'scale(0.6)' : printSize === '3x5' ? 'scale(0.8)' : 'scale(0.7)',
                 transformOrigin: 'top center'
               }}
             >
               <div id={`receipt-print-${printSize}`}>
                 {printSize === 'a4-9' ? (
-                  <div className="receipt-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', width: '700px' }}>
+                  <div className="receipt-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', width: '600px' }}>
                     {Array(9).fill(0).map((_, index) => (
                       <div key={index}>
                         {renderReceipt('a4-9')}
@@ -408,9 +411,9 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
         <div className="mt-4 p-3 bg-blue-50 rounded-lg">
           <p className="text-sm text-blue-800">
             <strong>Print Instructions:</strong>
-            {printSize === 'a4-9' && ' A4 format with 9 receipts per sheet. Use regular printer with A4 paper.'}
-            {printSize === '3x5' && ' 3x5 inch format for single receipt. Adjust printer settings to 3x5 inch paper.'}
-            {printSize === 'a6' && ' A6 format for single receipt. Use A6 paper or adjust printer settings accordingly.'}
+            {printSize === 'a4-9' && ' A4 format with 9 receipts per sheet. Use regular printer with A4 paper. Margins: 5mm all sides.'}
+            {printSize === '3x5' && ' 3x5 inch format for single receipt. Set printer to 3x5 inch paper size. Margins: 2mm all sides.'}
+            {printSize === 'a6' && ' A6 format for single receipt. Set printer to A6 paper size (105×148mm). Margins: 3mm all sides.'}
           </p>
         </div>
       </div>
