@@ -227,149 +227,149 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
           <div className="flex justify-center">
             <div style={{ transform: 'scale(0.8)', transformOrigin: 'top center' }}>
               <div id="professional-a6-receipt">
-                <>
-              <div style={{
-                width: '105mm',
-                minHeight: '148mm',
-                padding: '5mm',
-                background: 'white',
-                fontFamily: 'Arial, sans-serif',
-                fontSize: '12px',
-                lineHeight: '1.4',
-                color: '#000',
-                border: '1px solid #000'
-              }}>
-                {/* Receipt Number */}
-                <div style={{ textAlign: 'left', fontSize: '10px', marginBottom: '3mm' }}>
-                  #{payment.id.slice(-6)}
-                </div>
-                
-                {/* Header */}
-                <div style={{ textAlign: 'center', marginBottom: '4mm' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1mm' }}>
-                    Sarvodaya
-                  </div>
-                  <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '1mm' }}>
-                    Higher Secondary School
-                  </div>
-                  <div style={{ fontSize: '12px', marginBottom: '2mm' }}>
-                    Eachome
-                  </div>
-                  <div style={{ fontSize: '12px', textDecoration: 'underline', fontWeight: 'bold' }}>
-                    Fee Payment Receipt
-                  </div>
-                </div>
-                
-                <hr style={{ border: '1px solid #000', margin: '3mm 0' }} />
-                
-                {/* Student Details */}
-                <div style={{ marginBottom: '3mm' }}>
-                  <table style={{ width: '100%', fontSize: '11px' }}>
-                    <tr>
-                      <td style={{ paddingBottom: '1mm' }}><strong>Name:</strong></td>
-                      <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>{payment.studentName}</td>
-                    </tr>
-                    <tr>
-                      <td style={{ paddingBottom: '1mm' }}><strong>Adm No:</strong></td>
-                      <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>{payment.admissionNo}</td>
-                    </tr>
-                    <tr>
-                      <td style={{ paddingBottom: '1mm' }}><strong>Class:</strong></td>
-                      <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>{payment.class}{payment.division ? `-${payment.division}` : ''}</td>
-                    </tr>
-                    <tr>
-                      <td style={{ paddingBottom: '1mm' }}><strong>Date:</strong></td>
-                      <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>{new Date(payment.paymentDate).toLocaleDateString()}</td>
-                    </tr>
-                    <tr>
-                      <td><strong>Receipt #:</strong></td>
-                      <td style={{ textAlign: 'right' }}>{payment.id.slice(-6)}</td>
-                    </tr>
-                  </table>
-                </div>
-                
-                <hr style={{ border: '1px solid #000', margin: '3mm 0' }} />
-                
-                {/* Fee Details */}
-                <div style={{ marginBottom: '3mm' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 'bold', textDecoration: 'underline', marginBottom: '2mm' }}>
-                    Fee Details
+                <div style={{
+                  width: '105mm',
+                  minHeight: '148mm',
+                  padding: '5mm',
+                  background: 'white',
+                  fontFamily: 'Arial, sans-serif',
+                  fontSize: '12px',
+                  lineHeight: '1.4',
+                  color: '#000',
+                  border: '1px solid #000'
+                }}>
+                  {/* Receipt Number */}
+                  <div style={{ textAlign: 'left', fontSize: '10px', marginBottom: '3mm' }}>
+                    #{payment.id.slice(-6)}
                   </div>
                   
-                  <table style={{ width: '100%', fontSize: '11px' }}>
-                    {payment.developmentFee > 0 && (
+                  {/* Header */}
+                  <div style={{ textAlign: 'center', marginBottom: '4mm' }}>
+                    <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1mm' }}>
+                      Sarvodaya
+                    </div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '1mm' }}>
+                      Higher Secondary School
+                    </div>
+                    <div style={{ fontSize: '12px', marginBottom: '2mm' }}>
+                      Eachome
+                    </div>
+                    <div style={{ fontSize: '12px', textDecoration: 'underline', fontWeight: 'bold' }}>
+                      Fee Payment Receipt
+                    </div>
+                  </div>
+                  
+                  <hr style={{ border: '1px solid #000', margin: '3mm 0' }} />
+                  
+                  {/* Student Details */}
+                  <div style={{ marginBottom: '3mm' }}>
+                    <table style={{ width: '100%', fontSize: '11px' }}>
                       <tr>
-                        <td style={{ paddingBottom: '1mm' }}><strong>Development Fee:</strong></td>
-                        <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>₹{payment.developmentFee}</td>
+                        <td style={{ paddingBottom: '1mm' }}><strong>Name:</strong></td>
+                        <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>{payment.studentName}</td>
                       </tr>
-                    )}
-                    {payment.busFee > 0 && (
                       <tr>
-                        <td style={{ paddingBottom: '1mm' }}><strong>Bus Fee:</strong></td>
-                        <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>₹{payment.busFee}</td>
+                        <td style={{ paddingBottom: '1mm' }}><strong>Adm No:</strong></td>
+                        <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>{payment.admissionNo}</td>
                       </tr>
-                    )}
-                    {payment.specialFee > 0 && (
                       <tr>
-                        <td style={{ paddingBottom: '1mm' }}><strong>{payment.specialFeeType || 'Other Fee'}:</strong></td>
-                        <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>₹{payment.specialFee}</td>
+                        <td style={{ paddingBottom: '1mm' }}><strong>Class:</strong></td>
+                        <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>{payment.class}{payment.division ? `-${payment.division}` : ''}</td>
                       </tr>
-                    )}
-                  </table>
-                </div>
-                
-                <hr style={{ border: '1px solid #000', margin: '3mm 0' }} />
-                
-                {/* Total Amount */}
-                <div style={{ 
-                  textAlign: 'center', 
-                  fontSize: '14px', 
-                  fontWeight: 'bold', 
-                  marginBottom: '3mm',
-                  padding: '2mm 0'
-                }}>
-                  TOTAL PAID: ₹{payment.totalAmount}
-                </div>
-                
-                <hr style={{ border: '1px solid #000', margin: '3mm 0' }} />
-                
-                {/* Remaining Balance */}
-                {(paymentDetails.developmentBalance > 0 || paymentDetails.busBalance > 0) && (
-                  <>
-                    <div style={{ marginBottom: '3mm' }}>
-                      <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '2mm' }}>
-                        Remaining Balance
-                      </div>
-                      
-                      <table style={{ width: '100%', fontSize: '11px' }}>
-                        {paymentDetails.developmentBalance > 0 && (
-                          <tr>
-                            <td style={{ paddingBottom: '1mm' }}><strong>Development:</strong></td>
-                            <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>₹{paymentDetails.developmentBalance}</td>
-                          </tr>
-                        )}
-                        {paymentDetails.busBalance > 0 && (
-                          <tr>
-                            <td><strong>Bus Fee:</strong></td>
-                            <td style={{ textAlign: 'right' }}>₹{paymentDetails.busBalance}</td>
-                          </tr>
-                        )}
-                      </table>
+                      <tr>
+                        <td style={{ paddingBottom: '1mm' }}><strong>Date:</strong></td>
+                        <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>{new Date(payment.paymentDate).toLocaleDateString()}</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Receipt #:</strong></td>
+                        <td style={{ textAlign: 'right' }}>{payment.id.slice(-6)}</td>
+                      </tr>
+                    </table>
+                  </div>
+                  
+                  <hr style={{ border: '1px solid #000', margin: '3mm 0' }} />
+                  
+                  {/* Fee Details */}
+                  <div style={{ marginBottom: '3mm' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 'bold', textDecoration: 'underline', marginBottom: '2mm' }}>
+                      Fee Details
                     </div>
                     
-                    <div style={{ borderTop: '1px dotted #000', paddingTop: '2mm', marginTop: '2mm' }}></div>
-                  </>
-                )}
-                
-                {/* Footer */}
-                <div style={{ 
-                  textAlign: 'center', 
-                  fontSize: '10px', 
-                  fontStyle: 'italic',
-                  marginTop: '3mm'
-                }}>
-                  <div>Thank you for your payment!</div>
-                  <div>Keep this receipt for your records</div>
+                    <table style={{ width: '100%', fontSize: '11px' }}>
+                      {payment.developmentFee > 0 && (
+                        <tr>
+                          <td style={{ paddingBottom: '1mm' }}><strong>Development Fee:</strong></td>
+                          <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>₹{payment.developmentFee}</td>
+                        </tr>
+                      )}
+                      {payment.busFee > 0 && (
+                        <tr>
+                          <td style={{ paddingBottom: '1mm' }}><strong>Bus Fee:</strong></td>
+                          <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>₹{payment.busFee}</td>
+                        </tr>
+                      )}
+                      {payment.specialFee > 0 && (
+                        <tr>
+                          <td style={{ paddingBottom: '1mm' }}><strong>{payment.specialFeeType || 'Other Fee'}:</strong></td>
+                          <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>₹{payment.specialFee}</td>
+                        </tr>
+                      )}
+                    </table>
+                  </div>
+                  
+                  <hr style={{ border: '1px solid #000', margin: '3mm 0' }} />
+                  
+                  {/* Total Amount */}
+                  <div style={{ 
+                    textAlign: 'center', 
+                    fontSize: '14px', 
+                    fontWeight: 'bold', 
+                    marginBottom: '3mm',
+                    padding: '2mm 0'
+                  }}>
+                    TOTAL PAID: ₹{payment.totalAmount}
+                  </div>
+                  
+                  <hr style={{ border: '1px solid #000', margin: '3mm 0' }} />
+                  
+                  {/* Remaining Balance */}
+                  {(paymentDetails.developmentBalance > 0 || paymentDetails.busBalance > 0) && (
+                    <>
+                      <div style={{ marginBottom: '3mm' }}>
+                        <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '2mm' }}>
+                          Remaining Balance
+                        </div>
+                        
+                        <table style={{ width: '100%', fontSize: '11px' }}>
+                          {paymentDetails.developmentBalance > 0 && (
+                            <tr>
+                              <td style={{ paddingBottom: '1mm' }}><strong>Development:</strong></td>
+                              <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>₹{paymentDetails.developmentBalance}</td>
+                            </tr>
+                          )}
+                          {paymentDetails.busBalance > 0 && (
+                            <tr>
+                              <td><strong>Bus Fee:</strong></td>
+                              <td style={{ textAlign: 'right' }}>₹{paymentDetails.busBalance}</td>
+                            </tr>
+                          )}
+                        </table>
+                      </div>
+                      
+                      <div style={{ borderTop: '1px dotted #000', paddingTop: '2mm', marginTop: '2mm' }}></div>
+                    </>
+                  )}
+                  
+                  {/* Footer */}
+                  <div style={{ 
+                    textAlign: 'center', 
+                    fontSize: '10px', 
+                    fontStyle: 'italic',
+                    marginTop: '3mm'
+                  }}>
+                    <div>Thank you for your payment!</div>
+                    <div>Keep this receipt for your records</div>
+                  </div>
                 </div>
               </div>
             </div>
