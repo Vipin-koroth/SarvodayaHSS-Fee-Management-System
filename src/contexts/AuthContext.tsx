@@ -13,6 +13,8 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   changePassword: (oldPassword: string, newPassword: string) => Promise<boolean>;
+  resetUserPassword: (username: string, newPassword: string) => Promise<boolean>;
+  getAllUsers: () => Array<{ username: string; role: 'admin' | 'teacher'; class?: string; division?: string }>;
   loading: boolean;
 }
 
@@ -126,11 +128,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   };
 
+  const resetUserPassword = async (username: string, newPassword: string): Promise<boolean> => {
+    if (!user || user.role !== 'admin') return false;
+
+    const storedUsers = JSON.parse(localStorage.getItem('users') || '{}');
+    const targetUser = storedUsers[username];
+
+    if (targetUser) {
+      targetUser.password = newPassword;
+      localStorage.setItem('users', JSON.stringify(storedUsers));
+      return true;
+    }
+
+    return false;
+  };
+
+  const getAllUsers = () => {
+    if (!user || user.role !== 'admin') return [];
+
+    const storedUsers = JSON.parse(localStorage.getItem('users') || '{}');
+    return Object.entries(storedUsers).map(([username, userData]: [string, any]) => ({
+      username,
+      role: userData.role,
+      class: userData.class,
+      division: userData.division
+    }));
+  };
+
   const value = {
     user,
     login,
     logout,
     changePassword,
+    resetUserPassword,
+    getAllUsers,
     loading
   };
 

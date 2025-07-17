@@ -7,7 +7,8 @@ import {
   FileText, 
   Lock,
   School,
-  UserCheck
+  UserCheck,
+  Shield
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -25,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userRole }) 
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'bulk-print', label: 'Bulk Print Bills', icon: FileText },
     { id: 'data-management', label: 'Data Management', icon: Settings },
+    { id: 'user-management', label: 'User Management', icon: Shield },
     { id: 'password', label: 'Change Password', icon: Lock },
   ];
 
