@@ -408,7 +408,6 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                       <div className="footer-note">Please keep this receipt for your records</div>
                     </div>
                   </div>
-                  </div>
                 </>
               </div>
             </div>
