@@ -236,7 +236,7 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                   fontSize: '10px',
                   lineHeight: '1.4',
                   color: '#000',
-                  border: '1px solid #000'
+                  border: 'none'
                 }}>
                   {/* Receipt Number */}
                   <div style={{ textAlign: 'left', fontSize: '8px', marginBottom: '2mm' }}>
@@ -254,12 +254,12 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                     <div style={{ fontSize: '10px', marginBottom: '1mm' }}>
                       Eachome
                     </div>
-                    <div style={{ fontSize: '10px', textDecoration: 'underline', fontWeight: 'bold' }}>
+                    <div style={{ fontSize: '9px', textDecoration: 'underline', fontWeight: 'bold' }}>
                       Fee Payment Receipt
                     </div>
                   </div>
                   
-                  <hr style={{ border: '1px solid #000', margin: '2mm 0' }} />
+                  <hr style={{ border: '0.5px solid #000', margin: '2mm 0' }} />
                   
                   {/* Student Details */}
                   <div style={{ marginBottom: '2mm' }}>
@@ -287,7 +287,7 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                     </table>
                   </div>
                   
-                  <hr style={{ border: '1px solid #000', margin: '2mm 0' }} />
+                  <hr style={{ border: '0.5px solid #000', margin: '2mm 0' }} />
                   
                   {/* Fee Details */}
                   <div style={{ marginBottom: '2mm' }}>
@@ -317,12 +317,12 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                     </table>
                   </div>
                   
-                  <hr style={{ border: '1px solid #000', margin: '2mm 0' }} />
+                  <hr style={{ border: '0.5px solid #000', margin: '2mm 0' }} />
                   
                   {/* Total Amount */}
                   <div style={{ 
                     textAlign: 'center', 
-                    fontSize: '12px', 
+                    fontSize: '11px', 
                     fontWeight: 'bold', 
                     marginBottom: '2mm',
                     padding: '2mm 0'
@@ -330,7 +330,7 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                     TOTAL PAID: ₹{payment.totalAmount}
                   </div>
                   
-                  <hr style={{ border: '1px solid #000', margin: '2mm 0' }} />
+                  <hr style={{ border: '0.5px solid #000', margin: '2mm 0' }} />
                   
                   {/* Remaining Balance */}
                   {(paymentDetails.developmentBalance > 0 || paymentDetails.busBalance > 0) && (
@@ -356,7 +356,7 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                         </table>
                       </div>
                       
-                      <div style={{ borderTop: '1px dotted #000', paddingTop: '1mm', marginTop: '1mm' }}></div>
+                      <div style={{ borderTop: '0.5px dotted #000', paddingTop: '1mm', marginTop: '1mm' }}></div>
                     </>
                   )}
                   

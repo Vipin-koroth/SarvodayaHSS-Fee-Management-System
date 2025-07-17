@@ -107,6 +107,7 @@ const BulkPrintBills: React.FC = () => {
               margin: 3mm; 
               overflow: hidden; 
               font-family: Arial, sans-serif;
+              border: none;
             }
             .receipt-number { text-align: left; font-size: 8px; margin-bottom: 1mm; color: #666; }
             .receipt-header { text-align: center; margin-bottom: 3mm; }
@@ -128,8 +129,8 @@ const BulkPrintBills: React.FC = () => {
             .balance-title { font-weight: bold; margin-bottom: 2mm; }
             .total-amount { font-weight: bold; text-align: center; padding: 1mm 0; margin: 1mm 0; font-size: 11px; }
             .footer { text-align: center; margin-top: 1mm; font-size: 8px; font-style: italic; }
-            hr { border: 1px solid #000; margin: 2mm 0; }
-            .dotted-line { border-top: 1px dotted #000; margin: 2mm 0; }
+            hr { border: 0.5px solid #000; margin: 2mm 0; }
+            .dotted-line { border-top: 0.5px dotted #000; margin: 2mm 0; }
           </style>
         </head>
         <body>
