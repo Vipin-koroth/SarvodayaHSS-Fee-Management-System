@@ -88,17 +88,17 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
             ${printFormat === 'a4-9' ? `
               @page { size: A4; margin: 5mm; }
               .receipt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; padding: 0; }
-              .receipt { width: 60mm; height: 85mm; border: 2px solid #000; padding: 3mm; font-size: 10px; line-height: 1.3; overflow: hidden; }
+              .receipt { width: 60mm; height: 85mm; padding: 3mm; font-size: 10px; line-height: 1.3; overflow: hidden; }
             ` : printFormat === '3x5' ? `
               @page { size: 3in 5in; margin: 2mm; }
-              .receipt { width: calc(3in - 4mm); height: calc(5in - 4mm); border: 2px solid #000; padding: 4mm; font-size: 12px; line-height: 1.4; page-break-after: always; margin: 2mm; overflow: hidden; }
+              .receipt { width: calc(3in - 4mm); height: calc(5in - 4mm); padding: 4mm; font-size: 12px; line-height: 1.4; page-break-after: always; margin: 2mm; overflow: hidden; }
             ` : `
               @page { size: A6; margin: 3mm; }
-              .receipt { width: calc(105mm - 6mm); height: calc(148mm - 6mm); border: 2px solid #000; padding: 5mm; font-size: 14px; line-height: 1.5; page-break-after: always; margin: 3mm; overflow: hidden; }
+              .receipt { width: calc(105mm - 6mm); height: calc(148mm - 6mm); padding: 5mm; font-size: 14px; line-height: 1.5; page-break-after: always; margin: 3mm; overflow: hidden; }
             `}
             .receipt-header { text-align: center; margin-bottom: 3mm; border-bottom: 2px solid #000; padding-bottom: 2mm; }
-            .receipt-header .school-name { font-size: ${printFormat === 'a4-9' ? '12px' : printFormat === '3x5' ? '16px' : '18px'}; font-weight: bold; margin-bottom: 1mm; }
-            .receipt-header .school-subtitle { font-size: ${printFormat === 'a4-9' ? '10px' : printFormat === '3x5' ? '14px' : '16px'}; font-weight: bold; margin-bottom: 1mm; }
+            .receipt-header .school-name { font-size: ${printFormat === 'a4-9' ? '16px' : printFormat === '3x5' ? '20px' : '22px'}; font-weight: bold; margin-bottom: 1mm; }
+            .receipt-header .school-subtitle { font-size: ${printFormat === 'a4-9' ? '14px' : printFormat === '3x5' ? '18px' : '20px'}; font-weight: bold; margin-bottom: 1mm; }
             .receipt-header .location { font-size: ${printFormat === 'a4-9' ? '9px' : printFormat === '3x5' ? '12px' : '14px'}; margin-bottom: 1mm; }
             .receipt-header .receipt-title { font-size: ${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '11px' : '13px'}; margin-top: 1mm; font-weight: bold; text-decoration: underline; }
             .receipt-content { margin-bottom: 2mm; font-size: ${printFormat === 'a4-9' ? '9px' : printFormat === '3x5' ? '11px' : '13px'}; line-height: 1.4; }
