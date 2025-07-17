@@ -211,6 +211,28 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                   ))}
                 </select>
               </div>
+             <div>
+               <label className="block text-sm font-medium text-gray-700 mb-2">
+                 From Date (Optional)
+               </label>
+               <input
+                 type="date"
+                 value={fromDate}
+                 onChange={(e) => setFromDate(e.target.value)}
+                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+               />
+             </div>
+             <div>
+               <label className="block text-sm font-medium text-gray-700 mb-2">
+                 To Date (Optional)
+               </label>
+               <input
+                 type="date"
+                 value={toDate}
+                 onChange={(e) => setToDate(e.target.value)}
+                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+               />
+             </div>
             </div>
           )}
         </div>
@@ -390,28 +412,6 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                    <div>Thank you for your payment!</div>
                    <div>Keep this receipt for your records</div>
                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    From Date (Optional)
-                  </label>
-                  <input
-                    type="date"
-                    value={fromDate}
-                    onChange={(e) => setFromDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    To Date (Optional)
-                  </label>
-                  <input
-                    type="date"
-                    value={toDate}
-                    onChange={(e) => setToDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
                 </div>
               );
             })
