@@ -25,33 +25,6 @@ const PaymentManagement: React.FC = () => {
     new Date(payment.paymentDate).toDateString() === new Date().toDateString()
   );
 
-  const printDailyReceipts = () => {
-    const printContent = document.getElementById('daily-receipts-print');
-    if (printContent) {
-      const newWindow = window.open('', '_blank');
-      newWindow!.document.write(`
-        <html>
-          <head>
-            <title>Daily Payment Receipts</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-              .receipt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; page-break-inside: avoid; }
-              .receipt { border: 1px solid #000; padding: 10px; width: 200px; height: 150px; font-size: 10px; }
-              .receipt h3 { margin: 0 0 5px 0; font-size: 12px; text-align: center; }
-              .receipt .amount { font-weight: bold; font-size: 11px; }
-              @media print { .receipt-grid { grid-template-columns: repeat(3, 1fr); } }
-            </style>
-          </head>
-          <body>
-            ${printContent.innerHTML}
-          </body>
-        </html>
-      `);
-      newWindow!.document.close();
-      newWindow!.print();
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -60,15 +33,6 @@ const PaymentManagement: React.FC = () => {
           <p className="text-gray-600">Manage fee payments and generate receipts</p>
         </div>
         <div className="flex space-x-3">
-          {todayPayments.length > 0 && (
-            <button
-              onClick={printDailyReceipts}
-              className="flex items-center space-x-2 px-4 py-2 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100"
-            >
-              <Receipt className="h-4 w-4" />
-              <span>Print Today's Receipts</span>
-            </button>
-          )}
           <button
             onClick={() => setShowAddModal(true)}
             className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -205,26 +169,6 @@ const PaymentManagement: React.FC = () => {
             <p className="text-gray-500">No payments found matching your criteria</p>
           </div>
         )}
-      </div>
-
-      {/* Daily Receipts for Printing (Hidden) */}
-      <div id="daily-receipts-print" style={{ display: 'none' }}>
-        <div className="receipt-grid">
-          {todayPayments.map((payment) => (
-            <div key={payment.id} className="receipt">
-              <h3>Sarvodaya School</h3>
-              <div>Receipt #{payment.id.slice(-6)}</div>
-              <div>{payment.studentName}</div>
-              <div>{payment.admissionNo}</div>
-              <div>Class {payment.class}-{payment.division}</div>
-              {payment.developmentFee > 0 && <div>Dev: ₹{payment.developmentFee}</div>}
-              {payment.busFee > 0 && <div>Bus: ₹{payment.busFee}</div>}
-              {payment.specialFee > 0 && <div>{payment.specialFeeType}: ₹{payment.specialFee}</div>}
-              <div className="amount">Total: ₹{payment.totalAmount}</div>
-              <div>{new Date(payment.paymentDate).toLocaleDateString()}</div>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Modals */}
