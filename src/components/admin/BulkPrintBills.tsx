@@ -322,7 +322,7 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                         <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1mm' }}>Fee Details</div>
                         {payment.developmentFee > 0 && <div><strong>Development Fee:</strong> <span>₹{payment.developmentFee}</span></div>}
                         {payment.busFee > 0 && <div><strong>Bus Fee:</strong> <span>₹{payment.busFee}</span></div>}
-                        {payment.specialFee > 0 && <div><strong>{payment.specialFeeType}:</strong> <span>₹{payment.specialFee}</span></div>}
+                        {payment.specialFee > 0 && <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong> <span>₹{payment.specialFee}</span></div>}
                       </div>
                     </div>
                     <div className="total-amount">
@@ -365,7 +365,7 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                      <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '2mm' }}>Fee Details</div>
                      {payment.developmentFee > 0 && <div><strong>Development Fee:</strong> <span>₹{payment.developmentFee}</span></div>}
                      {payment.busFee > 0 && <div><strong>Bus Fee:</strong> <span>₹{payment.busFee}</span></div>}
-                     {payment.specialFee > 0 && <div><strong>{payment.specialFeeType}:</strong> <span>₹{payment.specialFee}</span></div>}
+                     {payment.specialFee > 0 && <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong> <span>₹{payment.specialFee}</span></div>}
                    </div>
                   </div>
                   <div className="total-amount">
