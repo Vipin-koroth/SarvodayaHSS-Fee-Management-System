@@ -110,7 +110,7 @@ const AddPaymentModal: React.FC<AddPaymentModalProps> = ({ onClose }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
-    if (name === 'developmentFee' || name === 'busFee') {
+    if (name === 'developmentFee' || name === 'busFee' || name === 'specialFee') {
       const numValue = parseInt(value) || 0;
       
       // Calculate maximum allowed amount
@@ -121,10 +121,12 @@ const AddPaymentModal: React.FC<AddPaymentModalProps> = ({ onClose }) => {
       } else if (name === 'busFee') {
         const totalRequired = feeConfig.busStops[selectedStudentData?.busStop || ''] || 0;
         maxAmount = Math.max(0, totalRequired - paidAmounts.busFee);
+      } else if (name === 'specialFee') {
+        maxAmount = 999999; // No limit for special fees
       }
       
-      // Don't allow amount greater than remaining
-      const finalValue = Math.min(numValue, maxAmount);
+      // Don't allow amount greater than remaining (except for special fees)
+      const finalValue = name === 'specialFee' ? numValue : Math.min(numValue, maxAmount);
       
       setFormData(prev => ({
         ...prev,
@@ -133,7 +135,7 @@ const AddPaymentModal: React.FC<AddPaymentModalProps> = ({ onClose }) => {
     } else {
       setFormData(prev => ({
         ...prev,
-        [name]: name.includes('Fee') ? parseInt(value) || 0 : value
+        [name]: value
       }));
     }
   };
