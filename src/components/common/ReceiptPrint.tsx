@@ -228,8 +228,26 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                       <div><strong>Receipt #:</strong> <span>{payment.id.slice(-6)}</span></div>
                       <div style={{ borderTop: '1px solid #000', paddingTop: '2mm', marginTop: '2mm', marginBottom: '2mm' }}>
                         <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1mm' }}>Fee Details</div>
-                        {payment.developmentFee > 0 && <div><strong>Development Fee:</strong> <span>₹{payment.developmentFee}</span></div>}
-                        {payment.busFee > 0 && <div><strong>Bus Fee:</strong> <span>₹{payment.busFee}</span></div>}
+                        {payment.developmentFee > 0 && (
+                          <div>
+                            <div><strong>Development Fee:</strong> <span>₹{payment.developmentFee}</span></div>
+                            {balance.developmentBalance > 0 && (
+                              <div style={{ fontSize: '11px', color: '#666', marginLeft: '10px' }}>
+                                Balance: ₹{balance.developmentBalance}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {payment.busFee > 0 && (
+                          <div>
+                            <div><strong>Bus Fee:</strong> <span>₹{payment.busFee}</span></div>
+                            {balance.busBalance > 0 && (
+                              <div style={{ fontSize: '11px', color: '#666', marginLeft: '10px' }}>
+                                Balance: ₹{balance.busBalance}
+                              </div>
+                            )}
+                          </div>
+                        )}
                         {payment.specialFee > 0 && <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong> <span>₹{payment.specialFee}</span></div>}
                       </div>
                     </div>
