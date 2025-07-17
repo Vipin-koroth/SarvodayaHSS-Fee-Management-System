@@ -9,7 +9,8 @@ import {
   School,
   UserCheck,
   Shield,
-  Printer
+  Printer,
+  MessageSquare
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -25,7 +26,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userRole }) 
     { id: 'payments', label: 'Payments', icon: CreditCard },
     { id: 'fees', label: 'Fee Configuration', icon: Settings },
     { id: 'reports', label: 'Reports', icon: FileText },
-    { id: 'bulk-print', label: 'Print Receipt', icon: Printer },
+    { id: 'print-receipt', label: 'Print Receipt', icon: Printer },
+    { id: 'sms-config', label: 'SMS Configuration', icon: MessageSquare },
     { id: 'data-management', label: 'Data Management', icon: Settings },
     { id: 'user-management', label: 'User Management', icon: Shield },
     { id: 'password', label: 'Change Password', icon: Lock },

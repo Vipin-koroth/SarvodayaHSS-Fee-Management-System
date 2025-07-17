@@ -9,7 +9,8 @@ import PaymentManagement from './PaymentManagement';
 import FeeConfiguration from './FeeConfiguration';
 import Reports from './Reports';
 import ChangePassword from '../common/ChangePassword';
-import BulkPrintBills from './BulkPrintBills';
+import PrintReceipt from './BulkPrintBills';
+import SMSConfiguration from './SMSConfiguration';
 import DataManagement from './DataManagement';
 import UserManagement from './UserManagement';
 
@@ -30,8 +31,10 @@ const AdminDashboard: React.FC = () => {
         return <FeeConfiguration />;
       case 'reports':
         return <Reports />;
-      case 'bulk-print':
-        return <BulkPrintBills />;
+      case 'print-receipt':
+        return <PrintReceipt />;
+      case 'sms-config':
+        return <SMSConfiguration />;
       case 'data-management':
         return <DataManagement />;
       case 'user-management':

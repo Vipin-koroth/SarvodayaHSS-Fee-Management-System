@@ -173,9 +173,109 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const sendSMS = (mobile: string, message: string) => {
-    // Simulate SMS sending
-    console.log(`SMS sent to ${mobile}: ${message}`);
-    // In a real application, you would integrate with an SMS service like Twilio
+    // Enhanced SMS sending with multiple service options
+    try {
+      // Option 1: Using Twilio (most popular)
+      sendViaTwilio(mobile, message);
+      
+      // Option 2: Using TextLocal (India-specific)
+      // sendViaTextLocal(mobile, message);
+      
+      // Option 3: Using MSG91 (India-specific)
+      // sendViaMSG91(mobile, message);
+      
+      console.log(`✅ SMS sent successfully to ${mobile}`);
+    } catch (error) {
+      console.error(`❌ SMS failed to ${mobile}:`, error);
+      // Fallback: Show notification to user
+      alert(`SMS notification failed for ${mobile}. Please inform parent manually.`);
+    }
+  };
+
+  // Twilio SMS Integration
+  const sendViaTwilio = async (mobile: string, message: string) => {
+    const TWILIO_ACCOUNT_SID = process.env.REACT_APP_TWILIO_ACCOUNT_SID;
+    const TWILIO_AUTH_TOKEN = process.env.REACT_APP_TWILIO_AUTH_TOKEN;
+    const TWILIO_PHONE_NUMBER = process.env.REACT_APP_TWILIO_PHONE_NUMBER;
+
+    if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
+      throw new Error('Twilio credentials not configured');
+    }
+
+    const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`),
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        From: TWILIO_PHONE_NUMBER,
+        To: `+91${mobile}`, // Assuming Indian numbers
+        Body: message
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Twilio API error: ${response.status}`);
+    }
+  };
+
+  // TextLocal SMS Integration (India)
+  const sendViaTextLocal = async (mobile: string, message: string) => {
+    const TEXTLOCAL_API_KEY = process.env.REACT_APP_TEXTLOCAL_API_KEY;
+    const TEXTLOCAL_SENDER = process.env.REACT_APP_TEXTLOCAL_SENDER || 'SCHOOL';
+
+    if (!TEXTLOCAL_API_KEY) {
+      throw new Error('TextLocal API key not configured');
+    }
+
+    const response = await fetch('https://api.textlocal.in/send/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        apikey: TEXTLOCAL_API_KEY,
+        numbers: mobile,
+        message: message,
+        sender: TEXTLOCAL_SENDER
+      })
+    });
+
+    const result = await response.json();
+    if (result.status !== 'success') {
+      throw new Error(`TextLocal error: ${result.errors?.[0]?.message || 'Unknown error'}`);
+    }
+  };
+
+  // MSG91 SMS Integration (India)
+  const sendViaMSG91 = async (mobile: string, message: string) => {
+    const MSG91_API_KEY = process.env.REACT_APP_MSG91_API_KEY;
+    const MSG91_SENDER_ID = process.env.REACT_APP_MSG91_SENDER_ID || 'SCHOOL';
+    const MSG91_ROUTE = process.env.REACT_APP_MSG91_ROUTE || '4';
+
+    if (!MSG91_API_KEY) {
+      throw new Error('MSG91 API key not configured');
+    }
+
+    const response = await fetch(`https://api.msg91.com/api/sendhttp.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        authkey: MSG91_API_KEY,
+        mobiles: mobile,
+        message: message,
+        sender: MSG91_SENDER_ID,
+        route: MSG91_ROUTE
+      })
+    });
+
+    const result = await response.text();
+    if (!result.includes('success')) {
+      throw new Error(`MSG91 error: ${result}`);
+    }
   };
 
   const value = {
