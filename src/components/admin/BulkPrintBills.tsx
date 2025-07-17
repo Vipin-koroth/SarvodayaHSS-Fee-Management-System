@@ -10,6 +10,8 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedClass, setSelectedClass] = useState('1');
   const [selectedDivision, setSelectedDivision] = useState('A');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [printFormat, setPrintFormat] = useState<'a4-9' | '3x5' | 'a6'>('a4-9');
 
   const getFilteredPayments = () => {
@@ -17,7 +19,15 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
       return payments.filter(payment => new Date(payment.paymentDate).toISOString().split('T')[0] === selectedDate);
     } else {
       return payments.filter(payment => {
-        return payment.class === selectedClass && payment.division === selectedDivision;
+        const matchesClass = payment.class === selectedClass && payment.division === selectedDivision;
+        
+        if (!fromDate && !toDate) return matchesClass;
+        
+        const paymentDate = new Date(payment.paymentDate).toISOString().split('T')[0];
+        const matchesFromDate = !fromDate || paymentDate >= fromDate;
+        const matchesToDate = !toDate || paymentDate <= toDate;
+        
+        return matchesClass && matchesFromDate && matchesToDate;
       });
     }
   };
