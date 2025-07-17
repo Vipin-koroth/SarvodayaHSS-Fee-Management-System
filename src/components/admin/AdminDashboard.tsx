@@ -12,6 +12,7 @@ import ChangePassword from '../common/ChangePassword';
 import BulkPrintBills from './BulkPrintBills';
 import DataManagement from './DataManagement';
 import UserManagement from './UserManagement';
+import ClassReceiptPrint from '../common/ClassReceiptPrint';
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -36,6 +37,8 @@ const AdminDashboard: React.FC = () => {
         return <DataManagement />;
       case 'user-management':
         return <UserManagement />;
+      case 'print-receipts':
+        return <ClassReceiptPrint />;
       case 'password':
         return <ChangePassword />;
       default:

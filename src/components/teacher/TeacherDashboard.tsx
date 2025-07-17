@@ -7,6 +7,7 @@ import TeacherStats from './TeacherStats';
 import ClassStudents from './ClassStudents';
 import ClassPayments from './ClassPayments';
 import ChangePassword from '../common/ChangePassword';
+import ClassReceiptPrint from '../common/ClassReceiptPrint';
 
 const TeacherDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -20,6 +21,8 @@ const TeacherDashboard: React.FC = () => {
         return <ClassStudents />;
       case 'payments':
         return <ClassPayments />;
+      case 'print-receipts':
+        return <ClassReceiptPrint />;
       case 'password':
         return <ChangePassword />;
       default:
