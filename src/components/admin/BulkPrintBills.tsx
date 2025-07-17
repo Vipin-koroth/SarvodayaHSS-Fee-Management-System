@@ -461,6 +461,7 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                       <div>Thank you for your payment!</div>
                       <div>Keep this receipt for your records</div>
                     </div>
+                    </div>
                   </div>
                 );
               })}
