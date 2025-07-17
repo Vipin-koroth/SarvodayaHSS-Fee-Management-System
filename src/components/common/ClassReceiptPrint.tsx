@@ -99,7 +99,7 @@ const ClassReceiptPrint: React.FC = () => {
               width: calc(105mm - 6mm); 
               height: calc(148mm - 6mm); 
               padding: 4mm; 
-              font-size: 10px; 
+              font-size: 18px; 
               line-height: 1.2; 
               page-break-after: always; 
               margin: 3mm; 
@@ -107,26 +107,26 @@ const ClassReceiptPrint: React.FC = () => {
               font-family: Arial, sans-serif;
               border: none;
             }
-            .receipt-number { text-align: left; font-size: 8px; margin-bottom: 1mm; color: #666; }
+            .receipt-number { text-align: left; font-size: 14px; margin-bottom: 1mm; color: #666; }
             .receipt-header { text-align: center; margin-bottom: 3mm; }
-            .receipt-header .school-name { font-size: 14px; font-weight: bold; margin-bottom: 1mm; }
-            .receipt-header .school-subtitle { font-size: 12px; font-weight: bold; margin-bottom: 1mm; }
-            .receipt-header .location { font-size: 10px; margin-bottom: 1mm; }
-            .receipt-header .receipt-title { font-size: 9px; margin-top: 1mm; font-weight: bold; text-decoration: underline; }
-            .student-details { margin-bottom: 2mm; font-size: 9px; }
+            .receipt-header .school-name { font-size: 26px; font-weight: bold; margin-bottom: 1mm; }
+            .receipt-header .school-subtitle { font-size: 24px; font-weight: bold; margin-bottom: 1mm; }
+            .receipt-header .location { font-size: 20px; margin-bottom: 1mm; }
+            .receipt-header .receipt-title { font-size: 16px; margin-top: 1mm; font-weight: bold; text-decoration: underline; }
+            .student-details { margin-bottom: 2mm; font-size: 16px; }
             .student-details table { width: 100%; }
             .student-details td { padding-bottom: 1px; }
-            .fee-details { margin-bottom: 2mm; font-size: 9px; }
+            .fee-details { margin-bottom: 2mm; font-size: 16px; }
             .fee-details table { width: 100%; }
             .fee-details td { padding-bottom: 1px; }
             .fee-details-title { font-weight: bold; text-decoration: underline; margin-bottom: 2mm; }
-            .payment-line { font-size: 8px; color: #666; margin-left: 6px; }
-            .balance-section { margin-bottom: 2mm; font-size: 9px; }
+            .payment-line { font-size: 14px; color: #666; margin-left: 6px; }
+            .balance-section { margin-bottom: 2mm; font-size: 16px; }
             .balance-section table { width: 100%; }
             .balance-section td { padding-bottom: 1px; }
             .balance-title { font-weight: bold; margin-bottom: 2mm; }
-            .total-amount { font-weight: bold; text-align: center; padding: 1mm 0; margin: 1mm 0; font-size: 11px; }
-            .footer { text-align: center; margin-top: 1mm; font-size: 8px; font-style: italic; }
+            .total-amount { font-weight: bold; text-align: center; padding: 1mm 0; margin: 1mm 0; font-size: 20px; }
+            .footer { text-align: center; margin-top: 1mm; font-size: 14px; font-style: italic; }
             hr { border: 0.5px solid #000; margin: 2mm 0; }
             .dotted-line { border-top: 0.5px dotted #000; margin: 2mm 0; }
           </style>
@@ -291,11 +291,6 @@ const ClassReceiptPrint: React.FC = () => {
             const student = students.find(s => s.id === payment.studentId);
             const paymentDetails = getStudentBalance(payment.studentId);
             
-            // Get all payments for this student to show individual payment lines
-            const studentPayments = payments.filter(p => p.studentId === payment.studentId);
-            const developmentPayments = studentPayments.filter(p => p.developmentFee > 0);
-            const busPayments = studentPayments.filter(p => p.busFee > 0);
-            
             return (
               <div key={payment.id} className="receipt">
                 <div className="receipt-number">#{payment.id.slice(-6)}</div>
@@ -324,39 +319,26 @@ const ClassReceiptPrint: React.FC = () => {
                 <div className="fee-details">
                   <div className="fee-details-title">Fee Details</div>
                   
-                  {/* Development Fee */}
-                  {developmentPayments.length > 0 && (
-                    <div style={{ marginBottom: '3mm' }}>
-                      <div><strong>Development Fee:</strong></div>
-                      {developmentPayments.map((devPayment) => (
-                        <div key={devPayment.id} className="payment-line">
-                          {formatDate(devPayment.paymentDate)}: ₹{devPayment.developmentFee}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* Bus Fee */}
-                  {busPayments.length > 0 && (
-                    <div style={{ marginBottom: '3mm' }}>
-                      <div><strong>Bus Fee:</strong></div>
-                      {busPayments.map((busPayment) => (
-                        <div key={busPayment.id} className="payment-line">
-                          {formatDate(busPayment.paymentDate)}: ₹{busPayment.busFee}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* Special Fee */}
-                  {payment.specialFee > 0 && (
-                    <div style={{ marginBottom: '3mm' }}>
-                      <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong></div>
-                      <div className="payment-line">
-                        {formatDate(payment.paymentDate)}: ₹{payment.specialFee}
-                      </div>
-                    </div>
-                  )}
+                  <table>
+                    {payment.developmentFee > 0 && (
+                      <tr>
+                        <td style={{ paddingBottom: '1mm' }}><strong>Development Fee:</strong></td>
+                        <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>₹{payment.developmentFee}</td>
+                      </tr>
+                    )}
+                    {payment.busFee > 0 && (
+                      <tr>
+                        <td style={{ paddingBottom: '1mm' }}><strong>Bus Fee:</strong></td>
+                        <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>₹{payment.busFee}</td>
+                      </tr>
+                    )}
+                    {payment.specialFee > 0 && (
+                      <tr>
+                        <td style={{ paddingBottom: '1mm' }}><strong>{payment.specialFeeType || 'Other Fee'}:</strong></td>
+                        <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>₹{payment.specialFee}</td>
+                      </tr>
+                    )}
+                  </table>
                 </div>
                 
                 <hr />
