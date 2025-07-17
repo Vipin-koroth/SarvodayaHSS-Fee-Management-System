@@ -36,6 +36,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(JSON.parse(savedUser));
     }
     setLoading(false);
+
+    // Auto logout when window/tab is closed
+    const handleBeforeUnload = () => {
+      localStorage.removeItem('currentUser');
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        // Optional: Also logout when tab becomes hidden (user switches tabs)
+        // Uncomment the line below if you want this behavior
+        // localStorage.removeItem('currentUser');
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Cleanup event listeners
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
