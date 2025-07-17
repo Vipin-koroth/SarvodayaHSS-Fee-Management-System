@@ -1,45 +1,21 @@
-import React, { useState, useContext } from 'react';
-import { DataContext } from '../../contexts/DataContext';
+import React, { useState } from 'react';
 import { Printer, Calendar, Users, FileText } from 'lucide-react';
+import { useData } from '../../contexts/DataContext';
 
-interface BulkPrintBillsProps {}
-
-const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
-  const { payments, students, feeConfig } = useContext(DataContext);
+const BulkPrintBills: React.FC = () => {
+  const { payments, students, feeConfig } = useData();
   const [printCriteria, setPrintCriteria] = useState<'date' | 'class'>('date');
+  const [dateFilter, setDateFilter] = useState<'single' | 'range'>('single');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [selectedClass, setSelectedClass] = useState('1');
-  const [selectedDivision, setSelectedDivision] = useState('A');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [printFormat, setPrintFormat] = useState<'a4-9' | '3x5' | 'a6'>('a4-9');
-
-  const getFilteredPayments = () => {
-    if (printCriteria === 'date') {
-      return payments.filter(payment => new Date(payment.paymentDate).toISOString().split('T')[0] === selectedDate);
-    } else {
-      return payments.filter(payment => {
-        const matchesClass = payment.class === selectedClass && payment.division === selectedDivision;
-        
-        if (!fromDate && !toDate) return matchesClass;
-        
-        const paymentDate = new Date(payment.paymentDate).toISOString().split('T')[0];
-        const matchesFromDate = !fromDate || paymentDate >= fromDate;
-        const matchesToDate = !toDate || paymentDate <= toDate;
-        
-        return matchesClass && matchesFromDate && matchesToDate;
-      });
-    }
-  };
+  const [selectedClass, setSelectedClass] = useState('');
+  const [selectedDivision, setSelectedDivision] = useState('');
+  const [printFormat, setPrintFormat] = useState<'a4-9' | '3x5' | 'a6'>('a6');
 
   const getStudentBalance = (studentId: string) => {
     const student = students.find(s => s.id === studentId);
-    if (!student) return { 
-      developmentPayments: [], 
-      busPayments: [], 
-      devBalance: 0, 
-      busBalance: 0 
-    };
+    if (!student) return { devBalance: 0, busBalance: 0 };
 
     const classKey = ['11', '12'].includes(student.class) 
       ? `${student.class}-${student.division}` 
@@ -49,25 +25,45 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
     const totalBusFee = feeConfig.busStops[student.busStop] || 0;
 
     const studentPayments = payments.filter(p => p.studentId === studentId);
-    
-    // Get individual payments for each fee type
-    const developmentPayments = studentPayments
-      .filter(p => p.developmentFee > 0)
-      .map(p => ({ date: p.paymentDate, amount: p.developmentFee, id: p.id }));
-    
-    const busPayments = studentPayments
-      .filter(p => p.busFee > 0)
-      .map(p => ({ date: p.paymentDate, amount: p.busFee, id: p.id }));
-    
     const paidDevFee = studentPayments.reduce((sum, p) => sum + (p.developmentFee || 0), 0);
     const paidBusFee = studentPayments.reduce((sum, p) => sum + (p.busFee || 0), 0);
 
     return {
-      developmentPayments,
-      busPayments,
       devBalance: Math.max(0, totalDevFee - paidDevFee),
       busBalance: Math.max(0, totalBusFee - paidBusFee)
     };
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+  };
+
+  const getFilteredPayments = () => {
+    let filteredPayments = payments;
+
+    // Apply class filter if selected
+    if (printCriteria === 'class' && selectedClass) {
+      filteredPayments = filteredPayments.filter(payment => {
+        const matchesClass = payment.class === selectedClass;
+        const matchesDivision = !selectedDivision || payment.division === selectedDivision;
+        return matchesClass && matchesDivision;
+      });
+    }
+
+    // Apply date filter
+    if (dateFilter === 'single') {
+      return filteredPayments.filter(payment => 
+        new Date(payment.paymentDate).toISOString().split('T')[0] === selectedDate
+      );
+    } else {
+      return filteredPayments.filter(payment => {
+        const paymentDate = new Date(payment.paymentDate).toISOString().split('T')[0];
+        const matchesFromDate = !fromDate || paymentDate >= fromDate;
+        const matchesToDate = !toDate || paymentDate <= toDate;
+        return matchesFromDate && matchesToDate;
+      });
+    }
   };
 
   const handlePrint = () => {
@@ -96,11 +92,10 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
           <title>Bulk Print Bills</title>
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: Arial, sans-serif; font-size: 8px; }
+            body { font-family: Arial, sans-serif; }
             @media print {
               body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
               .no-print { display: none; }
-              .receipt { page-break-inside: avoid; }
             }
             ${printFormat === 'a4-9' ? `
               @page { size: A4; margin: 5mm; }
@@ -109,11 +104,11 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                 width: 60mm; 
                 height: 85mm; 
                 padding: 3mm; 
-                font-size: 10px; 
-                line-height: 1.3; 
+                font-size: 14px; 
+                line-height: 1.2; 
                 overflow: hidden; 
-                border: 1px solid #000;
                 font-family: Arial, sans-serif;
+                page-break-inside: avoid;
               }
             ` : printFormat === '3x5' ? `
               @page { size: 3in 5in; margin: 2mm; }
@@ -121,12 +116,11 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                 width: calc(3in - 4mm); 
                 height: calc(5in - 4mm); 
                 padding: 4mm; 
-                font-size: 12px; 
-                line-height: 1.4; 
+                font-size: 18px; 
+                line-height: 1.2; 
                 page-break-after: always; 
                 margin: 2mm; 
                 overflow: hidden; 
-                border: 1px solid #000;
                 font-family: Arial, sans-serif;
               }
             ` : `
@@ -134,35 +128,35 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
               .receipt { 
                 width: calc(105mm - 6mm); 
                 height: calc(148mm - 6mm); 
-                padding: 5mm; 
-                font-size: 14px; 
-                line-height: 1.5; 
+                padding: 4mm; 
+                font-size: 22px; 
+                line-height: 1.2; 
                 page-break-after: always; 
                 margin: 3mm; 
                 overflow: hidden; 
-                border: 1px solid #000;
                 font-family: Arial, sans-serif;
               }
             `}
-            .receipt-number { text-align: left; font-size: ${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '10px' : '10px'}; margin-bottom: 2mm; }
+            .receipt-number { text-align: left; font-size: ${printFormat === 'a4-9' ? '10px' : printFormat === '3x5' ? '14px' : '16px'}; margin-bottom: 2mm; color: #666; }
             .receipt-header { text-align: center; margin-bottom: 3mm; }
-            .receipt-header .school-name { font-size: ${printFormat === 'a4-9' ? '16px' : printFormat === '3x5' ? '20px' : '22px'}; font-weight: bold; margin-bottom: 1mm; }
-            .receipt-header .school-subtitle { font-size: ${printFormat === 'a4-9' ? '14px' : printFormat === '3x5' ? '18px' : '20px'}; font-weight: bold; margin-bottom: 1mm; }
-            .receipt-header .location { font-size: ${printFormat === 'a4-9' ? '9px' : printFormat === '3x5' ? '12px' : '14px'}; margin-bottom: 1mm; }
-            .receipt-header .receipt-title { font-size: ${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '11px' : '12px'}; margin-top: 2mm; font-weight: bold; text-decoration: underline; }
-            .student-details { margin-bottom: 2mm; font-size: ${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '10px' : '11px'}; }
+            .receipt-header .school-name { font-size: ${printFormat === 'a4-9' ? '22px' : printFormat === '3x5' ? '26px' : '30px'}; font-weight: bold; margin-bottom: 1mm; }
+            .receipt-header .school-subtitle { font-size: ${printFormat === 'a4-9' ? '20px' : printFormat === '3x5' ? '24px' : '28px'}; font-weight: bold; margin-bottom: 1mm; }
+            .receipt-header .location { font-size: ${printFormat === 'a4-9' ? '16px' : printFormat === '3x5' ? '20px' : '24px'}; margin-bottom: 1mm; }
+            .receipt-header .receipt-title { font-size: ${printFormat === 'a4-9' ? '12px' : printFormat === '3x5' ? '16px' : '18px'}; margin-top: 2mm; font-weight: bold; text-decoration: underline; }
+            .student-details { margin-bottom: 2mm; font-size: ${printFormat === 'a4-9' ? '12px' : printFormat === '3x5' ? '16px' : '18px'}; }
             .student-details table { width: 100%; }
             .student-details td { padding-bottom: 1px; }
-            .fee-details { margin-bottom: 2mm; font-size: ${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '10px' : '11px'}; }
+            .fee-details { margin-bottom: 2mm; font-size: ${printFormat === 'a4-9' ? '12px' : printFormat === '3x5' ? '16px' : '18px'}; }
             .fee-details table { width: 100%; }
             .fee-details td { padding-bottom: 1px; }
             .fee-details-title { font-weight: bold; text-decoration: underline; margin-bottom: 2mm; }
-            .balance-section { margin-bottom: 2mm; font-size: ${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '10px' : '11px'}; }
+            .payment-line { font-size: ${printFormat === 'a4-9' ? '10px' : printFormat === '3x5' ? '14px' : '16px'}; color: #666; margin-left: 8px; }
+            .balance-section { margin-bottom: 2mm; font-size: ${printFormat === 'a4-9' ? '12px' : printFormat === '3x5' ? '16px' : '18px'}; }
             .balance-section table { width: 100%; }
             .balance-section td { padding-bottom: 1px; }
             .balance-title { font-weight: bold; margin-bottom: 2mm; }
-            .total-amount { font-weight: bold; text-align: center; padding: 2mm 0; margin: 2mm 0; font-size: ${printFormat === 'a4-9' ? '10px' : printFormat === '3x5' ? '12px' : '14px'}; }
-            .footer { text-align: center; margin-top: 2mm; font-size: ${printFormat === 'a4-9' ? '7px' : printFormat === '3x5' ? '9px' : '10px'}; font-style: italic; }
+            .total-amount { font-weight: bold; text-align: center; padding: 2mm 0; margin: 2mm 0; font-size: ${printFormat === 'a4-9' ? '16px' : printFormat === '3x5' ? '20px' : '24px'}; }
+            .footer { text-align: center; margin-top: 2mm; font-size: ${printFormat === 'a4-9' ? '10px' : printFormat === '3x5' ? '14px' : '16px'}; font-style: italic; }
             hr { border: 1px solid #000; margin: 2mm 0; }
             .dotted-line { border-top: 1px dotted #000; margin: 2mm 0; }
           </style>
@@ -181,24 +175,25 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
   };
 
   const filteredPayments = getFilteredPayments();
-  const totalAmount = filteredPayments.reduce((sum, payment) => 
-    sum + (payment.developmentFee || 0) + (payment.busFee || 0), 0
-  );
+  const totalAmount = filteredPayments.reduce((sum, payment) => sum + payment.totalAmount, 0);
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <Printer className="w-6 h-6 text-blue-600" />
-        <h2 className="text-xl font-semibold text-gray-800">Bulk Print Bills</h2>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Bulk Print Bills</h1>
+        <p className="text-gray-600">Print receipts with date and class filtering options</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {/* Print Criteria */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Print Criteria
-          </label>
-          <div className="space-y-2">
+      {/* Print Criteria Selection */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <FileText className="w-5 h-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-800">Print Criteria</h2>
+        </div>
+
+        <div className="space-y-4">
+          {/* Criteria Type Selection */}
+          <div className="flex space-x-6">
             <label className="flex items-center">
               <input
                 type="radio"
@@ -222,24 +217,10 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
               Class-wise
             </label>
           </div>
-        </div>
 
-        {/* Selection Inputs */}
-        <div>
-          {printCriteria === 'date' ? (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Date
-              </label>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          ) : (
-            <div className="space-y-3">
+          {/* Class Selection (if class-wise selected) */}
+          {printCriteria === 'class' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Select Class
@@ -249,6 +230,7 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                   onChange={(e) => setSelectedClass(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
+                  <option value="">All Classes</option>
                   {Array.from({ length: 12 }, (_, i) => (
                     <option key={i + 1} value={i + 1}>Class {i + 1}</option>
                   ))}
@@ -262,44 +244,102 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                   value={selectedDivision}
                   onChange={(e) => setSelectedDivision(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={!selectedClass}
                 >
+                  <option value="">All Divisions</option>
                   {['A', 'B', 'C', 'D', 'E'].map(division => (
                     <option key={division} value={division}>Division {division}</option>
                   ))}
                 </select>
               </div>
-             <div>
-               <label className="block text-sm font-medium text-gray-700 mb-2">
-                 From Date (Optional)
-               </label>
-               <input
-                 type="date"
-                 value={fromDate}
-                 onChange={(e) => setFromDate(e.target.value)}
-                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-               />
-             </div>
-             <div>
-               <label className="block text-sm font-medium text-gray-700 mb-2">
-                 To Date (Optional)
-               </label>
-               <input
-                 type="date"
-                 value={toDate}
-                 onChange={(e) => setToDate(e.target.value)}
-                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-               />
-             </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Date Filter Options */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Calendar className="w-5 h-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-800">Date Filter</h2>
+        </div>
+
+        <div className="space-y-4">
+          {/* Filter Type Selection */}
+          <div className="flex space-x-6">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                value="single"
+                checked={dateFilter === 'single'}
+                onChange={(e) => setDateFilter(e.target.value as 'single')}
+                className="mr-2"
+              />
+              Single Date
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                value="range"
+                checked={dateFilter === 'range'}
+                onChange={(e) => setDateFilter(e.target.value as 'range')}
+                className="mr-2"
+              />
+              Date Range
+            </label>
+          </div>
+
+          {/* Date Inputs */}
+          {dateFilter === 'single' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Date
+                </label>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  From Date
+                </label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  To Date
+                </label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
           )}
         </div>
       </div>
 
       {/* Print Format Selection */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          Print Format
-        </label>
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Printer className="w-5 h-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-800">Print Format</h2>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <button
             onClick={() => setPrintFormat('a4-9')}
@@ -341,34 +381,33 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
       </div>
 
       {/* Summary */}
-      <div className="bg-gray-50 rounded-lg p-4 mb-6">
+      <div className="bg-gray-50 rounded-lg p-4">
         <h3 className="font-medium text-gray-800 mb-2">Print Summary</h3>
-        {printCriteria === 'class' && (
-          <div className="mb-2 text-sm text-gray-600">
-            <span className="font-medium">Selected:</span> Class {selectedClass}-{selectedDivision}
-            {(fromDate || toDate) && (
-              <div className="mt-1">
-                <span className="font-medium">Date Range:</span>
-                {fromDate && ` From ${new Date(fromDate).toLocaleDateString()}`}
-                {toDate && ` To ${new Date(toDate).toLocaleDateString()}`}
-                {!fromDate && !toDate && ' All dates'}
-              </div>
-            )}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div>
+            <span className="text-gray-600">Criteria:</span>
+            <span className="ml-2 font-medium">
+              {printCriteria === 'date' ? 'Date-wise' : 'Class-wise'}
+            </span>
           </div>
-        )}
-        {printCriteria === 'date' && (
-          <div className="mb-2 text-sm text-gray-600">
-            <span className="font-medium">Selected Date:</span> {new Date(selectedDate).toLocaleDateString()}
+          <div>
+            <span className="text-gray-600">Filter:</span>
+            <span className="ml-2 font-medium">
+              {printCriteria === 'class' && selectedClass 
+                ? `Class ${selectedClass}${selectedDivision ? `-${selectedDivision}` : ''}`
+                : dateFilter === 'single' 
+                  ? formatDate(selectedDate)
+                  : `${fromDate ? formatDate(fromDate) : 'Start'} - ${toDate ? formatDate(toDate) : 'End'}`
+              }
+            </span>
           </div>
-        )}
-        <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-gray-600">Total Bills:</span>
             <span className="ml-2 font-medium">{filteredPayments.length}</span>
           </div>
           <div>
             <span className="text-gray-600">Total Amount:</span>
-            <span className="ml-2 font-medium">₹{totalAmount}</span>
+            <span className="ml-2 font-medium">₹{totalAmount.toLocaleString()}</span>
           </div>
         </div>
       </div>
@@ -377,11 +416,18 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
       <button
         onClick={handlePrint}
         disabled={filteredPayments.length === 0}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg font-medium"
       >
-        <Printer className="w-4 h-4" />
-        Print {filteredPayments.length} Bills
+        <Printer className="w-5 h-5" />
+        Print {filteredPayments.length} Bills ({printFormat.toUpperCase()})
       </button>
+
+      {filteredPayments.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          <FileText className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+          <p>No payments found for the selected criteria.</p>
+        </div>
+      )}
 
       {/* Hidden Print Content */}
       <div style={{ display: 'none' }}>
@@ -391,6 +437,10 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
               {filteredPayments.map((payment) => {
                 const student = students.find(s => s.id === payment.studentId);
                 const paymentDetails = getStudentBalance(payment.studentId);
+                const studentPayments = payments.filter(p => p.studentId === payment.studentId);
+                const developmentPayments = studentPayments.filter(p => p.developmentFee > 0);
+                const busPayments = studentPayments.filter(p => p.busFee > 0);
+                
                 return (
                   <div key={payment.id} className="receipt">
                     <div className="receipt-number">#{payment.id.slice(-6)}</div>
@@ -401,7 +451,6 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                       <div className="location">Eachome</div>
                       <div className="receipt-title">Fee Payment Receipt</div>
                     </div>
-                    <div className="receipt-content">
                     
                     <hr />
                     
@@ -410,7 +459,7 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                         <tr><td><strong>Name:</strong></td><td style={{textAlign: 'right'}}>{student?.name}</td></tr>
                         <tr><td><strong>Adm No:</strong></td><td style={{textAlign: 'right'}}>{payment.admissionNo}</td></tr>
                         <tr><td><strong>Class:</strong></td><td style={{textAlign: 'right'}}>{student?.class}{student?.division ? `-${student.division}` : ''}</td></tr>
-                        <tr><td><strong>Date:</strong></td><td style={{textAlign: 'right'}}>{new Date(payment.paymentDate).toLocaleDateString()}</td></tr>
+                        <tr><td><strong>Date:</strong></td><td style={{textAlign: 'right'}}>{formatDate(payment.paymentDate)}</td></tr>
                         <tr><td><strong>Receipt #:</strong></td><td style={{textAlign: 'right'}}>{payment.id.slice(-6)}</td></tr>
                       </table>
                     </div>
@@ -419,17 +468,37 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                     
                     <div className="fee-details">
                       <div className="fee-details-title">Fee Details</div>
-                      <table>
-                        {payment.developmentFee > 0 && (
-                          <tr><td><strong>Development Fee:</strong></td><td style={{textAlign: 'right'}}>₹{payment.developmentFee}</td></tr>
-                        )}
-                        {payment.busFee > 0 && (
-                          <tr><td><strong>Bus Fee:</strong></td><td style={{textAlign: 'right'}}>₹{payment.busFee}</td></tr>
-                        )}
-                        {payment.specialFee > 0 && (
-                          <tr><td><strong>{payment.specialFeeType || 'Other Fee'}:</strong></td><td style={{textAlign: 'right'}}>₹{payment.specialFee}</td></tr>
-                        )}
-                      </table>
+                      
+                      {developmentPayments.length > 0 && (
+                        <div style={{ marginBottom: '2mm' }}>
+                          <div><strong>Development Fee:</strong></div>
+                          {developmentPayments.map((devPayment) => (
+                            <div key={devPayment.id} className="payment-line">
+                              {formatDate(devPayment.paymentDate)}: ₹{devPayment.developmentFee}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {busPayments.length > 0 && (
+                        <div style={{ marginBottom: '2mm' }}>
+                          <div><strong>Bus Fee:</strong></div>
+                          {busPayments.map((busPayment) => (
+                            <div key={busPayment.id} className="payment-line">
+                              {formatDate(busPayment.paymentDate)}: ₹{busPayment.busFee}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {payment.specialFee > 0 && (
+                        <div style={{ marginBottom: '2mm' }}>
+                          <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong></div>
+                          <div className="payment-line">
+                            {formatDate(payment.paymentDate)}: ₹{payment.specialFee}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     
                     <hr />
@@ -461,7 +530,6 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                       <div>Thank you for your payment!</div>
                       <div>Keep this receipt for your records</div>
                     </div>
-                    </div>
                   </div>
                 );
               })}
@@ -470,6 +538,10 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
             filteredPayments.map((payment) => {
               const student = students.find(s => s.id === payment.studentId);
               const paymentDetails = getStudentBalance(payment.studentId);
+              const studentPayments = payments.filter(p => p.studentId === payment.studentId);
+              const developmentPayments = studentPayments.filter(p => p.developmentFee > 0);
+              const busPayments = studentPayments.filter(p => p.busFee > 0);
+              
               return (
                 <div key={payment.id} className="receipt">
                   <div className="receipt-number">#{payment.id.slice(-6)}</div>
@@ -488,7 +560,7 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                       <tr><td><strong>Name:</strong></td><td style={{textAlign: 'right'}}>{student?.name}</td></tr>
                       <tr><td><strong>Adm No:</strong></td><td style={{textAlign: 'right'}}>{payment.admissionNo}</td></tr>
                       <tr><td><strong>Class:</strong></td><td style={{textAlign: 'right'}}>{student?.class}{student?.division ? `-${student.division}` : ''}</td></tr>
-                      <tr><td><strong>Date:</strong></td><td style={{textAlign: 'right'}}>{new Date(payment.paymentDate).toLocaleDateString()}</td></tr>
+                      <tr><td><strong>Date:</strong></td><td style={{textAlign: 'right'}}>{formatDate(payment.paymentDate)}</td></tr>
                       <tr><td><strong>Receipt #:</strong></td><td style={{textAlign: 'right'}}>{payment.id.slice(-6)}</td></tr>
                     </table>
                   </div>
@@ -497,17 +569,37 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                   
                   <div className="fee-details">
                     <div className="fee-details-title">Fee Details</div>
-                    <table>
-                      {payment.developmentFee > 0 && (
-                        <tr><td><strong>Development Fee:</strong></td><td style={{textAlign: 'right'}}>₹{payment.developmentFee}</td></tr>
-                      )}
-                      {payment.busFee > 0 && (
-                        <tr><td><strong>Bus Fee:</strong></td><td style={{textAlign: 'right'}}>₹{payment.busFee}</td></tr>
-                      )}
-                      {payment.specialFee > 0 && (
-                        <tr><td><strong>{payment.specialFeeType || 'Other Fee'}:</strong></td><td style={{textAlign: 'right'}}>₹{payment.specialFee}</td></tr>
-                      )}
-                    </table>
+                    
+                    {developmentPayments.length > 0 && (
+                      <div style={{ marginBottom: '3mm' }}>
+                        <div><strong>Development Fee:</strong></div>
+                        {developmentPayments.map((devPayment) => (
+                          <div key={devPayment.id} className="payment-line">
+                            {formatDate(devPayment.paymentDate)}: ₹{devPayment.developmentFee}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {busPayments.length > 0 && (
+                      <div style={{ marginBottom: '3mm' }}>
+                        <div><strong>Bus Fee:</strong></div>
+                        {busPayments.map((busPayment) => (
+                          <div key={busPayment.id} className="payment-line">
+                            {formatDate(busPayment.paymentDate)}: ₹{busPayment.busFee}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {payment.specialFee > 0 && (
+                      <div style={{ marginBottom: '3mm' }}>
+                        <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong></div>
+                        <div className="payment-line">
+                          {formatDate(payment.paymentDate)}: ₹{payment.specialFee}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <hr />
