@@ -62,7 +62,7 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
               margin: 0; 
               padding: 0; 
               background: white;
-              font-size: 11px;
+              font-size: 14px;
               line-height: 1.4;
               color: #333;
             }
@@ -78,10 +78,10 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
               position: relative;
               width: 105mm;
               min-height: 148mm;
-              padding: 8mm;
+              padding: 5mm;
               background: white;
               overflow: hidden;
-              border: 1px solid #000;
+              border: 2px solid #000;
             }
             
             .receipt-content {
@@ -89,25 +89,15 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
               z-index: 2;
             }
             
-            .header {
+            .receipt-header {
               text-align: center;
-              margin-bottom: 4mm;
-              padding-bottom: 3mm;
+              margin-bottom: 3mm;
+              padding-bottom: 2mm;
               border-bottom: 2px solid #000;
             }
             
-            .logo {
-              width: 20mm;
-              height: 20mm;
-              margin: 0 auto 2mm auto;
-              background-image: url('/New Logo.png');
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-position: center;
-            }
-            
             .school-name {
-              font-size: 14px;
+              font-size: 18px;
               font-weight: bold;
               color: #000;
               margin-bottom: 1mm;
@@ -115,174 +105,71 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
             }
             
             .school-subtitle {
-              font-size: 12px;
+              font-size: 16px;
               font-weight: 600;
               color: #000;
               margin-bottom: 1mm;
             }
             
             .location {
-              font-size: 10px;
+              font-size: 14px;
               color: #333;
               margin-bottom: 2mm;
             }
             
             .receipt-title {
-              font-size: 10px;
+              font-size: 13px;
               font-weight: 600;
               color: #000;
-              background: #f0f0f0;
-              padding: 2mm;
-              border-radius: 2mm;
               margin-top: 2mm;
-              border: 1px solid #ccc;
-            }
-            
-            .info-section {
-              margin: 3mm 0;
-            }
-            
-            .info-row {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              padding: 1mm 0;
-              border-bottom: 1px dotted #999;
-            }
-            
-            .info-row:last-child {
-              border-bottom: none;
-            }
-            
-            .info-label {
-              font-weight: 600;
-              color: #000;
-              font-size: 10px;
-            }
-            
-            .info-value {
-              font-weight: 500;
-              color: #000;
-              font-size: 10px;
-            }
-            
-            .fee-section {
-              margin: 3mm 0;
-              background: #f8f8f8;
-              padding: 3mm;
-              border: 1px solid #ccc;
-            }
-            
-            .fee-title {
-              font-size: 10px;
-              font-weight: 700;
-              color: #000;
-              margin-bottom: 2mm;
-              text-align: center;
               text-decoration: underline;
             }
             
-            .fee-row {
+            .receipt-content {
+              margin: 3mm 0;
+              font-size: 13px;
+              line-height: 1.4;
+            }
+            
+            .receipt-content div {
+              margin-bottom: 2px;
               display: flex;
               justify-content: space-between;
-              align-items: center;
-              padding: 1mm 0;
-              font-size: 10px;
             }
             
-            .fee-label {
-              color: #000;
-              font-weight: 500;
-            }
-            
-            .fee-amount {
-              color: #000;
-              font-weight: 600;
-            }
-            
-            .total-section {
-              margin: 3mm 0;
-              background: #e0e0e0;
-              color: #000;
-              padding: 3mm;
-              text-align: center;
-              border: 2px solid #000;
-            }
-            
-            .total-label {
-              font-size: 10px;
-              font-weight: 500;
-              margin-bottom: 1mm;
+            .receipt-content div strong {
+              font-weight: bold;
             }
             
             .total-amount {
-              font-size: 14px;
               font-weight: bold;
-              letter-spacing: 0.5px;
+              border-top: 2px solid #000;
+              padding-top: 2mm;
+              margin-top: 2mm;
+              font-size: 15px;
+              text-align: center;
             }
             
             .balance-section {
               margin: 3mm 0;
-              background: #f5f5f5;
-              padding: 3mm;
-              border: 1px solid #999;
+              padding-top: 2mm;
+              border-top: 2px solid #000;
+              font-size: 12px;
             }
             
-            .balance-title {
-              font-size: 10px;
-              font-weight: 700;
-              color: #000;
-              margin-bottom: 2mm;
-              text-align: center;
-              text-decoration: underline;
-            }
-            
-            .balance-row {
+            .balance-section div {
               display: flex;
               justify-content: space-between;
-              align-items: center;
-              padding: 1mm 0;
-              font-size: 10px;
-            }
-            
-            .balance-label {
-              color: #000;
-              font-weight: 500;
-            }
-            
-            .balance-amount {
-              color: #000;
-              font-weight: 600;
+              margin-bottom: 1px;
             }
             
             .footer {
               margin-top: 3mm;
               text-align: center;
-              padding-top: 3mm;
-              border-top: 1px solid #999;
-            }
-            
-            .footer-text {
-              font-size: 9px;
-              color: #000;
-              margin-bottom: 1mm;
-            }
-            
-            .footer-note {
-              font-size: 8px;
-              color: #333;
+              font-size: 11px;
               font-style: italic;
-            }
-            
-            .receipt-number {
-              position: absolute;
-              top: 2mm;
-              right: 2mm;
-              font-size: 8px;
-              color: #000;
-              background: #f0f0f0;
-              padding: 1mm 2mm;
-              border: 1px solid #999;
+              border-top: 1px dashed #000;
+              padding-top: 3mm;
             }
           </style>
         </head>
@@ -319,93 +206,53 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
 
         {/* Professional A6 Receipt Preview */}
         <div className="bg-gray-50 p-6 rounded-lg mb-6">
-          <h4 className="text-lg font-medium text-gray-900 mb-4 text-center">Professional A6 Receipt Preview</h4>
+          <h4 className="text-lg font-medium text-gray-900 mb-4 text-center">A6 Receipt Preview</h4>
           <div className="flex justify-center">
             <div style={{ transform: 'scale(0.8)', transformOrigin: 'top center' }}>
               <div id="professional-a6-receipt">
                 <>
                   <div className="receipt-number">#{payment.id.slice(-6)}</div>
-                  
-                  <div className="receipt-content">
                     <div className="header">
-                      <div className="logo"></div>
-                      <div className="logo"></div>
-                      <div className="school-name">SARVODAYA</div>
+                    <div className="receipt-header">
+                      <div className="school-name">Sarvodaya</div>
                       <div className="school-subtitle">Higher Secondary School</div>
-                      <div className="location">Eachome, Kerala</div>
+                      <div className="location">Eachome</div>
                       <div className="receipt-title">Fee Payment Receipt</div>
                     </div>
                     
-                    <div className="info-section">
-                      <div className="info-row">
-                        <span className="info-label">Date:</span>
-                        <span className="info-value">{new Date(payment.paymentDate).toLocaleDateString('en-IN')}</span>
-                      </div>
-                      <div className="info-row">
-                        <span className="info-label">Student Name:</span>
-                        <span className="info-value">{payment.studentName}</span>
-                      </div>
-                      <div className="info-row">
-                        <span className="info-label">Admission No:</span>
-                        <span className="info-value">{payment.admissionNo}</span>
-                      </div>
-                      <div className="info-row">
-                        <span className="info-label">Class:</span>
-                        <span className="info-value">{payment.class}-{payment.division}</span>
+                    <div className="receipt-content">
+                      <div><strong>Name:</strong> <span>{payment.studentName}</span></div>
+                      <div><strong>Adm No:</strong> <span>{payment.admissionNo}</span></div>
+                      <div><strong>Class:</strong> <span>{payment.class}{payment.division ? `-${payment.division}` : ''}</span></div>
+                      <div><strong>Date:</strong> <span>{new Date(payment.paymentDate).toLocaleDateString()}</span></div>
+                      <div><strong>Receipt #:</strong> <span>{payment.id.slice(-6)}</span></div>
+                      <div style={{ borderTop: '1px solid #000', paddingTop: '2mm', marginTop: '2mm', marginBottom: '2mm' }}>
+                        <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1mm' }}>Fee Details</div>
+                        {payment.developmentFee > 0 && <div><strong>Development Fee:</strong> <span>₹{payment.developmentFee}</span></div>}
+                        {payment.busFee > 0 && <div><strong>Bus Fee:</strong> <span>₹{payment.busFee}</span></div>}
+                        {payment.specialFee > 0 && <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong> <span>₹{payment.specialFee}</span></div>}
                       </div>
                     </div>
                     
-                    <div className="fee-section">
-                      <div className="fee-title">Payment Details</div>
-                      
-                      {payment.developmentFee > 0 && (
-                        <div className="fee-row">
-                          <span className="fee-label">Development Fee</span>
-                          <span className="fee-amount">₹{payment.developmentFee.toLocaleString()}</span>
-                        </div>
-                      )}
-                      
-                      {payment.busFee > 0 && (
-                        <div className="fee-row">
-                          <span className="fee-label">Bus Fee</span>
-                          <span className="fee-amount">₹{payment.busFee.toLocaleString()}</span>
-                        </div>
-                      )}
-                      
-                      {payment.specialFee > 0 && (
-                        <div className="fee-row">
-                          <span className="fee-label">{payment.specialFeeType}</span>
-                          <span className="fee-amount">₹{payment.specialFee.toLocaleString()}</span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="total-section">
-                      <div className="total-label">Total Amount Paid</div>
-                      <div className="total-amount">₹{payment.totalAmount.toLocaleString()}</div>
+                    <div className="total-amount">
+                      TOTAL PAID: ₹{payment.totalAmount}
                     </div>
                     
                     {(balance.developmentBalance > 0 || balance.busBalance > 0) && (
                       <div className="balance-section">
-                        <div className="balance-title">Remaining Balance</div>
+                        <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1mm' }}>Remaining Balance</div>
                         {balance.developmentBalance > 0 && (
-                          <div className="balance-row">
-                            <span className="balance-label">Development Fee</span>
-                            <span className="balance-amount">₹{balance.developmentBalance.toLocaleString()}</span>
-                          </div>
+                          <div><strong>Development:</strong> <span>₹{balance.developmentBalance}</span></div>
                         )}
                         {balance.busBalance > 0 && (
-                          <div className="balance-row">
-                            <span className="balance-label">Bus Fee</span>
-                            <span className="balance-amount">₹{balance.busBalance.toLocaleString()}</span>
-                          </div>
+                          <div><strong>Bus Fee:</strong> <span>₹{balance.busBalance}</span></div>
                         )}
                       </div>
                     )}
                     
                     <div className="footer">
-                      <div className="footer-text">Thank you for your payment!</div>
-                      <div className="footer-note">Please keep this receipt for your records</div>
+                      <div>Thank you for your payment!</div>
+                      <div>Keep this receipt for your records</div>
                     </div>
                   </div>
                 </>
@@ -433,13 +280,13 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
 
         {/* Print Instructions */}
         <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <h5 className="font-medium text-blue-900 mb-2">Professional A6 Receipt Features:</h5>
+          <h5 className="font-medium text-blue-900 mb-2">A6 Receipt Features:</h5>
           <ul className="text-sm text-blue-800 space-y-1">
             <li>• <strong>A6 Size:</strong> 105mm × 148mm (standard A6 paper)</li>
-            <li>• <strong>School Logo:</strong> Visible logo in header section</li>
+            <li>• <strong>Compact Layout:</strong> Matches bulk print receipt format</li>
             <li>• <strong>Grayscale Compatible:</strong> Optimized for black & white printing</li>
             <li>• <strong>Balance Display:</strong> Shows remaining fee balance</li>
-            <li>• <strong>Professional Design:</strong> Clean layout with proper borders</li>
+            <li>• <strong>Clean Design:</strong> Simple layout with clear borders</li>
             <li>• <strong>Print Settings:</strong> A6 paper, 8mm margins, portrait orientation</li>
           </ul>
         </div>
