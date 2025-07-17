@@ -10,14 +10,29 @@ interface ReceiptPrintProps {
 const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
   const { students, feeConfig, payments } = useData();
   
-  // Calculate balance for the student
-  const calculateBalance = () => {
+  // Get all payments for the student and calculate totals
+  const getStudentPaymentDetails = () => {
     const student = students.find(s => s.id === payment.studentId);
-    if (!student) return { developmentBalance: 0, busBalance: 0 };
+    if (!student) return { 
+      developmentPayments: [], 
+      busPayments: [], 
+      developmentBalance: 0, 
+      busBalance: 0 
+    };
     
     const studentPayments = payments.filter(p => p.studentId === payment.studentId);
-    const totalPaidDevelopment = studentPayments.reduce((sum, p) => sum + p.developmentFee, 0);
-    const totalPaidBus = studentPayments.reduce((sum, p) => sum + p.busFee, 0);
+    
+    // Get individual payments for each fee type
+    const developmentPayments = studentPayments
+      .filter(p => p.developmentFee > 0)
+      .map(p => ({ date: p.paymentDate, amount: p.developmentFee, id: p.id }));
+    
+    const busPayments = studentPayments
+      .filter(p => p.busFee > 0)
+      .map(p => ({ date: p.paymentDate, amount: p.busFee, id: p.id }));
+    
+    const totalPaidDevelopment = developmentPayments.reduce((sum, p) => sum + p.amount, 0);
+    const totalPaidBus = busPayments.reduce((sum, p) => sum + p.amount, 0);
     
     // Get the correct fee key for classes 11 and 12 (class-division) or regular classes (class only)
     const feeKey = (student.class === '11' || student.class === '12') 
@@ -27,12 +42,14 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
     const totalBusRequired = feeConfig.busStops[student.busStop] || 0;
     
     return {
+      developmentPayments,
+      busPayments,
       developmentBalance: Math.max(0, totalDevelopmentRequired - totalPaidDevelopment),
       busBalance: Math.max(0, totalBusRequired - totalPaidBus)
     };
   };
   
-  const balance = calculateBalance();
+  const paymentDetails = getStudentPaymentDetails();
   
   const handlePrint = () => {
     const printContent = document.getElementById('professional-a6-receipt');
@@ -228,26 +245,32 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                       <div><strong>Receipt #:</strong> <span>{payment.id.slice(-6)}</span></div>
                       <div style={{ borderTop: '1px solid #000', paddingTop: '2mm', marginTop: '2mm', marginBottom: '2mm' }}>
                         <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1mm' }}>Fee Details</div>
-                        {payment.developmentFee > 0 && (
+                        
+                        {/* Development Fee Payments */}
+                        {paymentDetails.developmentPayments.length > 0 && (
                           <div>
-                            <div><strong>Development Fee:</strong> <span>₹{payment.developmentFee}</span></div>
-                            {balance.developmentBalance > 0 && (
-                              <div style={{ fontSize: '11px', color: '#666', marginLeft: '10px' }}>
-                                Balance: ₹{balance.developmentBalance}
+                            <div style={{ fontWeight: 'bold', marginBottom: '1mm' }}>Development Fee:</div>
+                            {paymentDetails.developmentPayments.map((pay, index) => (
+                              <div key={pay.id} style={{ fontSize: '11px', marginLeft: '10px', marginBottom: '1px' }}>
+                                {new Date(pay.date).toLocaleDateString()}: ₹{pay.amount}
                               </div>
-                            )}
+                            ))}
                           </div>
                         )}
-                        {payment.busFee > 0 && (
+                        
+                        {/* Bus Fee Payments */}
+                        {paymentDetails.busPayments.length > 0 && (
                           <div>
-                            <div><strong>Bus Fee:</strong> <span>₹{payment.busFee}</span></div>
-                            {balance.busBalance > 0 && (
-                              <div style={{ fontSize: '11px', color: '#666', marginLeft: '10px' }}>
-                                Balance: ₹{balance.busBalance}
+                            <div style={{ fontWeight: 'bold', marginBottom: '1mm', marginTop: '2mm' }}>Bus Fee:</div>
+                            {paymentDetails.busPayments.map((pay, index) => (
+                              <div key={pay.id} style={{ fontSize: '11px', marginLeft: '10px', marginBottom: '1px' }}>
+                                {new Date(pay.date).toLocaleDateString()}: ₹{pay.amount}
                               </div>
-                            )}
+                            ))}
                           </div>
                         )}
+                        
+                        {/* Special Fee for current payment only */}
                         {payment.specialFee > 0 && <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong> <span>₹{payment.specialFee}</span></div>}
                       </div>
                     </div>
@@ -256,14 +279,14 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                       TOTAL PAID: ₹{payment.totalAmount}
                     </div>
                     
-                    {(balance.developmentBalance > 0 || balance.busBalance > 0) && (
+                    {(paymentDetails.developmentBalance > 0 || paymentDetails.busBalance > 0) && (
                       <div className="balance-section">
                         <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1mm' }}>Remaining Balance</div>
-                        {balance.developmentBalance > 0 && (
-                          <div><strong>Development:</strong> <span>₹{balance.developmentBalance}</span></div>
+                        {paymentDetails.developmentBalance > 0 && (
+                          <div><strong>Development:</strong> <span>₹{paymentDetails.developmentBalance}</span></div>
                         )}
-                        {balance.busBalance > 0 && (
-                          <div><strong>Bus Fee:</strong> <span>₹{balance.busBalance}</span></div>
+                        {paymentDetails.busBalance > 0 && (
+                          <div><strong>Bus Fee:</strong> <span>₹{paymentDetails.busBalance}</span></div>
                         )}
                       </div>
                     )}

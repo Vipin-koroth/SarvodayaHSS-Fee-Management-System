@@ -34,7 +34,12 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
 
   const getStudentBalance = (studentId: string) => {
     const student = students.find(s => s.id === studentId);
-    if (!student) return { devBalance: 0, busBalance: 0 };
+    if (!student) return { 
+      developmentPayments: [], 
+      busPayments: [], 
+      devBalance: 0, 
+      busBalance: 0 
+    };
 
     const classKey = ['11', '12'].includes(student.class) 
       ? `${student.class}-${student.division}` 
@@ -44,10 +49,22 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
     const totalBusFee = feeConfig.busStops[student.busStop] || 0;
 
     const studentPayments = payments.filter(p => p.studentId === studentId);
+    
+    // Get individual payments for each fee type
+    const developmentPayments = studentPayments
+      .filter(p => p.developmentFee > 0)
+      .map(p => ({ date: p.paymentDate, amount: p.developmentFee, id: p.id }));
+    
+    const busPayments = studentPayments
+      .filter(p => p.busFee > 0)
+      .map(p => ({ date: p.paymentDate, amount: p.busFee, id: p.id }));
+    
     const paidDevFee = studentPayments.reduce((sum, p) => sum + (p.developmentFee || 0), 0);
     const paidBusFee = studentPayments.reduce((sum, p) => sum + (p.busFee || 0), 0);
 
     return {
+      developmentPayments,
+      busPayments,
       devBalance: Math.max(0, totalDevFee - paidDevFee),
       busBalance: Math.max(0, totalBusFee - paidBusFee)
     };
@@ -333,7 +350,7 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
             <div className="receipt-grid">
               {filteredPayments.map((payment) => {
                 const student = students.find(s => s.id === payment.studentId);
-                const balance = getStudentBalance(payment.studentId);
+                const paymentDetails = getStudentBalance(payment.studentId);
                 return (
                   <div key={payment.id} className="receipt">
                     <div className="receipt-header">
@@ -350,37 +367,43 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                       <div><strong>Receipt #:</strong> <span>{payment.id.slice(-6)}</span></div>
                       <div style={{ borderTop: '1px solid #000', paddingTop: '2mm', marginTop: '2mm', marginBottom: '2mm' }}>
                         <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1mm' }}>Fee Details</div>
-                        {payment.developmentFee > 0 && (
+                        
+                        {/* Development Fee Payments */}
+                        {paymentDetails.developmentPayments.length > 0 && (
                           <div>
-                            <div><strong>Development Fee:</strong> <span>₹{payment.developmentFee}</span></div>
-                            {balance.devBalance > 0 && (
-                              <div style={{ fontSize: `${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '10px' : '11px'}`, color: '#666', marginLeft: '10px' }}>
-                                Balance: ₹{balance.devBalance}
+                            <div style={{ fontWeight: 'bold', marginBottom: '1mm' }}>Development Fee:</div>
+                            {paymentDetails.developmentPayments.map((pay, index) => (
+                              <div key={pay.id} style={{ fontSize: `${printFormat === 'a4-9' ? '7px' : printFormat === '3x5' ? '9px' : '10px'}`, marginLeft: '8px', marginBottom: '1px' }}>
+                                {new Date(pay.date).toLocaleDateString()}: ₹{pay.amount}
                               </div>
-                            )}
+                            ))}
                           </div>
                         )}
-                        {payment.busFee > 0 && (
+                        
+                        {/* Bus Fee Payments */}
+                        {paymentDetails.busPayments.length > 0 && (
                           <div>
-                            <div><strong>Bus Fee:</strong> <span>₹{payment.busFee}</span></div>
-                            {balance.busBalance > 0 && (
-                              <div style={{ fontSize: `${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '10px' : '11px'}`, color: '#666', marginLeft: '10px' }}>
-                                Balance: ₹{balance.busBalance}
+                            <div style={{ fontWeight: 'bold', marginBottom: '1mm', marginTop: '2mm' }}>Bus Fee:</div>
+                            {paymentDetails.busPayments.map((pay, index) => (
+                              <div key={pay.id} style={{ fontSize: `${printFormat === 'a4-9' ? '7px' : printFormat === '3x5' ? '9px' : '10px'}`, marginLeft: '8px', marginBottom: '1px' }}>
+                                {new Date(pay.date).toLocaleDateString()}: ₹{pay.amount}
                               </div>
-                            )}
+                            ))}
                           </div>
                         )}
+                        
+                        {/* Special Fee for current payment only */}
                         {payment.specialFee > 0 && <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong> <span>₹{payment.specialFee}</span></div>}
                       </div>
                     </div>
                     <div className="total-amount">
                       TOTAL PAID: ₹{payment.totalAmount}
                     </div>
-                    {(balance.devBalance > 0 || balance.busBalance > 0) && (
+                    {(paymentDetails.devBalance > 0 || paymentDetails.busBalance > 0) && (
                       <div className="balance-section">
                         <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '1mm' }}>Remaining Balance</div>
-                        {balance.devBalance > 0 && <div><strong>Development:</strong> <span>₹{balance.devBalance}</span></div>}
-                        {balance.busBalance > 0 && <div><strong>Bus Fee:</strong> <span>₹{balance.busBalance}</span></div>}
+                        {paymentDetails.devBalance > 0 && <div><strong>Development:</strong> <span>₹{paymentDetails.devBalance}</span></div>}
+                        {paymentDetails.busBalance > 0 && <div><strong>Bus Fee:</strong> <span>₹{paymentDetails.busBalance}</span></div>}
                       </div>
                     )}
                     <div className="footer">
@@ -394,7 +417,7 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
           ) : (
             filteredPayments.map((payment) => {
               const student = students.find(s => s.id === payment.studentId);
-              const balance = getStudentBalance(payment.studentId);
+              const paymentDetails = getStudentBalance(payment.studentId);
               return (
                 <div key={payment.id} className="receipt">
                   <div className="receipt-header">
@@ -411,19 +434,42 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                    <div><strong>Receipt Number:</strong> <span>{payment.id.slice(-6)}</span></div>
                    <div style={{ borderTop: '1px solid #000', paddingTop: '3mm', marginTop: '3mm', marginBottom: '3mm' }}>
                      <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '2mm' }}>Fee Details</div>
-                     {payment.developmentFee > 0 && <div><strong>Development Fee:</strong> <span>₹{payment.developmentFee}</span></div>}
-                     {payment.busFee > 0 && <div><strong>Bus Fee:</strong> <span>₹{payment.busFee}</span></div>}
+                     
+                     {/* Development Fee Payments */}
+                     {paymentDetails.developmentPayments.length > 0 && (
+                       <div>
+                         <div style={{ fontWeight: 'bold', marginBottom: '1mm' }}>Development Fee:</div>
+                         {paymentDetails.developmentPayments.map((pay, index) => (
+                           <div key={pay.id} style={{ fontSize: `${printFormat === '3x5' ? '10px' : '11px'}`, marginLeft: '10px', marginBottom: '1px' }}>
+                             {new Date(pay.date).toLocaleDateString()}: ₹{pay.amount}
+                           </div>
+                         ))}
+                       </div>
+                     )}
+                     
+                     {/* Bus Fee Payments */}
+                     {paymentDetails.busPayments.length > 0 && (
+                       <div>
+                         <div style={{ fontWeight: 'bold', marginBottom: '1mm', marginTop: '2mm' }}>Bus Fee:</div>
+                         {paymentDetails.busPayments.map((pay, index) => (
+                           <div key={pay.id} style={{ fontSize: `${printFormat === '3x5' ? '10px' : '11px'}`, marginLeft: '10px', marginBottom: '1px' }}>
+                             {new Date(pay.date).toLocaleDateString()}: ₹{pay.amount}
+                           </div>
+                         ))}
+                       </div>
+                     )}
+                     
                      {payment.specialFee > 0 && <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong> <span>₹{payment.specialFee}</span></div>}
                    </div>
                   </div>
                   <div className="total-amount">
                    TOTAL PAID: ₹{payment.totalAmount}
                   </div>
-                  {(balance.devBalance > 0 || balance.busBalance > 0) && (
+                  {(paymentDetails.devBalance > 0 || paymentDetails.busBalance > 0) && (
                     <div className="balance-section">
                      <div style={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '2mm' }}>Remaining Balance</div>
-                     {balance.devBalance > 0 && <div><strong>Development Fee:</strong> <span>₹{balance.devBalance}</span></div>}
-                     {balance.busBalance > 0 && <div><strong>Bus Fee:</strong> <span>₹{balance.busBalance}</span></div>}
+                     {paymentDetails.devBalance > 0 && <div><strong>Development Fee:</strong> <span>₹{paymentDetails.devBalance}</span></div>}
+                     {paymentDetails.busBalance > 0 && <div><strong>Bus Fee:</strong> <span>₹{paymentDetails.busBalance}</span></div>}
                     </div>
                   )}
                  <div className="footer">
