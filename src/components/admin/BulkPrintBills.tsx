@@ -11,7 +11,6 @@ const BulkPrintBills: React.FC = () => {
   const [toDate, setToDate] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedDivision, setSelectedDivision] = useState('');
-  const [printFormat, setPrintFormat] = useState<'a4-9' | '3x5' | 'a6'>('a6');
 
   const getStudentBalance = (studentId: string) => {
     const student = students.find(s => s.id === studentId);
@@ -73,7 +72,7 @@ const BulkPrintBills: React.FC = () => {
       return;
     }
 
-    const printContent = document.getElementById(`bulk-bills-print-${printFormat}`);
+    const printContent = document.getElementById('bulk-bills-print-a6');
     if (!printContent) {
       alert('Print content not found. Please try again.');
       return;
@@ -89,7 +88,7 @@ const BulkPrintBills: React.FC = () => {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Bulk Print Bills</title>
+          <title>Print Receipt</title>
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: Arial, sans-serif; }
@@ -97,66 +96,38 @@ const BulkPrintBills: React.FC = () => {
               body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
               .no-print { display: none; }
             }
-            ${printFormat === 'a4-9' ? `
-              @page { size: A4; margin: 5mm; }
-              .receipt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; padding: 0; }
-              .receipt { 
-                width: 60mm; 
-                height: 85mm; 
-                padding: 3mm; 
-                font-size: 10px; 
-                line-height: 1.2; 
-                overflow: hidden; 
-                font-family: Arial, sans-serif;
-                page-break-inside: avoid;
-              }
-            ` : printFormat === '3x5' ? `
-              @page { size: 3in 5in; margin: 2mm; }
-              .receipt { 
-                width: calc(3in - 4mm); 
-                height: calc(5in - 4mm); 
-                padding: 4mm; 
-                font-size: 12px; 
-                line-height: 1.2; 
-                page-break-after: always; 
-                margin: 2mm; 
-                overflow: hidden; 
-                font-family: Arial, sans-serif;
-              }
-            ` : `
-              @page { size: A6; margin: 3mm; }
-              .receipt { 
-                width: calc(105mm - 6mm); 
-                height: calc(148mm - 6mm); 
-                padding: 4mm; 
-                font-size: 10px; 
-                line-height: 1.2; 
-                page-break-after: always; 
-                margin: 3mm; 
-                overflow: hidden; 
-                font-family: Arial, sans-serif;
-              }
-            `}
-            .receipt-number { text-align: left; font-size: ${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '10px' : '8px'}; margin-bottom: 1mm; color: #666; }
+            @page { size: A6; margin: 3mm; }
+            .receipt { 
+              width: calc(105mm - 6mm); 
+              height: calc(148mm - 6mm); 
+              padding: 4mm; 
+              font-size: 10px; 
+              line-height: 1.2; 
+              page-break-after: always; 
+              margin: 3mm; 
+              overflow: hidden; 
+              font-family: Arial, sans-serif;
+            }
+            .receipt-number { text-align: left; font-size: 8px; margin-bottom: 1mm; color: #666; }
             .receipt-header { text-align: center; margin-bottom: 3mm; }
-            .receipt-header .school-name { font-size: ${printFormat === 'a4-9' ? '14px' : printFormat === '3x5' ? '16px' : '14px'}; font-weight: bold; margin-bottom: 1mm; }
-            .receipt-header .school-subtitle { font-size: ${printFormat === 'a4-9' ? '12px' : printFormat === '3x5' ? '14px' : '12px'}; font-weight: bold; margin-bottom: 1mm; }
-            .receipt-header .location { font-size: ${printFormat === 'a4-9' ? '10px' : printFormat === '3x5' ? '12px' : '10px'}; margin-bottom: 1mm; }
-            .receipt-header .receipt-title { font-size: ${printFormat === 'a4-9' ? '9px' : printFormat === '3x5' ? '11px' : '9px'}; margin-top: 1mm; font-weight: bold; text-decoration: underline; }
-            .student-details { margin-bottom: 2mm; font-size: ${printFormat === 'a4-9' ? '9px' : printFormat === '3x5' ? '11px' : '9px'}; }
+            .receipt-header .school-name { font-size: 14px; font-weight: bold; margin-bottom: 1mm; }
+            .receipt-header .school-subtitle { font-size: 12px; font-weight: bold; margin-bottom: 1mm; }
+            .receipt-header .location { font-size: 10px; margin-bottom: 1mm; }
+            .receipt-header .receipt-title { font-size: 9px; margin-top: 1mm; font-weight: bold; text-decoration: underline; }
+            .student-details { margin-bottom: 2mm; font-size: 9px; }
             .student-details table { width: 100%; }
             .student-details td { padding-bottom: 1px; }
-            .fee-details { margin-bottom: 2mm; font-size: ${printFormat === 'a4-9' ? '9px' : printFormat === '3x5' ? '11px' : '9px'}; }
+            .fee-details { margin-bottom: 2mm; font-size: 9px; }
             .fee-details table { width: 100%; }
             .fee-details td { padding-bottom: 1px; }
             .fee-details-title { font-weight: bold; text-decoration: underline; margin-bottom: 2mm; }
-            .payment-line { font-size: ${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '10px' : '8px'}; color: #666; margin-left: 6px; }
-            .balance-section { margin-bottom: 2mm; font-size: ${printFormat === 'a4-9' ? '9px' : printFormat === '3x5' ? '11px' : '9px'}; }
+            .payment-line { font-size: 8px; color: #666; margin-left: 6px; }
+            .balance-section { margin-bottom: 2mm; font-size: 9px; }
             .balance-section table { width: 100%; }
             .balance-section td { padding-bottom: 1px; }
             .balance-title { font-weight: bold; margin-bottom: 2mm; }
-            .total-amount { font-weight: bold; text-align: center; padding: 1mm 0; margin: 1mm 0; font-size: ${printFormat === 'a4-9' ? '11px' : printFormat === '3x5' ? '13px' : '11px'}; }
-            .footer { text-align: center; margin-top: 1mm; font-size: ${printFormat === 'a4-9' ? '8px' : printFormat === '3x5' ? '10px' : '8px'}; font-style: italic; }
+            .total-amount { font-weight: bold; text-align: center; padding: 1mm 0; margin: 1mm 0; font-size: 11px; }
+            .footer { text-align: center; margin-top: 1mm; font-size: 8px; font-style: italic; }
             hr { border: 1px solid #000; margin: 2mm 0; }
             .dotted-line { border-top: 1px dotted #000; margin: 2mm 0; }
           </style>
@@ -180,7 +151,7 @@ const BulkPrintBills: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Bulk Print Bills</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Print Receipt</h1>
         <p className="text-gray-600">Print receipts with date and class filtering options</p>
       </div>
 
@@ -333,52 +304,6 @@ const BulkPrintBills: React.FC = () => {
         </div>
       </div>
 
-      {/* Print Format Selection */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Printer className="w-5 h-5 text-blue-600" />
-          <h2 className="text-lg font-semibold text-gray-800">Print Format</h2>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <button
-            onClick={() => setPrintFormat('a4-9')}
-            className={`p-3 border rounded-lg text-left transition-colors ${
-              printFormat === 'a4-9' 
-                ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                : 'border-gray-300 hover:border-gray-400'
-            }`}
-          >
-            <FileText className="w-5 h-5 mb-1" />
-            <div className="font-medium">A4 - 9 Receipts</div>
-            <div className="text-sm text-gray-600">9 receipts per A4 sheet</div>
-          </button>
-          <button
-            onClick={() => setPrintFormat('3x5')}
-            className={`p-3 border rounded-lg text-left transition-colors ${
-              printFormat === '3x5' 
-                ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                : 'border-gray-300 hover:border-gray-400'
-            }`}
-          >
-            <FileText className="w-5 h-5 mb-1" />
-            <div className="font-medium">3x5 Inch</div>
-            <div className="text-sm text-gray-600">Single receipt per page</div>
-          </button>
-          <button
-            onClick={() => setPrintFormat('a6')}
-            className={`p-3 border rounded-lg text-left transition-colors ${
-              printFormat === 'a6' 
-                ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                : 'border-gray-300 hover:border-gray-400'
-            }`}
-          >
-            <FileText className="w-5 h-5 mb-1" />
-            <div className="font-medium">A6 Size</div>
-            <div className="text-sm text-gray-600">Single A6 receipt</div>
-          </button>
-        </div>
-      </div>
 
       {/* Summary */}
       <div className="bg-gray-50 rounded-lg p-4">
@@ -419,7 +344,7 @@ const BulkPrintBills: React.FC = () => {
         className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg font-medium"
       >
         <Printer className="w-5 h-5" />
-        Print {filteredPayments.length} Bills ({printFormat.toUpperCase()})
+        Print {filteredPayments.length} A6 Receipts
       </button>
 
       {filteredPayments.length === 0 && (
@@ -431,210 +356,106 @@ const BulkPrintBills: React.FC = () => {
 
       {/* Hidden Print Content */}
       <div style={{ display: 'none' }}>
-        <div id={`bulk-bills-print-${printFormat}`}>
-          {printFormat === 'a4-9' ? (
-            <div className="receipt-grid">
-              {filteredPayments.map((payment) => {
-                const student = students.find(s => s.id === payment.studentId);
-                const paymentDetails = getStudentBalance(payment.studentId);
-                const studentPayments = payments.filter(p => p.studentId === payment.studentId);
-                const developmentPayments = studentPayments.filter(p => p.developmentFee > 0);
-                const busPayments = studentPayments.filter(p => p.busFee > 0);
+        <div id="bulk-bills-print-a6">
+          {filteredPayments.map((payment) => {
+            const student = students.find(s => s.id === payment.studentId);
+            const paymentDetails = getStudentBalance(payment.studentId);
+            const studentPayments = payments.filter(p => p.studentId === payment.studentId);
+            const developmentPayments = studentPayments.filter(p => p.developmentFee > 0);
+            const busPayments = studentPayments.filter(p => p.busFee > 0);
+            
+            return (
+              <div key={payment.id} className="receipt">
+                <div className="receipt-number">#{payment.id.slice(-6)}</div>
                 
-                return (
-                  <div key={payment.id} className="receipt">
-                    <div className="receipt-number">#{payment.id.slice(-6)}</div>
-                    
-                    <div className="receipt-header">
-                      <div className="school-name">Sarvodaya</div>
-                      <div className="school-subtitle">Higher Secondary School</div>
-                      <div className="location">Eachome</div>
-                      <div className="receipt-title">Fee Payment Receipt</div>
-                    </div>
-                    
-                    <hr />
-                    
-                    <div className="student-details">
-                      <table>
-                        <tr><td><strong>Name:</strong></td><td style={{textAlign: 'right'}}>{student?.name}</td></tr>
-                        <tr><td><strong>Adm No:</strong></td><td style={{textAlign: 'right'}}>{payment.admissionNo}</td></tr>
-                        <tr><td><strong>Class:</strong></td><td style={{textAlign: 'right'}}>{student?.class}{student?.division ? `-${student.division}` : ''}</td></tr>
-                        <tr><td><strong>Date:</strong></td><td style={{textAlign: 'right'}}>{formatDate(payment.paymentDate)}</td></tr>
-                        <tr><td><strong>Receipt #:</strong></td><td style={{textAlign: 'right'}}>{payment.id.slice(-6)}</td></tr>
-                      </table>
-                    </div>
-                    
-                    <hr />
-                    
-                    <div className="fee-details">
-                      <div className="fee-details-title">Fee Details</div>
-                      
-                      {developmentPayments.length > 0 && (
-                        <div style={{ marginBottom: '2mm' }}>
-                          <div><strong>Development Fee:</strong></div>
-                          {developmentPayments.map((devPayment) => (
-                            <div key={devPayment.id} className="payment-line">
-                              {formatDate(devPayment.paymentDate)}: ₹{devPayment.developmentFee}
-                            </div>
-                          ))}
+                <div className="receipt-header">
+                  <div className="school-name">Sarvodaya</div>
+                  <div className="school-subtitle">Higher Secondary School</div>
+                  <div className="location">Eachome</div>
+                  <div className="receipt-title">Fee Payment Receipt</div>
+                </div>
+                
+                <hr />
+                
+                <div className="student-details">
+                  <table>
+                    <tr><td><strong>Name:</strong></td><td style={{textAlign: 'right'}}>{student?.name}</td></tr>
+                    <tr><td><strong>Adm No:</strong></td><td style={{textAlign: 'right'}}>{payment.admissionNo}</td></tr>
+                    <tr><td><strong>Class:</strong></td><td style={{textAlign: 'right'}}>{student?.class}{student?.division ? `-${student.division}` : ''}</td></tr>
+                    <tr><td><strong>Date:</strong></td><td style={{textAlign: 'right'}}>{formatDate(payment.paymentDate)}</td></tr>
+                    <tr><td><strong>Receipt #:</strong></td><td style={{textAlign: 'right'}}>{payment.id.slice(-6)}</td></tr>
+                  </table>
+                </div>
+                
+                <hr />
+                
+                <div className="fee-details">
+                  <div className="fee-details-title">Fee Details</div>
+                  
+                  {developmentPayments.length > 0 && (
+                    <div style={{ marginBottom: '3mm' }}>
+                      <div><strong>Development Fee:</strong></div>
+                      {developmentPayments.map((devPayment) => (
+                        <div key={devPayment.id} className="payment-line">
+                          {formatDate(devPayment.paymentDate)}: ₹{devPayment.developmentFee}
                         </div>
-                      )}
-                      
-                      {busPayments.length > 0 && (
-                        <div style={{ marginBottom: '2mm' }}>
-                          <div><strong>Bus Fee:</strong></div>
-                          {busPayments.map((busPayment) => (
-                            <div key={busPayment.id} className="payment-line">
-                              {formatDate(busPayment.paymentDate)}: ₹{busPayment.busFee}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      
-                      {payment.specialFee > 0 && (
-                        <div style={{ marginBottom: '2mm' }}>
-                          <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong></div>
-                          <div className="payment-line">
-                            {formatDate(payment.paymentDate)}: ₹{payment.specialFee}
-                          </div>
-                        </div>
-                      )}
+                      ))}
                     </div>
-                    
-                    <hr />
-                    
-                    <div className="total-amount">
-                      TOTAL PAID: ₹{payment.totalAmount}
-                    </div>
-                    
-                    <hr />
-                    
-                    {(paymentDetails.devBalance > 0 || paymentDetails.busBalance > 0) && (
-                      <>
-                        <div className="balance-section">
-                          <div className="balance-title">Remaining Balance</div>
-                          <table>
-                            {paymentDetails.devBalance > 0 && (
-                              <tr><td><strong>Development:</strong></td><td style={{textAlign: 'right'}}>₹{paymentDetails.devBalance}</td></tr>
-                            )}
-                            {paymentDetails.busBalance > 0 && (
-                              <tr><td><strong>Bus Fee:</strong></td><td style={{textAlign: 'right'}}>₹{paymentDetails.busBalance}</td></tr>
-                            )}
-                          </table>
-                        </div>
-                        <div className="dotted-line"></div>
-                      </>
-                    )}
-                    
-                    <div className="footer">
-                      <div>Thank you for your payment!</div>
-                      <div>Keep this receipt for your records</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            filteredPayments.map((payment) => {
-              const student = students.find(s => s.id === payment.studentId);
-              const paymentDetails = getStudentBalance(payment.studentId);
-              const studentPayments = payments.filter(p => p.studentId === payment.studentId);
-              const developmentPayments = studentPayments.filter(p => p.developmentFee > 0);
-              const busPayments = studentPayments.filter(p => p.busFee > 0);
-              
-              return (
-                <div key={payment.id} className="receipt">
-                  <div className="receipt-number">#{payment.id.slice(-6)}</div>
-                  
-                  <div className="receipt-header">
-                    <div className="school-name">Sarvodaya</div>
-                    <div className="school-subtitle">Higher Secondary School</div>
-                    <div className="location">Eachome</div>
-                    <div className="receipt-title">Fee Payment Receipt</div>
-                  </div>
-                  
-                  <hr />
-                  
-                  <div className="student-details">
-                    <table>
-                      <tr><td><strong>Name:</strong></td><td style={{textAlign: 'right'}}>{student?.name}</td></tr>
-                      <tr><td><strong>Adm No:</strong></td><td style={{textAlign: 'right'}}>{payment.admissionNo}</td></tr>
-                      <tr><td><strong>Class:</strong></td><td style={{textAlign: 'right'}}>{student?.class}{student?.division ? `-${student.division}` : ''}</td></tr>
-                      <tr><td><strong>Date:</strong></td><td style={{textAlign: 'right'}}>{formatDate(payment.paymentDate)}</td></tr>
-                      <tr><td><strong>Receipt #:</strong></td><td style={{textAlign: 'right'}}>{payment.id.slice(-6)}</td></tr>
-                    </table>
-                  </div>
-                  
-                  <hr />
-                  
-                  <div className="fee-details">
-                    <div className="fee-details-title">Fee Details</div>
-                    
-                    {developmentPayments.length > 0 && (
-                      <div style={{ marginBottom: '3mm' }}>
-                        <div><strong>Development Fee:</strong></div>
-                        {developmentPayments.map((devPayment) => (
-                          <div key={devPayment.id} className="payment-line">
-                            {formatDate(devPayment.paymentDate)}: ₹{devPayment.developmentFee}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {busPayments.length > 0 && (
-                      <div style={{ marginBottom: '3mm' }}>
-                        <div><strong>Bus Fee:</strong></div>
-                        {busPayments.map((busPayment) => (
-                          <div key={busPayment.id} className="payment-line">
-                            {formatDate(busPayment.paymentDate)}: ₹{busPayment.busFee}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {payment.specialFee > 0 && (
-                      <div style={{ marginBottom: '3mm' }}>
-                        <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong></div>
-                        <div className="payment-line">
-                          {formatDate(payment.paymentDate)}: ₹{payment.specialFee}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <hr />
-                  
-                  <div className="total-amount">
-                    TOTAL PAID: ₹{payment.totalAmount}
-                  </div>
-                  
-                  <hr />
-                  
-                  {(paymentDetails.devBalance > 0 || paymentDetails.busBalance > 0) && (
-                    <>
-                      <div className="balance-section">
-                        <div className="balance-title">Remaining Balance</div>
-                        <table>
-                          {paymentDetails.devBalance > 0 && (
-                            <tr><td><strong>Development:</strong></td><td style={{textAlign: 'right'}}>₹{paymentDetails.devBalance}</td></tr>
-                          )}
-                          {paymentDetails.busBalance > 0 && (
-                            <tr><td><strong>Bus Fee:</strong></td><td style={{textAlign: 'right'}}>₹{paymentDetails.busBalance}</td></tr>
-                          )}
-                        </table>
-                      </div>
-                      <div className="dotted-line"></div>
-                    </>
                   )}
                   
-                  <div className="footer">
-                    <div>Thank you for your payment!</div>
-                    <div>Keep this receipt for your records</div>
-                  </div>
+                  {busPayments.length > 0 && (
+                    <div style={{ marginBottom: '3mm' }}>
+                      <div><strong>Bus Fee:</strong></div>
+                      {busPayments.map((busPayment) => (
+                        <div key={busPayment.id} className="payment-line">
+                          {formatDate(busPayment.paymentDate)}: ₹{busPayment.busFee}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {payment.specialFee > 0 && (
+                    <div style={{ marginBottom: '3mm' }}>
+                      <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong></div>
+                      <div className="payment-line">
+                        {formatDate(payment.paymentDate)}: ₹{payment.specialFee}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              );
-            })
-          )}
+                
+                <hr />
+                
+                <div className="total-amount">
+                  TOTAL PAID: ₹{payment.totalAmount}
+                </div>
+                
+                <hr />
+                
+                {(paymentDetails.devBalance > 0 || paymentDetails.busBalance > 0) && (
+                  <>
+                    <div className="balance-section">
+                      <div className="balance-title">Remaining Balance</div>
+                      <table>
+                        {paymentDetails.devBalance > 0 && (
+                          <tr><td><strong>Development:</strong></td><td style={{textAlign: 'right'}}>₹{paymentDetails.devBalance}</td></tr>
+                        )}
+                        {paymentDetails.busBalance > 0 && (
+                          <tr><td><strong>Bus Fee:</strong></td><td style={{textAlign: 'right'}}>₹{paymentDetails.busBalance}</td></tr>
+                        )}
+                      </table>
+                    </div>
+                    <div className="dotted-line"></div>
+                  </>
+                )}
+                
+                <div className="footer">
+                  <div>Thank you for your payment!</div>
+                  <div>Keep this receipt for your records</div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
