@@ -165,7 +165,7 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
         display: flex; 
         justify-content: space-between; 
         margin-bottom: ${printSize === 'a4-9' ? '1px' : '2px'};
-        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '8px' : '9px'};
+        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '8px' : '10px'};
         line-height: 1.1;
       }
       .receipt .total { 
@@ -173,18 +173,18 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
         padding-top: ${printSize === 'a4-9' ? '2px' : '4px'}; 
         margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
         font-weight: bold;
-        font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '9px' : '10px'};
+        font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '9px' : '12px'};
       }
       .receipt .balance-section {
         border-top: 1px solid #000;
         padding-top: ${printSize === 'a4-9' ? '2px' : '4px'};
         margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
-        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '8px' : '9px'};
+        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '8px' : '10px'};
       }
       .receipt .footer {
         text-align: center;
         margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
-        font-size: ${printSize === 'a4-9' ? '5px' : printSize === '3x5' ? '7px' : '8px'};
+        font-size: ${printSize === 'a4-9' ? '5px' : printSize === '3x5' ? '7px' : '9px'};
         border-top: 1px solid #000;
         padding-top: ${printSize === 'a4-9' ? '2px' : '4px'};
       }
