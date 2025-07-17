@@ -194,9 +194,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Twilio SMS Integration
   const sendViaTwilio = async (mobile: string, message: string) => {
-    const TWILIO_ACCOUNT_SID = process.env.REACT_APP_TWILIO_ACCOUNT_SID;
-    const TWILIO_AUTH_TOKEN = process.env.REACT_APP_TWILIO_AUTH_TOKEN;
-    const TWILIO_PHONE_NUMBER = process.env.REACT_APP_TWILIO_PHONE_NUMBER;
+    const savedCredentials = localStorage.getItem('smsCredentials');
+    const credentials = savedCredentials ? JSON.parse(savedCredentials) : null;
+    
+    const TWILIO_ACCOUNT_SID = credentials?.twilio?.accountSid;
+    const TWILIO_AUTH_TOKEN = credentials?.twilio?.authToken;
+    const TWILIO_PHONE_NUMBER = credentials?.twilio?.phoneNumber;
 
     if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
       throw new Error('Twilio credentials not configured');
@@ -222,8 +225,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // TextLocal SMS Integration (India)
   const sendViaTextLocal = async (mobile: string, message: string) => {
-    const TEXTLOCAL_API_KEY = process.env.REACT_APP_TEXTLOCAL_API_KEY;
-    const TEXTLOCAL_SENDER = process.env.REACT_APP_TEXTLOCAL_SENDER || 'SCHOOL';
+    const savedCredentials = localStorage.getItem('smsCredentials');
+    const credentials = savedCredentials ? JSON.parse(savedCredentials) : null;
+    
+    const TEXTLOCAL_API_KEY = credentials?.textlocal?.apiKey;
+    const TEXTLOCAL_SENDER = credentials?.textlocal?.sender || 'SCHOOL';
 
     if (!TEXTLOCAL_API_KEY) {
       throw new Error('TextLocal API key not configured');
@@ -250,9 +256,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // MSG91 SMS Integration (India)
   const sendViaMSG91 = async (mobile: string, message: string) => {
-    const MSG91_API_KEY = process.env.REACT_APP_MSG91_API_KEY;
-    const MSG91_SENDER_ID = process.env.REACT_APP_MSG91_SENDER_ID || 'SCHOOL';
-    const MSG91_ROUTE = process.env.REACT_APP_MSG91_ROUTE || '4';
+    const savedCredentials = localStorage.getItem('smsCredentials');
+    const credentials = savedCredentials ? JSON.parse(savedCredentials) : null;
+    
+    const MSG91_API_KEY = credentials?.msg91?.apiKey;
+    const MSG91_SENDER_ID = credentials?.msg91?.senderId || 'SCHOOL';
+    const MSG91_ROUTE = credentials?.msg91?.route || '4';
 
     if (!MSG91_API_KEY) {
       throw new Error('MSG91 API key not configured');

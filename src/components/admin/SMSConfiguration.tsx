@@ -41,21 +41,6 @@ const SMSConfiguration: React.FC = () => {
   const handleSave = () => {
     localStorage.setItem('smsCredentials', JSON.stringify(credentials));
     localStorage.setItem('smsProvider', smsProvider);
-    
-    // Set environment variables (in a real app, these would be set on the server)
-    if (smsProvider === 'twilio') {
-      process.env.REACT_APP_TWILIO_ACCOUNT_SID = credentials.twilio.accountSid;
-      process.env.REACT_APP_TWILIO_AUTH_TOKEN = credentials.twilio.authToken;
-      process.env.REACT_APP_TWILIO_PHONE_NUMBER = credentials.twilio.phoneNumber;
-    } else if (smsProvider === 'textlocal') {
-      process.env.REACT_APP_TEXTLOCAL_API_KEY = credentials.textlocal.apiKey;
-      process.env.REACT_APP_TEXTLOCAL_SENDER = credentials.textlocal.sender;
-    } else if (smsProvider === 'msg91') {
-      process.env.REACT_APP_MSG91_API_KEY = credentials.msg91.apiKey;
-      process.env.REACT_APP_MSG91_SENDER_ID = credentials.msg91.senderId;
-      process.env.REACT_APP_MSG91_ROUTE = credentials.msg91.route;
-    }
-    
     setSuccess('SMS configuration saved successfully!');
     setTimeout(() => setSuccess(''), 3000);
   };
