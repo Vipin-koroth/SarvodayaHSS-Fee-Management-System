@@ -76,26 +76,12 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
             
             .receipt-container {
               position: relative;
-              width: 89mm;
-              min-height: 132mm;
-              padding: 6mm;
+              width: 105mm;
+              min-height: 148mm;
+              padding: 8mm;
               background: white;
               overflow: hidden;
-            }
-            
-            .watermark {
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              width: 50mm;
-              height: 50mm;
-              background-image: url('/New Logo.png');
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-position: center;
-              opacity: 0.08;
-              z-index: 1;
+              border: 1px solid #000;
             }
             
             .receipt-content {
@@ -105,52 +91,63 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
             
             .header {
               text-align: center;
-              margin-bottom: 6mm;
-              padding-bottom: 4mm;
-              border-bottom: 2px solid #2563eb;
+              margin-bottom: 4mm;
+              padding-bottom: 3mm;
+              border-bottom: 2px solid #000;
+            }
+            
+            .logo {
+              width: 20mm;
+              height: 20mm;
+              margin: 0 auto 2mm auto;
+              background-image: url('/New Logo.png');
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
             }
             
             .school-name {
-              font-size: 16px;
+              font-size: 14px;
               font-weight: bold;
-              color: #1e40af;
+              color: #000;
               margin-bottom: 1mm;
               letter-spacing: 0.5px;
             }
             
             .school-subtitle {
-              font-size: 13px;
+              font-size: 12px;
               font-weight: 600;
-              color: #374151;
+              color: #000;
               margin-bottom: 1mm;
             }
             
             .location {
               font-size: 10px;
-              color: #6b7280;
+              color: #333;
               margin-bottom: 2mm;
             }
             
             .receipt-title {
-              font-size: 11px;
+              font-size: 10px;
               font-weight: 600;
-              color: #1f2937;
-              background: #f3f4f6;
+              color: #000;
+              background: #f0f0f0;
               padding: 2mm;
               border-radius: 2mm;
               margin-top: 2mm;
+              border: 1px solid #ccc;
             }
             
             .info-section {
-              margin: 4mm 0;
+              margin: 3mm 0;
             }
             
             .info-row {
               display: flex;
               justify-content: space-between;
               align-items: center;
-              padding: 1.5mm 0;
-              border-bottom: 1px dotted #d1d5db;
+              padding: 1mm 0;
+              border-bottom: 1px dotted #999;
             }
             
             .info-row:last-child {
@@ -159,85 +156,85 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
             
             .info-label {
               font-weight: 600;
-              color: #374151;
+              color: #000;
               font-size: 10px;
             }
             
             .info-value {
               font-weight: 500;
-              color: #1f2937;
+              color: #000;
               font-size: 10px;
             }
             
             .fee-section {
-              margin: 5mm 0;
-              background: #f9fafb;
+              margin: 3mm 0;
+              background: #f8f8f8;
               padding: 3mm;
-              border-radius: 3mm;
-              border-left: 3px solid #10b981;
+              border: 1px solid #ccc;
             }
             
             .fee-title {
-              font-size: 11px;
+              font-size: 10px;
               font-weight: 700;
-              color: #065f46;
-              margin-bottom: 3mm;
+              color: #000;
+              margin-bottom: 2mm;
               text-align: center;
+              text-decoration: underline;
             }
             
             .fee-row {
               display: flex;
               justify-content: space-between;
               align-items: center;
-              padding: 1.5mm 0;
+              padding: 1mm 0;
               font-size: 10px;
             }
             
             .fee-label {
-              color: #374151;
+              color: #000;
               font-weight: 500;
             }
             
             .fee-amount {
-              color: #059669;
+              color: #000;
               font-weight: 600;
             }
             
             .total-section {
-              margin: 4mm 0;
-              background: #1e40af;
-              color: white;
+              margin: 3mm 0;
+              background: #e0e0e0;
+              color: #000;
               padding: 3mm;
-              border-radius: 3mm;
               text-align: center;
+              border: 2px solid #000;
             }
             
             .total-label {
-              font-size: 11px;
+              font-size: 10px;
               font-weight: 500;
               margin-bottom: 1mm;
             }
             
             .total-amount {
-              font-size: 16px;
+              font-size: 14px;
               font-weight: bold;
               letter-spacing: 0.5px;
             }
             
             .balance-section {
-              margin: 4mm 0;
-              background: #fef3c7;
+              margin: 3mm 0;
+              background: #f5f5f5;
               padding: 3mm;
-              border-radius: 3mm;
-              border-left: 3px solid #f59e0b;
+              border: 1px solid #999;
             }
             
             .balance-title {
               font-size: 10px;
               font-weight: 700;
-              color: #92400e;
+              color: #000;
               margin-bottom: 2mm;
               text-align: center;
+              text-decoration: underline;
             }
             
             .balance-row {
@@ -245,35 +242,35 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
               justify-content: space-between;
               align-items: center;
               padding: 1mm 0;
-              font-size: 9px;
+              font-size: 10px;
             }
             
             .balance-label {
-              color: #78350f;
+              color: #000;
               font-weight: 500;
             }
             
             .balance-amount {
-              color: #d97706;
+              color: #000;
               font-weight: 600;
             }
             
             .footer {
-              margin-top: 5mm;
+              margin-top: 3mm;
               text-align: center;
               padding-top: 3mm;
-              border-top: 1px solid #e5e7eb;
+              border-top: 1px solid #999;
             }
             
             .footer-text {
               font-size: 9px;
-              color: #6b7280;
+              color: #000;
               margin-bottom: 1mm;
             }
             
             .footer-note {
               font-size: 8px;
-              color: #9ca3af;
+              color: #333;
               font-style: italic;
             }
             
@@ -282,10 +279,10 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
               top: 2mm;
               right: 2mm;
               font-size: 8px;
-              color: #6b7280;
-              background: #f3f4f6;
+              color: #000;
+              background: #f0f0f0;
               padding: 1mm 2mm;
-              border-radius: 2mm;
+              border: 1px solid #999;
             }
           </style>
         </head>
@@ -326,12 +323,12 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
           <div className="flex justify-center">
             <div style={{ transform: 'scale(0.8)', transformOrigin: 'top center' }}>
               <div id="professional-a6-receipt">
-                <div className="receipt-container">
-                  <div className="watermark"></div>
                   <div className="receipt-number">#{payment.id.slice(-6)}</div>
                   
                   <div className="receipt-content">
                     <div className="header">
+                      <div className="logo"></div>
+                      <div className="logo"></div>
                       <div className="school-name">SARVODAYA</div>
                       <div className="school-subtitle">Higher Secondary School</div>
                       <div className="location">Eachome, Kerala</div>
@@ -438,9 +435,10 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
           <h5 className="font-medium text-blue-900 mb-2">Professional A6 Receipt Features:</h5>
           <ul className="text-sm text-blue-800 space-y-1">
             <li>• <strong>A6 Size:</strong> 105mm × 148mm (standard A6 paper)</li>
-            <li>• <strong>Logo Watermark:</strong> Subtle school logo background</li>
-            <li>• <strong>Professional Design:</strong> Clean layout with proper typography</li>
-            <li>• <strong>Color Coding:</strong> Blue header, green fees, yellow balance</li>
+            <li>• <strong>School Logo:</strong> Visible logo in header section</li>
+            <li>• <strong>Grayscale Compatible:</strong> Optimized for black & white printing</li>
+            <li>• <strong>Balance Display:</strong> Shows remaining fee balance</li>
+            <li>• <strong>Professional Design:</strong> Clean layout with proper borders</li>
             <li>• <strong>Print Settings:</strong> A6 paper, 8mm margins, portrait orientation</li>
           </ul>
         </div>
