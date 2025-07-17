@@ -368,26 +368,8 @@ const BulkPrintBills: React.FC<BulkPrintBillsProps> = () => {
                                 Balance: ₹{balance.busBalance}
                               </div>
                             )}
-                       {payment.developmentFee > 0 && (
-                         <div>
-                           <div><strong>Development Fee:</strong> <span>₹{payment.developmentFee}</span></div>
-                           {balance.devBalance > 0 && (
-                             <div style={{ fontSize: '11px', color: '#666', marginLeft: '10px' }}>
-                               Balance: ₹{balance.devBalance}
-                             </div>
-                           )}
-                         </div>
-                       )}
-                       {payment.busFee > 0 && (
-                         <div>
-                           <div><strong>Bus Fee:</strong> <span>₹{payment.busFee}</span></div>
-                           {balance.busBalance > 0 && (
-                             <div style={{ fontSize: '11px', color: '#666', marginLeft: '10px' }}>
-                               Balance: ₹{balance.busBalance}
-                             </div>
-                           )}
-                         </div>
-                       )}
+                          </div>
+                        )}
                         {payment.specialFee > 0 && <div><strong>{payment.specialFeeType || 'Other Fee'}:</strong> <span>₹{payment.specialFee}</span></div>}
                       </div>
                     </div>
