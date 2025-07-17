@@ -99,7 +99,7 @@ const ClassReceiptPrint: React.FC = () => {
               width: calc(105mm - 6mm); 
               height: calc(148mm - 6mm); 
               padding: 4mm; 
-              font-size: 18px; 
+              font-size: 14px; 
               line-height: 1.2; 
               page-break-after: always; 
               margin: 3mm; 
@@ -107,26 +107,26 @@ const ClassReceiptPrint: React.FC = () => {
               font-family: Arial, sans-serif;
               border: none;
             }
-            .receipt-number { text-align: left; font-size: 14px; margin-bottom: 1mm; color: #666; }
+            .receipt-number { text-align: left; font-size: 10px; margin-bottom: 1mm; color: #666; }
             .receipt-header { text-align: center; margin-bottom: 3mm; }
-            .receipt-header .school-name { font-size: 26px; font-weight: bold; margin-bottom: 1mm; }
-            .receipt-header .school-subtitle { font-size: 24px; font-weight: bold; margin-bottom: 1mm; }
-            .receipt-header .location { font-size: 20px; margin-bottom: 1mm; }
-            .receipt-header .receipt-title { font-size: 16px; margin-top: 1mm; font-weight: bold; text-decoration: underline; }
-            .student-details { margin-bottom: 2mm; font-size: 16px; }
+            .receipt-header .school-name { font-size: 22px; font-weight: bold; margin-bottom: 1mm; }
+            .receipt-header .school-subtitle { font-size: 20px; font-weight: bold; margin-bottom: 1mm; }
+            .receipt-header .location { font-size: 16px; margin-bottom: 1mm; }
+            .receipt-header .receipt-title { font-size: 12px; margin-top: 1mm; font-weight: bold; text-decoration: underline; }
+            .student-details { margin-bottom: 2mm; font-size: 12px; }
             .student-details table { width: 100%; }
             .student-details td { padding-bottom: 1px; }
-            .fee-details { margin-bottom: 2mm; font-size: 16px; }
+            .fee-details { margin-bottom: 2mm; font-size: 12px; }
             .fee-details table { width: 100%; }
             .fee-details td { padding-bottom: 1px; }
             .fee-details-title { font-weight: bold; text-decoration: underline; margin-bottom: 2mm; }
-            .payment-line { font-size: 14px; color: #666; margin-left: 6px; }
-            .balance-section { margin-bottom: 2mm; font-size: 16px; }
+            .payment-line { font-size: 10px; color: #666; margin-left: 6px; }
+            .balance-section { margin-bottom: 2mm; font-size: 12px; }
             .balance-section table { width: 100%; }
             .balance-section td { padding-bottom: 1px; }
             .balance-title { font-weight: bold; margin-bottom: 2mm; }
-            .total-amount { font-weight: bold; text-align: center; padding: 1mm 0; margin: 1mm 0; font-size: 20px; }
-            .footer { text-align: center; margin-top: 1mm; font-size: 14px; font-style: italic; }
+            .total-amount { font-weight: bold; text-align: center; padding: 1mm 0; margin: 1mm 0; font-size: 16px; }
+            .footer { text-align: center; margin-top: 1mm; font-size: 10px; font-style: italic; }
             hr { border: 0.5px solid #000; margin: 2mm 0; }
             .dotted-line { border-top: 0.5px dotted #000; margin: 2mm 0; }
           </style>

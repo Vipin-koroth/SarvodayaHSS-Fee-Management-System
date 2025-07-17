@@ -239,22 +239,22 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                   border: 'none'
                 }}>
                   {/* Receipt Number */}
-                  <div style={{ textAlign: 'left', fontSize: '14px', marginBottom: '2mm' }}>
+                  <div style={{ textAlign: 'left', fontSize: '10px', marginBottom: '2mm' }}>
                     #{payment.id.slice(-6)}
                   </div>
                   
                   {/* Header */}
                   <div style={{ textAlign: 'center', marginBottom: '3mm' }}>
-                    <div style={{ fontSize: '26px', fontWeight: 'bold', marginBottom: '1mm' }}>
+                    <div style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '1mm' }}>
                       Sarvodaya
                     </div>
-                    <div style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '1mm' }}>
+                    <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '1mm' }}>
                       Higher Secondary School
                     </div>
-                    <div style={{ fontSize: '20px', marginBottom: '1mm' }}>
+                    <div style={{ fontSize: '16px', marginBottom: '1mm' }}>
                       Eachome
                     </div>
-                    <div style={{ fontSize: '16px', textDecoration: 'underline', fontWeight: 'bold' }}>
+                    <div style={{ fontSize: '12px', textDecoration: 'underline', fontWeight: 'bold' }}>
                       Fee Payment Receipt
                     </div>
                   </div>
@@ -263,7 +263,7 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                   
                   {/* Student Details */}
                   <div style={{ marginBottom: '2mm' }}>
-                    <table style={{ width: '100%', fontSize: '16px' }}>
+                    <table style={{ width: '100%', fontSize: '12px' }}>
                       <tr>
                         <td style={{ paddingBottom: '1mm' }}><strong>Name:</strong></td>
                         <td style={{ textAlign: 'right', paddingBottom: '1mm' }}>{payment.studentName}</td>
@@ -291,11 +291,11 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                   
                   {/* Fee Details */}
                   <div style={{ marginBottom: '2mm' }}>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', textDecoration: 'underline', marginBottom: '1mm' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', textDecoration: 'underline', marginBottom: '1mm' }}>
                       Fee Details
                     </div>
                     
-                    <table style={{ width: '100%', fontSize: '16px' }}>
+                    <table style={{ width: '100%', fontSize: '12px' }}>
                       {payment.developmentFee > 0 && (
                         <tr>
                           <td style={{ paddingBottom: '1mm' }}><strong>Development Fee:</strong></td>
@@ -322,7 +322,7 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                   {/* Total Amount */}
                   <div style={{ 
                     textAlign: 'center', 
-                    fontSize: '20px', 
+                    fontSize: '16px', 
                     fontWeight: 'bold', 
                     marginBottom: '2mm',
                     padding: '2mm 0'
@@ -336,11 +336,11 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                   {(paymentDetails.developmentBalance > 0 || paymentDetails.busBalance > 0) && (
                     <>
                       <div style={{ marginBottom: '2mm' }}>
-                        <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '1mm' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '1mm' }}>
                           Remaining Balance
                         </div>
                         
-                        <table style={{ width: '100%', fontSize: '16px' }}>
+                        <table style={{ width: '100%', fontSize: '12px' }}>
                           {paymentDetails.developmentBalance > 0 && (
                             <tr>
                               <td style={{ paddingBottom: '1mm' }}><strong>Development:</strong></td>
@@ -363,7 +363,7 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                   {/* Footer */}
                   <div style={{ 
                     textAlign: 'center', 
-                    fontSize: '14px', 
+                    fontSize: '10px', 
                     fontStyle: 'italic',
                     marginTop: '2mm'
                   }}>
