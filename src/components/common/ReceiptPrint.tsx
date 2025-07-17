@@ -323,6 +323,7 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
           <div className="flex justify-center">
             <div style={{ transform: 'scale(0.8)', transformOrigin: 'top center' }}>
               <div id="professional-a6-receipt">
+                <>
                   <div className="receipt-number">#{payment.id.slice(-6)}</div>
                   
                   <div className="receipt-content">
@@ -407,7 +408,8 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
                       <div className="footer-note">Please keep this receipt for your records</div>
                     </div>
                   </div>
-                </div>
+                  </div>
+                </>
               </div>
             </div>
           </div>
