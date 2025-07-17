@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { X, Printer } from 'lucide-react';
 import { Payment, useData } from '../../contexts/DataContext';
 
@@ -9,7 +9,6 @@ interface ReceiptPrintProps {
 
 const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
   const { students, feeConfig, payments } = useData();
-  const [printSize, setPrintSize] = useState<'a4-9' | '3x5' | 'a6'>('3x5');
   
   // Calculate balance for the student
   const calculateBalance = () => {
@@ -36,7 +35,7 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
   const balance = calculateBalance();
   
   const handlePrint = () => {
-    const printContent = document.getElementById(`receipt-print-${printSize}`);
+    const printContent = document.getElementById('professional-a6-receipt');
     if (!printContent) {
       alert('Print content not found. Please try again.');
       return;
@@ -48,155 +47,246 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
       return;
     }
     
-    let pageStyles = '';
-    let pageSetup = '';
-    
-    switch (printSize) {
-      case 'a4-9':
-        pageSetup = '@page { size: A4; margin: 5mm; }';
-        pageStyles = `
-          body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 5mm; 
-            background: white;
-            font-size: 8px;
-          }
-          .receipt-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 3mm;
-            width: 100%;
-            height: calc(100vh - 10mm);
-          }
-          .receipt { 
-            width: 58mm; 
-            height: 82mm; 
-            border: 1px solid #000; 
-            padding: 2mm; 
-            font-size: 7px;
-            line-height: 1.1;
-            page-break-inside: avoid;
-            overflow: hidden;
-          }
-        `;
-        break;
-      case '3x5':
-        pageSetup = '@page { size: 3in 5in; margin: 2mm; }';
-        pageStyles = `
-          body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 0; 
-            background: white;
-            font-size: 9px;
-          }
-          .receipt { 
-            width: calc(3in - 4mm); 
-            height: calc(5in - 4mm); 
-            border: 1px solid #000; 
-            padding: 2mm; 
-            font-size: 9px;
-            line-height: 1.2;
-            margin: 2mm;
-            overflow: hidden;
-          }
-        `;
-        break;
-      case 'a6':
-        pageSetup = '@page { size: A6; margin: 3mm; }';
-        pageStyles = `
-          body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 0; 
-            background: white;
-            font-size: 10px;
-          }
-          .receipt { 
-            width: calc(105mm - 6mm); 
-            height: calc(148mm - 6mm); 
-            border: 1px solid #000; 
-            padding: 3mm; 
-            font-size: 10px;
-            line-height: 1.3;
-            margin: 3mm;
-            overflow: hidden;
-          }
-        `;
-        break;
-    }
-
-    const commonStyles = `
-      ${pageSetup}
-      @media print {
-        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        .receipt { page-break-inside: avoid; }
-      }
-      .receipt .school-name {
-        margin: 0 0 1px 0;
-        font-size: ${printSize === 'a4-9' ? '8px' : printSize === '3x5' ? '10px' : '12px'};
-        text-align: center;
-        font-weight: bold;
-      }
-      .receipt .school-subtitle {
-        margin: 0 0 1px 0;
-        font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '9px' : '10px'};
-        text-align: center;
-        font-weight: bold;
-      }
-      .receipt .location {
-        margin: 0 0 3px 0;
-        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '8px' : '9px'};
-        text-align: center;
-      }
-      .receipt .receipt-title {
-        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '7px' : '8px'};
-        text-align: center;
-        margin: 0 0 ${printSize === 'a4-9' ? '2px' : '3px'} 0;
-      }
-      .receipt .header {
-        text-align: center;
-        border-bottom: 1px solid #000;
-        padding-bottom: ${printSize === 'a4-9' ? '2px' : '4px'};
-        margin-bottom: ${printSize === 'a4-9' ? '3px' : '6px'};
-      }
-      .receipt .row { 
-        display: flex; 
-        justify-content: space-between; 
-        margin-bottom: ${printSize === 'a4-9' ? '1px' : '2px'};
-        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '8px' : '10px'};
-        line-height: 1.1;
-      }
-      .receipt .total { 
-        border-top: 1px solid #000; 
-        padding-top: ${printSize === 'a4-9' ? '2px' : '4px'}; 
-        margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
-        font-weight: bold;
-        font-size: ${printSize === 'a4-9' ? '7px' : printSize === '3x5' ? '9px' : '12px'};
-      }
-      .receipt .balance-section {
-        border-top: 1px solid #000;
-        padding-top: ${printSize === 'a4-9' ? '2px' : '4px'};
-        margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
-        font-size: ${printSize === 'a4-9' ? '6px' : printSize === '3x5' ? '8px' : '10px'};
-      }
-      .receipt .footer {
-        text-align: center;
-        margin-top: ${printSize === 'a4-9' ? '3px' : '6px'};
-        font-size: ${printSize === 'a4-9' ? '5px' : printSize === '3x5' ? '7px' : '9px'};
-        border-top: 1px solid #000;
-        padding-top: ${printSize === 'a4-9' ? '2px' : '4px'};
-      }
-    `;
-
     newWindow.document.write(`
       <html>
         <head>
-          <title>Payment Receipt - ${printSize.toUpperCase()}</title>
+          <title>Payment Receipt - ${payment.studentName}</title>
           <style>
-            ${pageStyles}
-            ${commonStyles}
+            @page { 
+              size: A6; 
+              margin: 8mm; 
+            }
+            
+            body { 
+              font-family: 'Arial', sans-serif; 
+              margin: 0; 
+              padding: 0; 
+              background: white;
+              font-size: 11px;
+              line-height: 1.4;
+              color: #333;
+            }
+            
+            @media print {
+              body { 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+              }
+            }
+            
+            .receipt-container {
+              position: relative;
+              width: 89mm;
+              min-height: 132mm;
+              padding: 6mm;
+              background: white;
+              overflow: hidden;
+            }
+            
+            .watermark {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              width: 50mm;
+              height: 50mm;
+              background-image: url('/New Logo.png');
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
+              opacity: 0.08;
+              z-index: 1;
+            }
+            
+            .receipt-content {
+              position: relative;
+              z-index: 2;
+            }
+            
+            .header {
+              text-align: center;
+              margin-bottom: 6mm;
+              padding-bottom: 4mm;
+              border-bottom: 2px solid #2563eb;
+            }
+            
+            .school-name {
+              font-size: 16px;
+              font-weight: bold;
+              color: #1e40af;
+              margin-bottom: 1mm;
+              letter-spacing: 0.5px;
+            }
+            
+            .school-subtitle {
+              font-size: 13px;
+              font-weight: 600;
+              color: #374151;
+              margin-bottom: 1mm;
+            }
+            
+            .location {
+              font-size: 10px;
+              color: #6b7280;
+              margin-bottom: 2mm;
+            }
+            
+            .receipt-title {
+              font-size: 11px;
+              font-weight: 600;
+              color: #1f2937;
+              background: #f3f4f6;
+              padding: 2mm;
+              border-radius: 2mm;
+              margin-top: 2mm;
+            }
+            
+            .info-section {
+              margin: 4mm 0;
+            }
+            
+            .info-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 1.5mm 0;
+              border-bottom: 1px dotted #d1d5db;
+            }
+            
+            .info-row:last-child {
+              border-bottom: none;
+            }
+            
+            .info-label {
+              font-weight: 600;
+              color: #374151;
+              font-size: 10px;
+            }
+            
+            .info-value {
+              font-weight: 500;
+              color: #1f2937;
+              font-size: 10px;
+            }
+            
+            .fee-section {
+              margin: 5mm 0;
+              background: #f9fafb;
+              padding: 3mm;
+              border-radius: 3mm;
+              border-left: 3px solid #10b981;
+            }
+            
+            .fee-title {
+              font-size: 11px;
+              font-weight: 700;
+              color: #065f46;
+              margin-bottom: 3mm;
+              text-align: center;
+            }
+            
+            .fee-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 1.5mm 0;
+              font-size: 10px;
+            }
+            
+            .fee-label {
+              color: #374151;
+              font-weight: 500;
+            }
+            
+            .fee-amount {
+              color: #059669;
+              font-weight: 600;
+            }
+            
+            .total-section {
+              margin: 4mm 0;
+              background: #1e40af;
+              color: white;
+              padding: 3mm;
+              border-radius: 3mm;
+              text-align: center;
+            }
+            
+            .total-label {
+              font-size: 11px;
+              font-weight: 500;
+              margin-bottom: 1mm;
+            }
+            
+            .total-amount {
+              font-size: 16px;
+              font-weight: bold;
+              letter-spacing: 0.5px;
+            }
+            
+            .balance-section {
+              margin: 4mm 0;
+              background: #fef3c7;
+              padding: 3mm;
+              border-radius: 3mm;
+              border-left: 3px solid #f59e0b;
+            }
+            
+            .balance-title {
+              font-size: 10px;
+              font-weight: 700;
+              color: #92400e;
+              margin-bottom: 2mm;
+              text-align: center;
+            }
+            
+            .balance-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 1mm 0;
+              font-size: 9px;
+            }
+            
+            .balance-label {
+              color: #78350f;
+              font-weight: 500;
+            }
+            
+            .balance-amount {
+              color: #d97706;
+              font-weight: 600;
+            }
+            
+            .footer {
+              margin-top: 5mm;
+              text-align: center;
+              padding-top: 3mm;
+              border-top: 1px solid #e5e7eb;
+            }
+            
+            .footer-text {
+              font-size: 9px;
+              color: #6b7280;
+              margin-bottom: 1mm;
+            }
+            
+            .footer-note {
+              font-size: 8px;
+              color: #9ca3af;
+              font-style: italic;
+            }
+            
+            .receipt-number {
+              position: absolute;
+              top: 2mm;
+              right: 2mm;
+              font-size: 8px;
+              color: #6b7280;
+              background: #f3f4f6;
+              padding: 1mm 2mm;
+              border-radius: 2mm;
+            }
           </style>
         </head>
         <body>
@@ -220,100 +310,9 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
     }, 500);
   };
 
-  const renderReceipt = (size: string) => (
-    <div className="receipt">
-      <div className="header">
-        <div className="school-name">Sarvodaya</div>
-        <div className="school-subtitle">Higher Secondary School</div>
-        <div className="location">Eachome</div>
-        <div className="receipt-title">Fee Payment Receipt</div>
-      </div>
-      
-      <div className="row">
-        <span>Receipt #:</span>
-        <span>{payment.id.slice(-6)}</span>
-      </div>
-      
-      <div className="row">
-        <span>Date:</span>
-        <span>{new Date(payment.paymentDate).toLocaleDateString()}</span>
-      </div>
-      
-      <div className="row">
-        <span>Student:</span>
-        <span>{payment.studentName}</span>
-      </div>
-      
-      <div className="row">
-        <span>Adm No:</span>
-        <span>{payment.admissionNo}</span>
-      </div>
-      
-      <div className="row">
-        <span>Class:</span>
-        <span>{payment.class}-{payment.division}</span>
-      </div>
-      
-      <div style={{ borderTop: '1px solid #000', paddingTop: size === 'a4-9' ? '2px' : '4px', marginTop: size === 'a4-9' ? '3px' : '6px', marginBottom: size === 'a4-9' ? '2px' : '4px' }}>
-        <div style={{ fontWeight: 'bold', marginBottom: size === 'a4-9' ? '1px' : '2px', fontSize: size === 'a4-9' ? '8px' : size === '3x5' ? '10px' : '11px' }}>Fee Details:</div>
-        
-        {payment.developmentFee > 0 && (
-          <div className="row">
-            <span>Development Fee:</span>
-            <span>₹{payment.developmentFee}</span>
-          </div>
-        )}
-        
-        {payment.busFee > 0 && (
-          <div className="row">
-            <span>Bus Fee:</span>
-            <span>₹{payment.busFee}</span>
-          </div>
-        )}
-        
-        {payment.specialFee > 0 && (
-          <div className="row">
-            <span>{payment.specialFeeType}:</span>
-            <span>₹{payment.specialFee}</span>
-          </div>
-        )}
-      </div>
-      
-      <div className="total">
-        <div className="row">
-          <span>Total Amount:</span>
-          <span>₹{payment.totalAmount}</span>
-        </div>
-      </div>
-      
-      {(balance.developmentBalance > 0 || balance.busBalance > 0) && (
-        <div className="balance-section">
-          <div style={{ fontWeight: 'bold', marginBottom: size === 'a4-9' ? '1px' : '2px' }}>Remaining Balance:</div>
-          {balance.developmentBalance > 0 && (
-            <div className="row">
-              <span>Development:</span>
-              <span>₹{balance.developmentBalance}</span>
-            </div>
-          )}
-          {balance.busBalance > 0 && (
-            <div className="row">
-              <span>Bus Fee:</span>
-              <span>₹{balance.busBalance}</span>
-            </div>
-          )}
-        </div>
-      )}
-      
-      <div className="footer">
-        <div>Thank you for your payment!</div>
-        <div>Keep this receipt for records</div>
-      </div>
-    </div>
-  );
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-900">Payment Receipt</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
@@ -321,70 +320,97 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
           </button>
         </div>
 
-        {/* Print Size Selection */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Print Size</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button
-              onClick={() => setPrintSize('a4-9')}
-              className={`p-4 rounded-lg border-2 transition-colors ${
-                printSize === 'a4-9' 
-                  ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <div className="font-medium">A4 - 9 Receipts</div>
-              <div className="text-sm text-gray-600">9 receipts per A4 sheet</div>
-            </button>
-            
-            <button
-              onClick={() => setPrintSize('3x5')}
-              className={`p-4 rounded-lg border-2 transition-colors ${
-                printSize === '3x5' 
-                  ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <div className="font-medium">3x5 Inch</div>
-              <div className="text-sm text-gray-600">Single receipt 3x5 inch</div>
-            </button>
-            
-            <button
-              onClick={() => setPrintSize('a6')}
-              className={`p-4 rounded-lg border-2 transition-colors ${
-                printSize === 'a6' 
-                  ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <div className="font-medium">A6 Size</div>
-              <div className="text-sm text-gray-600">Single receipt A6 size</div>
-            </button>
-          </div>
-        </div>
-
-        {/* Receipt Preview */}
-        <div className="bg-gray-50 p-4 rounded-lg mb-6">
-          <h4 className="text-md font-medium text-gray-900 mb-4">Preview - {printSize.toUpperCase()}</h4>
+        {/* Professional A6 Receipt Preview */}
+        <div className="bg-gray-50 p-6 rounded-lg mb-6">
+          <h4 className="text-lg font-medium text-gray-900 mb-4 text-center">Professional A6 Receipt Preview</h4>
           <div className="flex justify-center">
-            <div 
-              style={{ 
-                transform: printSize === 'a4-9' ? 'scale(0.6)' : printSize === '3x5' ? 'scale(0.8)' : 'scale(0.7)',
-                transformOrigin: 'top center'
-              }}
-            >
-              <div id={`receipt-print-${printSize}`}>
-                {printSize === 'a4-9' ? (
-                  <div className="receipt-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', width: '600px' }}>
-                    {Array(9).fill(0).map((_, index) => (
-                      <div key={index}>
-                        {renderReceipt('a4-9')}
+            <div style={{ transform: 'scale(0.8)', transformOrigin: 'top center' }}>
+              <div id="professional-a6-receipt">
+                <div className="receipt-container">
+                  <div className="watermark"></div>
+                  <div className="receipt-number">#{payment.id.slice(-6)}</div>
+                  
+                  <div className="receipt-content">
+                    <div className="header">
+                      <div className="school-name">SARVODAYA</div>
+                      <div className="school-subtitle">Higher Secondary School</div>
+                      <div className="location">Eachome, Kerala</div>
+                      <div className="receipt-title">Fee Payment Receipt</div>
+                    </div>
+                    
+                    <div className="info-section">
+                      <div className="info-row">
+                        <span className="info-label">Date:</span>
+                        <span className="info-value">{new Date(payment.paymentDate).toLocaleDateString('en-IN')}</span>
                       </div>
-                    ))}
+                      <div className="info-row">
+                        <span className="info-label">Student Name:</span>
+                        <span className="info-value">{payment.studentName}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Admission No:</span>
+                        <span className="info-value">{payment.admissionNo}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Class:</span>
+                        <span className="info-value">{payment.class}-{payment.division}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="fee-section">
+                      <div className="fee-title">Payment Details</div>
+                      
+                      {payment.developmentFee > 0 && (
+                        <div className="fee-row">
+                          <span className="fee-label">Development Fee</span>
+                          <span className="fee-amount">₹{payment.developmentFee.toLocaleString()}</span>
+                        </div>
+                      )}
+                      
+                      {payment.busFee > 0 && (
+                        <div className="fee-row">
+                          <span className="fee-label">Bus Fee</span>
+                          <span className="fee-amount">₹{payment.busFee.toLocaleString()}</span>
+                        </div>
+                      )}
+                      
+                      {payment.specialFee > 0 && (
+                        <div className="fee-row">
+                          <span className="fee-label">{payment.specialFeeType}</span>
+                          <span className="fee-amount">₹{payment.specialFee.toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="total-section">
+                      <div className="total-label">Total Amount Paid</div>
+                      <div className="total-amount">₹{payment.totalAmount.toLocaleString()}</div>
+                    </div>
+                    
+                    {(balance.developmentBalance > 0 || balance.busBalance > 0) && (
+                      <div className="balance-section">
+                        <div className="balance-title">Remaining Balance</div>
+                        {balance.developmentBalance > 0 && (
+                          <div className="balance-row">
+                            <span className="balance-label">Development Fee</span>
+                            <span className="balance-amount">₹{balance.developmentBalance.toLocaleString()}</span>
+                          </div>
+                        )}
+                        {balance.busBalance > 0 && (
+                          <div className="balance-row">
+                            <span className="balance-label">Bus Fee</span>
+                            <span className="balance-amount">₹{balance.busBalance.toLocaleString()}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    <div className="footer">
+                      <div className="footer-text">Thank you for your payment!</div>
+                      <div className="footer-note">Please keep this receipt for your records</div>
+                    </div>
                   </div>
-                ) : (
-                  renderReceipt(printSize)
-                )}
+                </div>
               </div>
             </div>
           </div>
@@ -403,18 +429,20 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
             className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Printer className="h-4 w-4" />
-            <span>Print Receipt ({printSize.toUpperCase()})</span>
+            <span>Print Professional Receipt</span>
           </button>
         </div>
 
         {/* Print Instructions */}
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>Print Instructions:</strong>
-            {printSize === 'a4-9' && ' A4 format with 9 receipts per sheet. Use regular printer with A4 paper. Margins: 5mm all sides.'}
-            {printSize === '3x5' && ' 3x5 inch format for single receipt. Set printer to 3x5 inch paper size. Margins: 2mm all sides.'}
-            {printSize === 'a6' && ' A6 format for single receipt. Set printer to A6 paper size (105×148mm). Margins: 3mm all sides.'}
-          </p>
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+          <h5 className="font-medium text-blue-900 mb-2">Professional A6 Receipt Features:</h5>
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• <strong>A6 Size:</strong> 105mm × 148mm (standard A6 paper)</li>
+            <li>• <strong>Logo Watermark:</strong> Subtle school logo background</li>
+            <li>• <strong>Professional Design:</strong> Clean layout with proper typography</li>
+            <li>• <strong>Color Coding:</strong> Blue header, green fees, yellow balance</li>
+            <li>• <strong>Print Settings:</strong> A6 paper, 8mm margins, portrait orientation</li>
+          </ul>
         </div>
       </div>
     </div>
