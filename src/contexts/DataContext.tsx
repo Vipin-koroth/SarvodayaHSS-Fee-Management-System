@@ -72,7 +72,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [useApi, setUseApi] = useState(false);
 
   useEffect(() => {
-    // Check if Supabase is configured
+    // Supabase is now configured, enable API usage
     const supabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
     setUseApi(supabaseConfigured);
     
@@ -83,12 +83,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       
-      // Check if Supabase is properly configured by testing a simple query
+      // Load data from Supabase since it's now configured
       const supabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
       
       if (supabaseConfigured) {
-        console.log('Supabase configured but schema may not be exposed, using localStorage for now');
-        loadFromLocalStorage();
+        try {
+          await loadStudents();
+          await loadPayments();
+          await loadFeeConfig();
+          console.log('✅ Data loaded from Supabase successfully');
+        } catch (error) {
+          console.warn('Error loading from Supabase, falling back to localStorage:', error);
+          loadFromLocalStorage();
+        }
       } else {
         console.log('Supabase not configured, using localStorage');
         loadFromLocalStorage();
@@ -232,8 +239,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addStudent = async (student: Omit<Student, 'id'>) => {
     try {
-      if (useApi) {
-        const data = await studentsApi.create({
+      const { data, error } = await supabase
+        .from('students')
+        .insert({
           admission_no: student.admissionNo,
           name: student.name,
           mobile: student.mobile,
@@ -242,54 +250,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           bus_stop: student.busStop,
           bus_number: student.busNumber,
           trip_number: student.tripNumber
-        });
-        
-        const newStudent: Student = {
-          id: data.id,
-          admissionNo: data.admission_no,
-          name: data.name,
-          mobile: data.mobile,
-          class: data.class,
-          division: data.division,
-          busStop: data.bus_stop,
-          busNumber: data.bus_number,
-          tripNumber: data.trip_number
-        };
-        
-        setStudents(prev => [newStudent, ...prev]);
-      } else {
-        // Direct Supabase client fallback
-        const { data, error } = await supabase
-          .from('students')
-          .insert({
-            admission_no: student.admissionNo,
-            name: student.name,
-            mobile: student.mobile,
-            class: student.class,
-            division: student.division,
-            bus_stop: student.busStop,
-            bus_number: student.busNumber,
-            trip_number: student.tripNumber
-          })
-          .select()
-          .single();
+        })
+        .select()
+        .single();
 
-        if (error) throw error;
+      if (error) throw error;
 
-        const newStudent: Student = {
-          id: data.id,
-          admissionNo: data.admission_no,
-          name: data.name,
-          mobile: data.mobile,
-          class: data.class,
-          division: data.division,
-          busStop: data.bus_stop,
-          busNumber: data.bus_number,
-          tripNumber: data.trip_number
-        };
+      const newStudent: Student = {
+        id: data.id,
+        admissionNo: data.admission_no,
+        name: data.name,
+        mobile: data.mobile,
+        class: data.class,
+        division: data.division,
+        busStop: data.bus_stop,
+        busNumber: data.bus_number,
+        tripNumber: data.trip_number
+      };
 
-        setStudents(prev => [newStudent, ...prev]);
-      }
+      setStudents(prev => [newStudent, ...prev]);
     } catch (error) {
       console.error('Error adding student:', error);
       throw error;
@@ -528,16 +507,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const credentials = JSON.parse(savedCredentials);
     
     try {
-      if (useApi) {
-        // Use API endpoint
-        await notificationsApi.sendSMS({
-          provider: savedProvider,
-          credentials: credentials[savedProvider],
-          mobile,
-          message
-        });
-      } else {
-        // Direct provider calls
+      // Use Supabase Edge Functions for SMS
+      await notificationsApi.sendSMS({
+        provider: savedProvider,
+        credentials: credentials[savedProvider],
+        mobile,
+        message
+      });
+      console.log(`✅ SMS sent successfully to ${mobile} via ${savedProvider}`);
+    } catch (error) {
+      console.error(`❌ SMS failed to ${mobile}:`, error);
+      // Fallback to direct provider calls
+      try {
         switch (savedProvider) {
           case 'twilio':
             await sendViaTwilio(mobile, message, credentials.twilio);
@@ -555,13 +536,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.log(`Unknown SMS provider: ${savedProvider}`);
             return;
         }
+        console.log(`✅ SMS sent successfully to ${mobile} via direct ${savedProvider} call`);
+      } catch (fallbackError) {
+        console.error(`❌ SMS fallback also failed to ${mobile}:`, fallbackError);
       }
-      
-      console.log(`✅ SMS sent successfully to ${mobile}`);
-    } catch (error) {
-      console.error(`❌ SMS failed to ${mobile}:`, error);
-      // Silent failure - don't interrupt payment flow
-      console.log('SMS notification failed, but payment was successful');
     }
   };
 
@@ -691,38 +669,42 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const credentials = JSON.parse(savedCredentials);
       
-      if (useApi) {
-        // Use API endpoint
+      try {
+        // Use Supabase Edge Functions for WhatsApp
         await notificationsApi.sendWhatsApp({
           provider: savedProvider,
           credentials: credentials[savedProvider],
           mobile,
           message
         });
-      } else {
-        // Direct provider calls
-        switch (savedProvider) {
-          case 'twilio':
-            await sendWhatsAppViaTwilio(mobile, message, credentials.twilio);
-            break;
-          case 'whatsapp-business':
-            await sendWhatsAppViaBusinessAPI(mobile, message, credentials.business);
-            break;
-          case 'ultramsg':
-            await sendWhatsAppViaUltraMsg(mobile, message, credentials.ultramsg);
-            break;
-          case 'callmebot':
-            await sendWhatsAppViaCallMeBot(mobile, message, credentials.callmebot);
-            break;
-          default:
-            throw new Error('Unknown WhatsApp provider');
+        console.log(`✅ WhatsApp sent successfully to ${mobile} via ${savedProvider}`);
+      } catch (error) {
+        console.error(`❌ WhatsApp API failed to ${mobile}:`, error);
+        // Fallback to direct provider calls
+        try {
+          switch (savedProvider) {
+            case 'twilio':
+              await sendWhatsAppViaTwilio(mobile, message, credentials.twilio);
+              break;
+            case 'whatsapp-business':
+              await sendWhatsAppViaBusinessAPI(mobile, message, credentials.business);
+              break;
+            case 'ultramsg':
+              await sendWhatsAppViaUltraMsg(mobile, message, credentials.ultramsg);
+              break;
+            case 'callmebot':
+              await sendWhatsAppViaCallMeBot(mobile, message, credentials.callmebot);
+              break;
+            default:
+              throw new Error('Unknown WhatsApp provider');
+          }
+          console.log(`✅ WhatsApp sent successfully to ${mobile} via direct ${savedProvider} call`);
+        } catch (fallbackError) {
+          console.error(`❌ WhatsApp fallback also failed to ${mobile}:`, fallbackError);
         }
       }
-      
-      console.log(`✅ WhatsApp sent successfully to ${mobile}`);
     } catch (error) {
       console.error(`❌ WhatsApp failed to ${mobile}:`, error);
-      // Don't show alert for WhatsApp failures to avoid interrupting workflow
     }
   };
 
