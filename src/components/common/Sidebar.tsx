@@ -10,7 +10,7 @@ import {
   UserCheck,
   Shield,
   Printer,
-  MessageSquare
+  MessageSquare,
   MessageCircle
 } from 'lucide-react';
 
