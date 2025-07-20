@@ -16,6 +16,7 @@ import UserManagement from './UserManagement';
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user } = useAuth();
   const { students, payments } = useData();
 
@@ -50,10 +51,19 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} userRole="admin" />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header user={user!} />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
+      <Sidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        userRole="admin"
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+      />
+      <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
+        <Header 
+          user={user!} 
+          onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        />
+        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 lg:p-6">
           {renderContent()}
         </main>
       </div>

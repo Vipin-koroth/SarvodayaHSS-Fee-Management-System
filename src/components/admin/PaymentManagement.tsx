@@ -45,7 +45,7 @@ const PaymentManagement: React.FC = () => {
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
@@ -75,7 +75,7 @@ const PaymentManagement: React.FC = () => {
               <option key={cls} value={cls.toString()}>Class {cls}</option>
             ))}
           </select>
-          <div className="text-sm text-gray-600 flex items-center">
+          <div className="text-sm text-gray-600 flex items-center sm:col-span-2 lg:col-span-1">
             Total: ₹{filteredPayments.reduce((sum, p) => sum + p.totalAmount, 0).toLocaleString()}
           </div>
         </div>
@@ -83,23 +83,23 @@ const PaymentManagement: React.FC = () => {
 
       {/* Payments Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Student Details
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                   Fee Breakdown
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Total Amount
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                   Payment Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -107,15 +107,23 @@ const PaymentManagement: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredPayments.map((payment) => (
                 <tr key={payment.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 lg:px-6 py-4">
                     <div>
                       <div className="text-sm font-medium text-gray-900">{payment.studentName}</div>
                       <div className="text-sm text-gray-500">
                         {payment.admissionNo} • Class {payment.class}-{payment.division}
                       </div>
+                      <div className="text-sm text-gray-500 md:hidden mt-1">
+                        {payment.developmentFee > 0 && <div>Dev: ₹{payment.developmentFee}</div>}
+                        {payment.busFee > 0 && <div>Bus: ₹{payment.busFee}</div>}
+                        {payment.specialFee > 0 && <div>{payment.specialFeeType}: ₹{payment.specialFee}</div>}
+                      </div>
+                      <div className="text-sm text-gray-500 sm:hidden mt-1">
+                        {new Date(payment.paymentDate).toLocaleDateString()}
+                      </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap hidden md:table-cell">
                     <div className="text-sm text-gray-900">
                       {payment.developmentFee > 0 && (
                         <div>Development: ₹{payment.developmentFee}</div>
@@ -128,15 +136,15 @@ const PaymentManagement: React.FC = () => {
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                     <span className="text-lg font-semibold text-green-600">
                       ₹{payment.totalAmount.toLocaleString()}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden sm:table-cell">
                     {new Date(payment.paymentDate).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
                         onClick={() => setSelectedPayment(payment)}

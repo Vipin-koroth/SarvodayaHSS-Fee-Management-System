@@ -61,15 +61,15 @@ const DashboardStats: React.FC = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <div key={index} className={`${stat.bgColor} rounded-lg p-6`}>
+            <div key={index} className={`${stat.bgColor} rounded-lg p-4 lg:p-6`}>
               <div className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm font-medium ${stat.textColor}`}>{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+                  <p className="text-xl lg:text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
                 </div>
                 <div className={`p-3 ${stat.color} rounded-lg`}>
                   <Icon className="h-6 w-6 text-white" />
@@ -86,7 +86,7 @@ const DashboardStats: React.FC = () => {
         {recentPayments.length > 0 ? (
           <div className="space-y-4">
             {recentPayments.map((payment) => (
-              <div key={payment.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div key={payment.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-lg space-y-2 sm:space-y-0">
                 <div>
                   <p className="font-medium text-gray-900">{payment.studentName}</p>
                   <p className="text-sm text-gray-600">
@@ -108,7 +108,7 @@ const DashboardStats: React.FC = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Quick Actions</h3>
           <div className="space-y-3">

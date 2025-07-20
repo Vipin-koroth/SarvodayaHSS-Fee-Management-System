@@ -113,7 +113,7 @@ const StudentManagement: React.FC = () => {
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
@@ -144,7 +144,7 @@ const StudentManagement: React.FC = () => {
               <option key={div} value={div}>Division {div}</option>
             ))}
           </select>
-          <div className="text-sm text-gray-600 flex items-center">
+          <div className="text-sm text-gray-600 flex items-center sm:col-span-2 lg:col-span-1">
             Total: {filteredStudents.length} students
           </div>
         </div>
@@ -152,23 +152,23 @@ const StudentManagement: React.FC = () => {
 
       {/* Students Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Student Details
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                   Class & Division
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                   Contact
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                   Bus Details
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -176,27 +176,36 @@ const StudentManagement: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredStudents.map((student) => (
                 <tr key={student.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 lg:px-6 py-4">
                     <div>
                       <div className="text-sm font-medium text-gray-900">{student.name}</div>
                       <div className="text-sm text-gray-500">Adm. No: {student.admissionNo}</div>
+                      <div className="text-sm text-gray-500 sm:hidden">
+                        Class {student.class}-{student.division}
+                      </div>
+                      <div className="text-sm text-gray-500 md:hidden">
+                        {student.mobile}
+                      </div>
+                      <div className="text-sm text-gray-500 lg:hidden">
+                        {student.busStop} • Bus {student.busNumber}
+                      </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
                     <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                       Class {student.class}-{student.division}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
                     {student.mobile}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                     <div className="text-sm text-gray-900">{student.busStop}</div>
                     <div className="text-sm text-gray-500">
                       Bus {student.busNumber} • Trip {student.tripNumber}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
                         onClick={() => setEditingStudent(student)}

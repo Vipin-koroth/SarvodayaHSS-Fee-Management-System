@@ -188,7 +188,7 @@ const FeeConfiguration: React.FC = () => {
 
         <button
           onClick={handleSaveDevelopmentFees}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           <Save className="h-4 w-4" />
           <span>Save Development Fees</span>
@@ -207,22 +207,22 @@ const FeeConfiguration: React.FC = () => {
               <p className="text-sm text-gray-600">Manage bus stops and their fee amounts</p>
             </div>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
             <button
               onClick={downloadSampleBusStopsCSV}
-              className="flex items-center space-x-2 px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 text-sm"
+              className="flex items-center justify-center space-x-2 px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 text-sm"
             >
               <Download className="h-4 w-4" />
               <span>Sample CSV</span>
             </button>
             <button
               onClick={downloadBusStopsCSV}
-              className="flex items-center space-x-2 px-3 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 text-sm"
+              className="flex items-center justify-center space-x-2 px-3 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 text-sm"
             >
               <Download className="h-4 w-4" />
               <span>Export CSV</span>
             </button>
-            <label className="flex items-center space-x-2 px-3 py-2 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer text-sm">
+            <label className="flex items-center justify-center space-x-2 px-3 py-2 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer text-sm">
               <Upload className="h-4 w-4" />
               <span>Import CSV</span>
               <input
@@ -238,7 +238,7 @@ const FeeConfiguration: React.FC = () => {
         {/* Add New Bus Stop */}
         <div className="bg-gray-50 rounded-lg p-4 mb-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Bus Stop</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <input
               type="text"
               placeholder="Bus stop name"
@@ -258,7 +258,7 @@ const FeeConfiguration: React.FC = () => {
             </div>
             <button
               onClick={handleAddBusStop}
-              className="flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              className="sm:col-span-2 lg:col-span-1 flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
             >
               <Plus className="h-4 w-4" />
               <span>Add Stop</span>
@@ -269,7 +269,7 @@ const FeeConfiguration: React.FC = () => {
         {/* Existing Bus Stops */}
         <div className="space-y-3 mb-6">
           {Object.entries(busStops).map(([stopName, amount]) => (
-            <div key={stopName} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div key={stopName} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-lg space-y-2 sm:space-y-0">
               <div className="flex-1">
                 <span className="font-medium text-gray-900">{stopName}</span>
               </div>
@@ -311,7 +311,7 @@ const FeeConfiguration: React.FC = () => {
 
         <button
           onClick={handleSaveBusStops}
-          className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
         >
           <Save className="h-4 w-4" />
           <span>Save Bus Stop Configuration</span>
@@ -333,7 +333,7 @@ const FeeConfiguration: React.FC = () => {
       {/* Current Configuration Summary */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-4">Configuration Summary</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <h4 className="font-medium text-gray-900 mb-2">Development Fees Range</h4>
             <p className="text-sm text-gray-600">

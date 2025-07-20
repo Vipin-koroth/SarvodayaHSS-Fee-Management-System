@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
   Users, 
@@ -11,16 +11,26 @@ import {
   Shield,
   Printer,
   MessageSquare,
-  MessageCircle
+  MessageCircle,
+  Menu,
+  X
 } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   userRole: 'admin' | 'teacher';
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userRole }) => {
+const Sidebar: React.FC<SidebarProps> = ({ 
+  activeTab, 
+  setActiveTab, 
+  userRole, 
+  isMobileMenuOpen, 
+  setIsMobileMenuOpen 
+}) => {
   const adminMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'students', label: 'Students', icon: Users },
@@ -44,8 +54,37 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userRole }) 
 
   const menuItems = userRole === 'admin' ? adminMenuItems : teacherMenuItems;
 
+  const handleMenuItemClick = (itemId: string) => {
+    setActiveTab(itemId);
+    setIsMobileMenuOpen(false);
+  };
+
   return (
-    <div className="w-64 bg-white shadow-lg flex flex-col">
+    <>
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <div className={`
+        fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg flex flex-col
+        transform transition-transform duration-300 ease-in-out lg:transform-none
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        {/* Mobile Close Button */}
+        <div className="lg:hidden flex justify-end p-4">
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+        
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-blue-600 rounded-lg">
@@ -65,7 +104,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userRole }) 
             return (
               <li key={item.id}>
                 <button
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => handleMenuItemClick(item.id)}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
                     activeTab === item.id
                       ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
@@ -88,6 +127,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, userRole }) 
         </div>
       </div>
     </div>
+    </>
   );
 };
 
