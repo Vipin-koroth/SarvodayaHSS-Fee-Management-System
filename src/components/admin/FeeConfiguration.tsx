@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Save, Plus, Edit, Trash2 } from 'lucide-react';
+import { Settings, Save, Plus, Edit, Trash2, Upload, Download } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 
 const FeeConfiguration: React.FC = () => {
@@ -53,6 +53,75 @@ const FeeConfiguration: React.FC = () => {
     alert('Bus stops updated successfully!');
   };
 
+  const downloadBusStopsCSV = () => {
+    const headers = ['Bus Stop Name', 'Fee Amount'];
+    const csvData = Object.entries(busStops).map(([stopName, amount]) => [stopName, amount.toString()]);
+    
+    const csvContent = [headers, ...csvData].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bus_stops_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadSampleBusStopsCSV = () => {
+    const headers = ['Bus Stop Name', 'Fee Amount'];
+    const sampleData = [
+      ['Main Gate', '800'],
+      ['Market Square', '900'],
+      ['Railway Station', '1000'],
+      ['City Center', '850']
+    ];
+    
+    const csvContent = [headers, ...sampleData].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bus_stops_sample.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleBusStopsCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const csv = e.target?.result as string;
+      const lines = csv.split('\n');
+      const headers = lines[0].split(',').map(h => h.trim());
+      
+      const newBusStops: Record<string, number> = {};
+      let importCount = 0;
+      
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        if (values.length >= 2 && values[0] && values[1]) {
+          const stopName = values[0];
+          const amount = parseInt(values[1]);
+          if (!isNaN(amount) && amount > 0) {
+            newBusStops[stopName] = amount;
+            importCount++;
+          }
+        }
+      }
+      
+      if (importCount > 0) {
+        setBusStops(prev => ({ ...prev, ...newBusStops }));
+        alert(`Successfully imported ${importCount} bus stops`);
+      } else {
+        alert('No valid bus stops found in the CSV file');
+      }
+    };
+    
+    reader.readAsText(file);
+    event.target.value = '';
+  };
   return (
     <div className="space-y-6">
       <div>
@@ -138,6 +207,32 @@ const FeeConfiguration: React.FC = () => {
               <p className="text-sm text-gray-600">Manage bus stops and their fee amounts</p>
             </div>
           </div>
+          <div className="flex space-x-2">
+            <button
+              onClick={downloadSampleBusStopsCSV}
+              className="flex items-center space-x-2 px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 text-sm"
+            >
+              <Download className="h-4 w-4" />
+              <span>Sample CSV</span>
+            </button>
+            <button
+              onClick={downloadBusStopsCSV}
+              className="flex items-center space-x-2 px-3 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 text-sm"
+            >
+              <Download className="h-4 w-4" />
+              <span>Export CSV</span>
+            </button>
+            <label className="flex items-center space-x-2 px-3 py-2 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 cursor-pointer text-sm">
+              <Upload className="h-4 w-4" />
+              <span>Import CSV</span>
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleBusStopsCSVUpload}
+                className="hidden"
+              />
+            </label>
+          </div>
         </div>
 
         {/* Add New Bus Stop */}
@@ -221,6 +316,18 @@ const FeeConfiguration: React.FC = () => {
           <Save className="h-4 w-4" />
           <span>Save Bus Stop Configuration</span>
         </button>
+
+        {/* CSV Instructions */}
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+          <h4 className="font-medium text-blue-900 mb-2">CSV Import/Export Instructions</h4>
+          <div className="text-sm text-blue-800 space-y-1">
+            <p>• <strong>Export CSV:</strong> Download current bus stops configuration</p>
+            <p>• <strong>Sample CSV:</strong> Download template with example data</p>
+            <p>• <strong>Import CSV:</strong> Upload CSV file with bus stop names and fee amounts</p>
+            <p>• <strong>Format:</strong> Bus Stop Name, Fee Amount (e.g., "Main Gate, 800")</p>
+            <p>• <strong>Note:</strong> Import will add new stops and update existing ones</p>
+          </div>
+        </div>
       </div>
 
       {/* Current Configuration Summary */}
