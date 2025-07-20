@@ -396,7 +396,7 @@ const SMSConfiguration: React.FC = () => {
               <p><strong>Twilio:</strong> Sign up at twilio.com, get Account SID, Auth Token, and buy a phone number</p>
               <p><strong>TextLocal:</strong> Sign up at textlocal.in, get API key from settings</p>
               <p><strong>MSG91:</strong> Sign up at msg91.com, get API key and register sender ID</p>
-              <p><strong>TextBee:</strong> Sign up at textbee.dev, get API key from dashboard</p>
+              <p><strong>TextBee:</strong> Sign up at textbee.dev, get API key from dashboard (use X-API-Key header)</p>
               <p><strong>Note:</strong> SMS charges apply based on your provider's pricing</p>
             </div>
           </div>

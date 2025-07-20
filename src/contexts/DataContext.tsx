@@ -302,22 +302,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('TextBee API key not configured');
     }
 
-    const response = await fetch('https://api.textbee.dev/api/v1/gateway/sms/send', {
+    const response = await fetch('https://api.textbee.dev/api/v1/sms/send', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${TEXTBEE_API_KEY}`,
+        'X-API-Key': TEXTBEE_API_KEY,
       },
       body: JSON.stringify({
-        to: `+91${mobile}`,
+        recipients: [`+91${mobile}`],
         message: message,
-        sender_id: TEXTBEE_SENDER_ID
+        sender: TEXTBEE_SENDER_ID
       })
     });
 
     const result = await response.json();
-    if (!response.ok || result.status !== 'success') {
-      throw new Error(`TextBee error: ${result.message || 'Unknown error'}`);
+    if (!response.ok || !result.success) {
+      throw new Error(`TextBee error: ${result.error || result.message || 'Unknown error'}`);
     }
   };
 
