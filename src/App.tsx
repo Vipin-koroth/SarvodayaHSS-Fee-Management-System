@@ -5,9 +5,13 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import TeacherDashboard from './components/teacher/TeacherDashboard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
+import { useData } from './contexts/DataContext';
 
 function AppContent() {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { loading: dataLoading } = useData();
+
+  const loading = authLoading || dataLoading;
 
   if (loading) {
     return (

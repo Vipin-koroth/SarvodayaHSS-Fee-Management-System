@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 export interface Student {
   id: string;
@@ -62,13 +63,34 @@ export const useData = () => {
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [students, setStudents] = useState<Student[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [loading, setLoading] = useState(true);
   const [feeConfig, setFeeConfig] = useState<FeeConfiguration>({
     developmentFees: {},
     busStops: {}
   });
 
   useEffect(() => {
-    // Load data from localStorage
+    loadInitialData();
+  }, []);
+
+  const loadInitialData = async () => {
+    try {
+      setLoading(true);
+      await Promise.all([
+        loadStudents(),
+        loadPayments(),
+        loadFeeConfig()
+      ]);
+    } catch (error) {
+      console.error('Error loading initial data:', error);
+      // Fallback to localStorage if Supabase fails
+      loadFromLocalStorage();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadFromLocalStorage = () => {
     const savedStudents = localStorage.getItem('students');
     const savedPayments = localStorage.getItem('payments');
     const savedFeeConfig = localStorage.getItem('feeConfig');
@@ -77,101 +99,336 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (savedPayments) setPayments(JSON.parse(savedPayments));
     if (savedFeeConfig) {
       setFeeConfig(JSON.parse(savedFeeConfig));
-    } else {
-      // Initialize default fee configuration
-      const defaultConfig: FeeConfiguration = {
-        developmentFees: {
-          '1': 500, '2': 600, '3': 700, '4': 800, '5': 900, '6': 1000,
-          '7': 1100, '8': 1200, '9': 1300, '10': 1400,
-          '11-A': 1500, '11-B': 1600, '11-C': 1700, '11-D': 1800, '11-E': 1900,
-          '12-A': 1600, '12-B': 1700, '12-C': 1800, '12-D': 1900, '12-E': 2000
-        },
-        busStops: {
-          'Main Gate': 800, 'Market Square': 900, 'Railway Station': 1000,
-          'City Center': 850, 'Park Avenue': 750, 'School Road': 700
-        }
-      };
-      setFeeConfig(defaultConfig);
-      localStorage.setItem('feeConfig', JSON.stringify(defaultConfig));
     }
-  }, []);
+  };
+
+  const loadStudents = async () => {
+    const { data, error } = await supabase
+      .from('students')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const formattedStudents: Student[] = data.map(student => ({
+      id: student.id,
+      admissionNo: student.admission_no,
+      name: student.name,
+      mobile: student.mobile,
+      class: student.class,
+      division: student.division,
+      busStop: student.bus_stop,
+      busNumber: student.bus_number,
+      tripNumber: student.trip_number
+    }));
+
+    setStudents(formattedStudents);
+  };
+
+  const loadPayments = async () => {
+    const { data, error } = await supabase
+      .from('payments')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const formattedPayments: Payment[] = data.map(payment => ({
+      id: payment.id,
+      studentId: payment.student_id,
+      studentName: payment.student_name,
+      admissionNo: payment.admission_no,
+      developmentFee: payment.development_fee,
+      busFee: payment.bus_fee,
+      specialFee: payment.special_fee,
+      specialFeeType: payment.special_fee_type,
+      totalAmount: payment.total_amount,
+      paymentDate: payment.payment_date,
+      addedBy: payment.added_by,
+      class: payment.class,
+      division: payment.division
+    }));
+
+    setPayments(formattedPayments);
+  };
+
+  const loadFeeConfig = async () => {
+    const { data, error } = await supabase
+      .from('fee_config')
+      .select('*');
+
+    if (error) throw error;
+
+    const developmentFees: Record<string, number> = {};
+    const busStops: Record<string, number> = {};
+
+    data.forEach(config => {
+      if (config.config_type === 'development_fee') {
+        developmentFees[config.config_key] = config.config_value;
+      } else if (config.config_type === 'bus_stop') {
+        busStops[config.config_key] = config.config_value;
+      }
+    });
+
+    setFeeConfig({ developmentFees, busStops });
+  };
 
   const addStudent = (student: Omit<Student, 'id'>) => {
-    const newStudent: Student = {
-      ...student,
-      id: Date.now().toString()
-    };
-    const updatedStudents = [...students, newStudent];
-    setStudents(updatedStudents);
-    localStorage.setItem('students', JSON.stringify(updatedStudents));
+    try {
+      const { data, error } = await supabase
+        .from('students')
+        .insert({
+          admission_no: student.admissionNo,
+          name: student.name,
+          mobile: student.mobile,
+          class: student.class,
+          division: student.division,
+          bus_stop: student.busStop,
+          bus_number: student.busNumber,
+          trip_number: student.tripNumber
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newStudent: Student = {
+        id: data.id,
+        admissionNo: data.admission_no,
+        name: data.name,
+        mobile: data.mobile,
+        class: data.class,
+        division: data.division,
+        busStop: data.bus_stop,
+        busNumber: data.bus_number,
+        tripNumber: data.trip_number
+      };
+
+      setStudents(prev => [newStudent, ...prev]);
+    } catch (error) {
+      console.error('Error adding student:', error);
+      throw error;
+    }
   };
 
   const updateStudent = (id: string, studentData: Partial<Student>) => {
-    const updatedStudents = students.map(student =>
-      student.id === id ? { ...student, ...studentData } : student
-    );
-    setStudents(updatedStudents);
-    localStorage.setItem('students', JSON.stringify(updatedStudents));
+    try {
+      const updateData: any = {};
+      if (studentData.admissionNo) updateData.admission_no = studentData.admissionNo;
+      if (studentData.name) updateData.name = studentData.name;
+      if (studentData.mobile) updateData.mobile = studentData.mobile;
+      if (studentData.class) updateData.class = studentData.class;
+      if (studentData.division) updateData.division = studentData.division;
+      if (studentData.busStop) updateData.bus_stop = studentData.busStop;
+      if (studentData.busNumber) updateData.bus_number = studentData.busNumber;
+      if (studentData.tripNumber) updateData.trip_number = studentData.tripNumber;
+
+      const { error } = await supabase
+        .from('students')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setStudents(prev => prev.map(student =>
+        student.id === id ? { ...student, ...studentData } : student
+      ));
+    } catch (error) {
+      console.error('Error updating student:', error);
+      throw error;
+    }
   };
 
   const deleteStudent = (id: string) => {
-    const updatedStudents = students.filter(student => student.id !== id);
-    setStudents(updatedStudents);
-    localStorage.setItem('students', JSON.stringify(updatedStudents));
+    try {
+      const { error } = await supabase
+        .from('students')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setStudents(prev => prev.filter(student => student.id !== id));
+    } catch (error) {
+      console.error('Error deleting student:', error);
+      throw error;
+    }
   };
 
   const importStudents = (newStudents: Omit<Student, 'id'>[]) => {
-    const studentsWithIds = newStudents.map(student => ({
-      ...student,
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9)
-    }));
-    const updatedStudents = [...students, ...studentsWithIds];
-    setStudents(updatedStudents);
-    localStorage.setItem('students', JSON.stringify(updatedStudents));
+    try {
+      const insertData = newStudents.map(student => ({
+        admission_no: student.admissionNo,
+        name: student.name,
+        mobile: student.mobile,
+        class: student.class,
+        division: student.division,
+        bus_stop: student.busStop,
+        bus_number: student.busNumber,
+        trip_number: student.tripNumber
+      }));
+
+      const { data, error } = await supabase
+        .from('students')
+        .insert(insertData)
+        .select();
+
+      if (error) throw error;
+
+      const formattedStudents: Student[] = data.map(student => ({
+        id: student.id,
+        admissionNo: student.admission_no,
+        name: student.name,
+        mobile: student.mobile,
+        class: student.class,
+        division: student.division,
+        busStop: student.bus_stop,
+        busNumber: student.bus_number,
+        tripNumber: student.trip_number
+      }));
+
+      setStudents(prev => [...formattedStudents, ...prev]);
+    } catch (error) {
+      console.error('Error importing students:', error);
+      throw error;
+    }
   };
 
   const addPayment = (payment: Omit<Payment, 'id' | 'paymentDate'>) => {
-    const newPayment: Payment = {
-      ...payment,
-      id: Date.now().toString(),
-      paymentDate: new Date().toISOString()
-    };
-    const updatedPayments = [...payments, newPayment];
-    setPayments(updatedPayments);
-    localStorage.setItem('payments', JSON.stringify(updatedPayments));
+    try {
+      const { data, error } = await supabase
+        .from('payments')
+        .insert({
+          student_id: payment.studentId,
+          student_name: payment.studentName,
+          admission_no: payment.admissionNo,
+          development_fee: payment.developmentFee,
+          bus_fee: payment.busFee,
+          special_fee: payment.specialFee,
+          special_fee_type: payment.specialFeeType,
+          total_amount: payment.totalAmount,
+          payment_date: new Date().toISOString(),
+          added_by: payment.addedBy,
+          class: payment.class,
+          division: payment.division
+        })
+        .select()
+        .single();
 
-    // Send SMS notification
-    const student = students.find(s => s.id === payment.studentId);
-    if (student) {
-      // Get the correct fee key for classes 11 and 12 (class-division) or regular classes (class only)
-      const feeKey = (student.class === '11' || student.class === '12') 
-        ? `${student.class}-${student.division}` 
-        : student.class;
-      
-      const message = `Dear Parent, Payment of ₹${payment.totalAmount} received for ${student.name} (${student.admissionNo}). Date: ${new Date().toLocaleDateString()}. Thank you! - Sarvodaya School`;
-      sendSMS(student.mobile, message);
-      sendWhatsApp(student.mobile, message);
+      if (error) throw error;
+
+      const newPayment: Payment = {
+        id: data.id,
+        studentId: data.student_id,
+        studentName: data.student_name,
+        admissionNo: data.admission_no,
+        developmentFee: data.development_fee,
+        busFee: data.bus_fee,
+        specialFee: data.special_fee,
+        specialFeeType: data.special_fee_type,
+        totalAmount: data.total_amount,
+        paymentDate: data.payment_date,
+        addedBy: data.added_by,
+        class: data.class,
+        division: data.division
+      };
+
+      setPayments(prev => [newPayment, ...prev]);
+
+      // Send SMS notification
+      const student = students.find(s => s.id === payment.studentId);
+      if (student) {
+        const message = `Dear Parent, Payment of ₹${payment.totalAmount} received for ${student.name} (${student.admissionNo}). Date: ${new Date().toLocaleDateString()}. Thank you! - Sarvodaya School`;
+        sendSMS(student.mobile, message);
+        sendWhatsApp(student.mobile, message);
+      }
+    } catch (error) {
+      console.error('Error adding payment:', error);
+      throw error;
     }
   };
 
   const updatePayment = (id: string, paymentData: Partial<Payment>) => {
-    const updatedPayments = payments.map(payment =>
-      payment.id === id ? { ...payment, ...paymentData } : payment
-    );
-    setPayments(updatedPayments);
-    localStorage.setItem('payments', JSON.stringify(updatedPayments));
+    try {
+      const updateData: any = {};
+      if (paymentData.developmentFee !== undefined) updateData.development_fee = paymentData.developmentFee;
+      if (paymentData.busFee !== undefined) updateData.bus_fee = paymentData.busFee;
+      if (paymentData.specialFee !== undefined) updateData.special_fee = paymentData.specialFee;
+      if (paymentData.specialFeeType !== undefined) updateData.special_fee_type = paymentData.specialFeeType;
+      if (paymentData.totalAmount !== undefined) updateData.total_amount = paymentData.totalAmount;
+
+      const { error } = await supabase
+        .from('payments')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setPayments(prev => prev.map(payment =>
+        payment.id === id ? { ...payment, ...paymentData } : payment
+      ));
+    } catch (error) {
+      console.error('Error updating payment:', error);
+      throw error;
+    }
   };
 
   const deletePayment = (id: string) => {
-    const updatedPayments = payments.filter(payment => payment.id !== id);
-    setPayments(updatedPayments);
-    localStorage.setItem('payments', JSON.stringify(updatedPayments));
+    try {
+      const { error } = await supabase
+        .from('payments')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setPayments(prev => prev.filter(payment => payment.id !== id));
+    } catch (error) {
+      console.error('Error deleting payment:', error);
+      throw error;
+    }
   };
 
   const updateFeeConfig = (config: Partial<FeeConfiguration>) => {
-    const updatedConfig = { ...feeConfig, ...config };
-    setFeeConfig(updatedConfig);
-    localStorage.setItem('feeConfig', JSON.stringify(updatedConfig));
+    try {
+      const updates: any[] = [];
+
+      if (config.developmentFees) {
+        Object.entries(config.developmentFees).forEach(([key, value]) => {
+          updates.push({
+            config_type: 'development_fee',
+            config_key: key,
+            config_value: value
+          });
+        });
+      }
+
+      if (config.busStops) {
+        Object.entries(config.busStops).forEach(([key, value]) => {
+          updates.push({
+            config_type: 'bus_stop',
+            config_key: key,
+            config_value: value
+          });
+        });
+      }
+
+      for (const update of updates) {
+        const { error } = await supabase
+          .from('fee_config')
+          .upsert(update, {
+            onConflict: 'config_type,config_key'
+          });
+
+        if (error) throw error;
+      }
+
+      const updatedConfig = { ...feeConfig, ...config };
+      setFeeConfig(updatedConfig);
+    } catch (error) {
+      console.error('Error updating fee config:', error);
+      throw error;
+    }
   };
 
   const sendSMS = (mobile: string, message: string) => {
@@ -472,6 +729,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     students,
     payments,
     feeConfig,
+    loading,
     addStudent,
     updateStudent,
     deleteStudent,

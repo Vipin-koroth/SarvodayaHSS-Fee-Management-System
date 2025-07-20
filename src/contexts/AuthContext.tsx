@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 interface User {
   id: string;
@@ -33,11 +34,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        // User is authenticated, set user data
+        const userData: User = {
+          id: session.user.id,
+          username: session.user.email?.split('@')[0] || 'user',
+          role: session.user.user_metadata?.role || 'admin'
+        };
+        setUser(userData);
+      } else {
+        // Check localStorage for fallback
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+          setUser(JSON.parse(savedUser));
+        }
+      }
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          const userData: User = {
+            id: session.user.id,
+            username: session.user.email?.split('@')[0] || 'user',
+            role: session.user.user_metadata?.role || 'admin'
+          };
+          setUser(userData);
+          localStorage.setItem('currentUser', JSON.stringify(userData));
+        } else {
+          setUser(null);
+          localStorage.removeItem('currentUser');
+        }
+      }
+    );
 
     // Auto logout when window/tab is closed
     const handleBeforeUnload = () => {
@@ -58,12 +91,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Cleanup event listeners
     return () => {
+      subscription.unsubscribe();
       window.removeEventListener('beforeunload', handleBeforeUnload);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
+    try {
+      // Try Supabase authentication first
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: `${username}@sarvodaya.school`,
+        password: password
+      });
+
+      if (data.user && !error) {
+        return true;
+      }
+    } catch (error) {
+      console.log('Supabase auth failed, falling back to localStorage');
+    }
+
     // Get stored users or use defaults
     const storedUsers = JSON.parse(localStorage.getItem('users') || '{}');
     
@@ -109,6 +157,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    supabase.auth.signOut();
     setUser(null);
     localStorage.removeItem('currentUser');
   };
