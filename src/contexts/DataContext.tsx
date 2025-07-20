@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { studentsApi, paymentsApi, feeConfigApi, notificationsApi } from '../lib/api';
 
 export interface Student {
   id: string;
@@ -68,25 +69,72 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     developmentFees: {},
     busStops: {}
   });
+  const [useApi, setUseApi] = useState(false);
 
   useEffect(() => {
+    // Check if Supabase is configured
+    const supabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+    setUseApi(supabaseConfigured);
+    
     loadInitialData();
   }, []);
 
   const loadInitialData = async () => {
     try {
       setLoading(true);
-      await Promise.all([
-        loadStudents(),
-        loadPayments(),
-        loadFeeConfig()
-      ]);
+      
+      if (useApi) {
+        // Use API endpoints
+        await Promise.all([
+          loadStudentsFromApi(),
+          loadPaymentsFromApi(),
+          loadFeeConfigFromApi()
+        ]);
+      } else {
+        // Use direct Supabase client
+        await Promise.all([
+          loadStudents(),
+          loadPayments(),
+          loadFeeConfig()
+        ]);
+      }
     } catch (error) {
       console.error('Error loading initial data:', error);
       // Fallback to localStorage if Supabase fails
       loadFromLocalStorage();
     } finally {
       setLoading(false);
+    }
+  };
+
+  // API-based data loading functions
+  const loadStudentsFromApi = async () => {
+    try {
+      const data = await studentsApi.getAll();
+      setStudents(data);
+    } catch (error) {
+      console.error('Error loading students from API:', error);
+      throw error;
+    }
+  };
+
+  const loadPaymentsFromApi = async () => {
+    try {
+      const data = await paymentsApi.getAll();
+      setPayments(data);
+    } catch (error) {
+      console.error('Error loading payments from API:', error);
+      throw error;
+    }
+  };
+
+  const loadFeeConfigFromApi = async () => {
+    try {
+      const data = await feeConfigApi.get();
+      setFeeConfig(data);
+    } catch (error) {
+      console.error('Error loading fee config from API:', error);
+      throw error;
     }
   };
 
@@ -175,9 +223,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addStudent = async (student: Omit<Student, 'id'>) => {
     try {
-      const { data, error } = await supabase
-        .from('students')
-        .insert({
+      if (useApi) {
+        const data = await studentsApi.create({
           admission_no: student.admissionNo,
           name: student.name,
           mobile: student.mobile,
@@ -186,25 +233,54 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           bus_stop: student.busStop,
           bus_number: student.busNumber,
           trip_number: student.tripNumber
-        })
-        .select()
-        .single();
+        });
+        
+        const newStudent: Student = {
+          id: data.id,
+          admissionNo: data.admission_no,
+          name: data.name,
+          mobile: data.mobile,
+          class: data.class,
+          division: data.division,
+          busStop: data.bus_stop,
+          busNumber: data.bus_number,
+          tripNumber: data.trip_number
+        };
+        
+        setStudents(prev => [newStudent, ...prev]);
+      } else {
+        // Direct Supabase client fallback
+        const { data, error } = await supabase
+          .from('students')
+          .insert({
+            admission_no: student.admissionNo,
+            name: student.name,
+            mobile: student.mobile,
+            class: student.class,
+            division: student.division,
+            bus_stop: student.busStop,
+            bus_number: student.busNumber,
+            trip_number: student.tripNumber
+          })
+          .select()
+          .single();
 
-      if (error) throw error;
+        if (error) throw error;
 
-      const newStudent: Student = {
-        id: data.id,
-        admissionNo: data.admission_no,
-        name: data.name,
-        mobile: data.mobile,
-        class: data.class,
-        division: data.division,
-        busStop: data.bus_stop,
-        busNumber: data.bus_number,
-        tripNumber: data.trip_number
-      };
+        const newStudent: Student = {
+          id: data.id,
+          admissionNo: data.admission_no,
+          name: data.name,
+          mobile: data.mobile,
+          class: data.class,
+          division: data.division,
+          busStop: data.bus_stop,
+          busNumber: data.bus_number,
+          tripNumber: data.trip_number
+        };
 
-      setStudents(prev => [newStudent, ...prev]);
+        setStudents(prev => [newStudent, ...prev]);
+      }
     } catch (error) {
       console.error('Error adding student:', error);
       throw error;
@@ -443,22 +519,33 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const credentials = JSON.parse(savedCredentials);
     
     try {
-      switch (savedProvider) {
-        case 'twilio':
-          await sendViaTwilio(mobile, message, credentials.twilio);
-          break;
-        case 'textlocal':
-          await sendViaTextLocal(mobile, message, credentials.textlocal);
-          break;
-        case 'msg91':
-          await sendViaMSG91(mobile, message, credentials.msg91);
-          break;
-        case 'textbee':
-          await sendViaTextBee(mobile, message, credentials.textbee);
-          break;
-        default:
-          console.log(`Unknown SMS provider: ${savedProvider}`);
-          return;
+      if (useApi) {
+        // Use API endpoint
+        await notificationsApi.sendSMS({
+          provider: savedProvider,
+          credentials: credentials[savedProvider],
+          mobile,
+          message
+        });
+      } else {
+        // Direct provider calls
+        switch (savedProvider) {
+          case 'twilio':
+            await sendViaTwilio(mobile, message, credentials.twilio);
+            break;
+          case 'textlocal':
+            await sendViaTextLocal(mobile, message, credentials.textlocal);
+            break;
+          case 'msg91':
+            await sendViaMSG91(mobile, message, credentials.msg91);
+            break;
+          case 'textbee':
+            await sendViaTextBee(mobile, message, credentials.textbee);
+            break;
+          default:
+            console.log(`Unknown SMS provider: ${savedProvider}`);
+            return;
+        }
       }
       
       console.log(`✅ SMS sent successfully to ${mobile}`);
@@ -595,21 +682,32 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const credentials = JSON.parse(savedCredentials);
       
-      switch (savedProvider) {
-        case 'twilio':
-          await sendWhatsAppViaTwilio(mobile, message, credentials.twilio);
-          break;
-        case 'whatsapp-business':
-          await sendWhatsAppViaBusinessAPI(mobile, message, credentials.business);
-          break;
-        case 'ultramsg':
-          await sendWhatsAppViaUltraMsg(mobile, message, credentials.ultramsg);
-          break;
-        case 'callmebot':
-          await sendWhatsAppViaCallMeBot(mobile, message, credentials.callmebot);
-          break;
-        default:
-          throw new Error('Unknown WhatsApp provider');
+      if (useApi) {
+        // Use API endpoint
+        await notificationsApi.sendWhatsApp({
+          provider: savedProvider,
+          credentials: credentials[savedProvider],
+          mobile,
+          message
+        });
+      } else {
+        // Direct provider calls
+        switch (savedProvider) {
+          case 'twilio':
+            await sendWhatsAppViaTwilio(mobile, message, credentials.twilio);
+            break;
+          case 'whatsapp-business':
+            await sendWhatsAppViaBusinessAPI(mobile, message, credentials.business);
+            break;
+          case 'ultramsg':
+            await sendWhatsAppViaUltraMsg(mobile, message, credentials.ultramsg);
+            break;
+          case 'callmebot':
+            await sendWhatsAppViaCallMeBot(mobile, message, credentials.callmebot);
+            break;
+          default:
+            throw new Error('Unknown WhatsApp provider');
+        }
       }
       
       console.log(`✅ WhatsApp sent successfully to ${mobile}`);
