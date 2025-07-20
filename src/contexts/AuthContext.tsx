@@ -109,14 +109,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return true;
       }
     } catch (error) {
-      console.log('Supabase auth failed, falling back to localStorage');
+      console.log('Supabase auth failed, falling back to localStorage:', error);
     }
 
     // Get stored users or use defaults
     const storedUsers = JSON.parse(localStorage.getItem('users') || '{}');
     
     // Initialize default users if not exists
-    if (!storedUsers.admin) {
+    if (Object.keys(storedUsers).length === 0) {
       const defaultUsers: Record<string, { password: string; role: 'admin' | 'teacher'; class?: string; division?: string }> = {
         admin: { password: 'admin', role: 'admin' }
       };
@@ -135,7 +135,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       localStorage.setItem('users', JSON.stringify(defaultUsers));
-      Object.assign(storedUsers, defaultUsers);
+      // Re-read from localStorage to ensure we have the updated data
+      const updatedUsers = JSON.parse(localStorage.getItem('users') || '{}');
+      Object.assign(storedUsers, updatedUsers);
     }
 
     const userAccount = storedUsers[username];
