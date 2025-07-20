@@ -173,7 +173,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setFeeConfig({ developmentFees, busStops });
   };
 
-  const addStudent = (student: Omit<Student, 'id'>) => {
+  const addStudent = async (student: Omit<Student, 'id'>) => {
     try {
       const { data, error } = await supabase
         .from('students')
@@ -211,7 +211,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateStudent = (id: string, studentData: Partial<Student>) => {
+  const updateStudent = async (id: string, studentData: Partial<Student>) => {
     try {
       const updateData: any = {};
       if (studentData.admissionNo) updateData.admission_no = studentData.admissionNo;
@@ -239,7 +239,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const deleteStudent = (id: string) => {
+  const deleteStudent = async (id: string) => {
     try {
       const { error } = await supabase
         .from('students')
@@ -255,7 +255,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const importStudents = (newStudents: Omit<Student, 'id'>[]) => {
+  const importStudents = async (newStudents: Omit<Student, 'id'>[]) => {
     try {
       const insertData = newStudents.map(student => ({
         admission_no: student.admissionNo,
@@ -294,7 +294,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const addPayment = (payment: Omit<Payment, 'id' | 'paymentDate'>) => {
+  const addPayment = async (payment: Omit<Payment, 'id' | 'paymentDate'>) => {
     try {
       const { data, error } = await supabase
         .from('payments')
@@ -339,8 +339,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const student = students.find(s => s.id === payment.studentId);
       if (student) {
         const message = `Dear Parent, Payment of ₹${payment.totalAmount} received for ${student.name} (${student.admissionNo}). Date: ${new Date().toLocaleDateString()}. Thank you! - Sarvodaya School`;
-        sendSMS(student.mobile, message);
-        sendWhatsApp(student.mobile, message);
+        await sendSMS(student.mobile, message);
+        await sendWhatsApp(student.mobile, message);
       }
     } catch (error) {
       console.error('Error adding payment:', error);
@@ -348,7 +348,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updatePayment = (id: string, paymentData: Partial<Payment>) => {
+  const updatePayment = async (id: string, paymentData: Partial<Payment>) => {
     try {
       const updateData: any = {};
       if (paymentData.developmentFee !== undefined) updateData.development_fee = paymentData.developmentFee;
@@ -373,7 +373,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const deletePayment = (id: string) => {
+  const deletePayment = async (id: string) => {
     try {
       const { error } = await supabase
         .from('payments')
@@ -389,7 +389,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateFeeConfig = (config: Partial<FeeConfiguration>) => {
+  const updateFeeConfig = async (config: Partial<FeeConfiguration>) => {
     try {
       const updates: any[] = [];
 
@@ -431,7 +431,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const sendSMS = (mobile: string, message: string) => {
+  const sendSMS = async (mobile: string, message: string) => {
     const savedProvider = localStorage.getItem('smsProvider') || 'twilio';
     const savedCredentials = localStorage.getItem('smsCredentials');
     
@@ -445,16 +445,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       switch (savedProvider) {
         case 'twilio':
-          sendViaTwilio(mobile, message, credentials.twilio);
+          await sendViaTwilio(mobile, message, credentials.twilio);
           break;
         case 'textlocal':
-          sendViaTextLocal(mobile, message, credentials.textlocal);
+          await sendViaTextLocal(mobile, message, credentials.textlocal);
           break;
         case 'msg91':
-          sendViaMSG91(mobile, message, credentials.msg91);
+          await sendViaMSG91(mobile, message, credentials.msg91);
           break;
         case 'textbee':
-          sendViaTextBee(mobile, message, credentials.textbee);
+          await sendViaTextBee(mobile, message, credentials.textbee);
           break;
         default:
           console.log(`Unknown SMS provider: ${savedProvider}`);
