@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Printer } from 'lucide-react';
+import { X, Printer, MessageCircle } from 'lucide-react';
 import { Payment, useData } from '../../contexts/DataContext';
 
 interface ReceiptPrintProps {
@@ -50,6 +50,36 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
   };
   
   const paymentDetails = getStudentPaymentDetails();
+  
+  const sendViaWhatsAppWeb = () => {
+    const student = students.find(s => s.id === payment.studentId);
+    if (!student) return;
+    
+    // Format receipt details for WhatsApp
+    const receiptText = `*SARVODAYA HIGHER SECONDARY SCHOOL*
+*Fee Payment Receipt*
+
+📋 *Student Details:*
+Name: ${payment.studentName}
+Admission No: ${payment.admissionNo}
+Class: ${payment.class}-${payment.division}
+Date: ${new Date(payment.paymentDate).toLocaleDateString()}
+Receipt #: ${payment.id.slice(-6)}
+
+💰 *Fee Details:*
+${payment.developmentFee > 0 ? `Development Fee: ₹${payment.developmentFee}\n` : ''}${payment.busFee > 0 ? `Bus Fee: ₹${payment.busFee}\n` : ''}${payment.specialFee > 0 ? `${payment.specialFeeType || 'Other Fee'}: ₹${payment.specialFee}\n` : ''}
+*TOTAL PAID: ₹${payment.totalAmount}*
+
+${(paymentDetails.developmentBalance > 0 || paymentDetails.busBalance > 0) ? `📊 *Remaining Balance:*\n${paymentDetails.developmentBalance > 0 ? `Development: ₹${paymentDetails.developmentBalance}\n` : ''}${paymentDetails.busBalance > 0 ? `Bus Fee: ₹${paymentDetails.busBalance}\n` : ''}` : '✅ *All fees paid in full*\n'}
+Thank you for your payment! 🙏
+Keep this receipt for your records.
+
+- Sarvodaya School, Eachome`;
+
+    // Open WhatsApp Web with pre-filled message
+    const whatsappUrl = `https://web.whatsapp.com/send?text=${encodeURIComponent(receiptText)}`;
+    window.open(whatsappUrl, '_blank');
+  };
   
   const handlePrint = () => {
     const printContent = document.getElementById('professional-a6-receipt');
@@ -377,24 +407,31 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex space-x-3">
+        <div className="flex space-x-3 mb-4">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+            className="flex-1 px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-medium"
           >
             Close
           </button>
           <button
+            onClick={sendViaWhatsAppWeb}
+            className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+          >
+            <MessageCircle className="h-4 w-4" />
+            <span>Send via WhatsApp</span>
+          </button>
+          <button
             onClick={handlePrint}
-            className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
             <Printer className="h-4 w-4" />
-            <span>Print Professional Receipt</span>
+            <span>Print Receipt</span>
           </button>
         </div>
 
         {/* Print Instructions */}
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+        <div className="p-4 bg-blue-50 rounded-lg">
           <h5 className="font-medium text-blue-900 mb-2">A6 Receipt Features:</h5>
           <ul className="text-sm text-blue-800 space-y-1">
             <li>• <strong>A6 Size:</strong> 105mm × 148mm (standard A6 paper)</li>
@@ -403,6 +440,15 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ payment, onClose }) => {
             <li>• <strong>Balance Display:</strong> Shows remaining fee balance</li>
             <li>• <strong>Clean Design:</strong> Simple layout with clear borders</li>
             <li>• <strong>Print Settings:</strong> A6 paper, 8mm margins, portrait orientation</li>
+          </ul>
+        </div>
+        
+        <div className="mt-4 p-4 bg-green-50 rounded-lg">
+          <h5 className="font-medium text-green-900 mb-2">WhatsApp Sharing:</h5>
+          <ul className="text-sm text-green-800 space-y-1">
+            <li>• <strong>Instant Share:</strong> Opens WhatsApp Web with formatted receipt</li>
+            <li>• <strong>Professional Format:</strong> Clean, readable receipt layout</li>
+            <li>• <strong>Complete Details:</strong> All payment and balance information included</li>
           </ul>
         </div>
       </div>
