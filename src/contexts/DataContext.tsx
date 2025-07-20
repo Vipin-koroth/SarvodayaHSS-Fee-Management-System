@@ -87,38 +87,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const supabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
       
       if (supabaseConfigured) {
-        try {
-          // Test Supabase connection with a simple query
-          const { data, error } = await supabase
-            .from('students')
-            .select('count')
-            .limit(1);
-          
-          if (error) {
-            console.warn('Supabase connection failed, falling back to localStorage:', error.message);
-            throw error;
-          }
-          
-          // If test succeeds, load data from Supabase
-          if (useApi) {
-            // Use API endpoints
-            await Promise.all([
-              loadStudentsFromApi(),
-              loadPaymentsFromApi(),
-              loadFeeConfigFromApi()
-            ]);
-          } else {
-            // Use direct Supabase client
-            await Promise.all([
-              loadStudents(),
-              loadPayments(),
-              loadFeeConfig()
-            ]);
-          }
-        } catch (supabaseError) {
-          console.warn('Supabase not available, using localStorage:', supabaseError);
-          loadFromLocalStorage();
-        }
+        console.log('Supabase configured but schema may not be exposed, using localStorage for now');
+        loadFromLocalStorage();
       } else {
         console.log('Supabase not configured, using localStorage');
         loadFromLocalStorage();
