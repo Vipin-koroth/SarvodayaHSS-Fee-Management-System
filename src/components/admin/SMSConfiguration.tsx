@@ -17,6 +17,10 @@ const SMSConfiguration: React.FC = () => {
       apiKey: '',
       senderId: 'SCHOOL',
       route: '4'
+    },
+    textbee: {
+      apiKey: '',
+      senderId: 'SCHOOL'
     }
   });
   const [testNumber, setTestNumber] = useState('');
@@ -134,6 +138,21 @@ const SMSConfiguration: React.FC = () => {
             <Settings className="h-8 w-8 mx-auto mb-2" />
             <div className="font-medium">MSG91</div>
             <div className="text-sm text-gray-600">India-specific SMS</div>
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-4">
+          <button
+            onClick={() => setSmsProvider('textbee')}
+            className={`p-4 rounded-lg border-2 transition-colors ${
+              smsProvider === 'textbee' 
+                ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                : 'border-gray-200 hover:border-gray-300'
+            }`}
+          >
+            <MessageSquare className="h-8 w-8 mx-auto mb-2" />
+            <div className="font-medium">TextBee</div>
+            <div className="text-sm text-gray-600">India-specific SMS service</div>
           </button>
         </div>
       </div>
@@ -266,6 +285,36 @@ const SMSConfiguration: React.FC = () => {
           </div>
         )}
 
+        {smsProvider === 'textbee' && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                API Key
+              </label>
+              <input
+                type="password"
+                value={credentials.textbee.apiKey}
+                onChange={(e) => updateCredentials('textbee', 'apiKey', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter TextBee API Key"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Sender ID
+              </label>
+              <input
+                type="text"
+                value={credentials.textbee.senderId}
+                onChange={(e) => updateCredentials('textbee', 'senderId', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter Sender ID (e.g., SCHOOL)"
+                maxLength={6}
+              />
+            </div>
+          </div>
+        )}
+
         <button
           onClick={handleSave}
           className="mt-6 flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -347,6 +396,7 @@ const SMSConfiguration: React.FC = () => {
               <p><strong>Twilio:</strong> Sign up at twilio.com, get Account SID, Auth Token, and buy a phone number</p>
               <p><strong>TextLocal:</strong> Sign up at textlocal.in, get API key from settings</p>
               <p><strong>MSG91:</strong> Sign up at msg91.com, get API key and register sender ID</p>
+              <p><strong>TextBee:</strong> Sign up at textbee.dev, get API key from dashboard</p>
               <p><strong>Note:</strong> SMS charges apply based on your provider's pricing</p>
             </div>
           </div>

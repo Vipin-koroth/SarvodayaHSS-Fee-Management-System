@@ -184,6 +184,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Option 3: Using MSG91 (India-specific)
       // sendViaMSG91(mobile, message);
       
+      // Option 4: Using TextBee (India-specific)
+      // sendViaTextBee(mobile, message);
+      
       console.log(`✅ SMS sent successfully to ${mobile}`);
     } catch (error) {
       console.error(`❌ SMS failed to ${mobile}:`, error);
@@ -284,6 +287,37 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const result = await response.text();
     if (!result.includes('success')) {
       throw new Error(`MSG91 error: ${result}`);
+    }
+  };
+
+  // TextBee SMS Integration (India)
+  const sendViaTextBee = async (mobile: string, message: string) => {
+    const savedCredentials = localStorage.getItem('smsCredentials');
+    const credentials = savedCredentials ? JSON.parse(savedCredentials) : null;
+    
+    const TEXTBEE_API_KEY = credentials?.textbee?.apiKey;
+    const TEXTBEE_SENDER_ID = credentials?.textbee?.senderId || 'SCHOOL';
+
+    if (!TEXTBEE_API_KEY) {
+      throw new Error('TextBee API key not configured');
+    }
+
+    const response = await fetch('https://api.textbee.dev/api/v1/gateway/sms/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${TEXTBEE_API_KEY}`,
+      },
+      body: JSON.stringify({
+        to: `+91${mobile}`,
+        message: message,
+        sender_id: TEXTBEE_SENDER_ID
+      })
+    });
+
+    const result = await response.json();
+    if (!response.ok || result.status !== 'success') {
+      throw new Error(`TextBee error: ${result.message || 'Unknown error'}`);
     }
   };
 
