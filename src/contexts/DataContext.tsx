@@ -83,24 +83,48 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       
-      if (useApi) {
-        // Use API endpoints
-        await Promise.all([
-          loadStudentsFromApi(),
-          loadPaymentsFromApi(),
-          loadFeeConfigFromApi()
-        ]);
+      // Check if Supabase is properly configured by testing a simple query
+      const supabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (supabaseConfigured) {
+        try {
+          // Test Supabase connection with a simple query
+          const { data, error } = await supabase
+            .from('students')
+            .select('count')
+            .limit(1);
+          
+          if (error) {
+            console.warn('Supabase connection failed, falling back to localStorage:', error.message);
+            throw error;
+          }
+          
+          // If test succeeds, load data from Supabase
+          if (useApi) {
+            // Use API endpoints
+            await Promise.all([
+              loadStudentsFromApi(),
+              loadPaymentsFromApi(),
+              loadFeeConfigFromApi()
+            ]);
+          } else {
+            // Use direct Supabase client
+            await Promise.all([
+              loadStudents(),
+              loadPayments(),
+              loadFeeConfig()
+            ]);
+          }
+        } catch (supabaseError) {
+          console.warn('Supabase not available, using localStorage:', supabaseError);
+          loadFromLocalStorage();
+        }
       } else {
-        // Use direct Supabase client
-        await Promise.all([
-          loadStudents(),
-          loadPayments(),
-          loadFeeConfig()
-        ]);
+        console.log('Supabase not configured, using localStorage');
+        loadFromLocalStorage();
       }
     } catch (error) {
-      console.error('Error loading initial data:', error);
-      // Fallback to localStorage if Supabase fails
+      console.warn('Error loading initial data, falling back to localStorage:', error);
       loadFromLocalStorage();
     } finally {
       setLoading(false);
@@ -113,7 +137,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await studentsApi.getAll();
       setStudents(data);
     } catch (error) {
-      console.error('Error loading students from API:', error);
+      console.warn('Error loading students from API, falling back:', error);
       throw error;
     }
   };
@@ -123,7 +147,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await paymentsApi.getAll();
       setPayments(data);
     } catch (error) {
-      console.error('Error loading payments from API:', error);
+      console.warn('Error loading payments from API, falling back:', error);
       throw error;
     }
   };
@@ -133,7 +157,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await feeConfigApi.get();
       setFeeConfig(data);
     } catch (error) {
-      console.error('Error loading fee config from API:', error);
+      console.warn('Error loading fee config from API, falling back:', error);
       throw error;
     }
   };
@@ -151,74 +175,89 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const loadStudents = async () => {
-    const { data, error } = await supabase
-      .from('students')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('students')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (error) throw error;
+      if (error) throw error;
 
-    const formattedStudents: Student[] = data.map(student => ({
-      id: student.id,
-      admissionNo: student.admission_no,
-      name: student.name,
-      mobile: student.mobile,
-      class: student.class,
-      division: student.division,
-      busStop: student.bus_stop,
-      busNumber: student.bus_number,
-      tripNumber: student.trip_number
-    }));
+      const formattedStudents: Student[] = data.map(student => ({
+        id: student.id,
+        admissionNo: student.admission_no,
+        name: student.name,
+        mobile: student.mobile,
+        class: student.class,
+        division: student.division,
+        busStop: student.bus_stop,
+        busNumber: student.bus_number,
+        tripNumber: student.trip_number
+      }));
 
-    setStudents(formattedStudents);
+      setStudents(formattedStudents);
+    } catch (error) {
+      console.warn('Error loading students from Supabase:', error);
+      throw error;
+    }
   };
 
   const loadPayments = async () => {
-    const { data, error } = await supabase
-      .from('payments')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('payments')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (error) throw error;
+      if (error) throw error;
 
-    const formattedPayments: Payment[] = data.map(payment => ({
-      id: payment.id,
-      studentId: payment.student_id,
-      studentName: payment.student_name,
-      admissionNo: payment.admission_no,
-      developmentFee: payment.development_fee,
-      busFee: payment.bus_fee,
-      specialFee: payment.special_fee,
-      specialFeeType: payment.special_fee_type,
-      totalAmount: payment.total_amount,
-      paymentDate: payment.payment_date,
-      addedBy: payment.added_by,
-      class: payment.class,
-      division: payment.division
-    }));
+      const formattedPayments: Payment[] = data.map(payment => ({
+        id: payment.id,
+        studentId: payment.student_id,
+        studentName: payment.student_name,
+        admissionNo: payment.admission_no,
+        developmentFee: payment.development_fee,
+        busFee: payment.bus_fee,
+        specialFee: payment.special_fee,
+        specialFeeType: payment.special_fee_type,
+        totalAmount: payment.total_amount,
+        paymentDate: payment.payment_date,
+        addedBy: payment.added_by,
+        class: payment.class,
+        division: payment.division
+      }));
 
-    setPayments(formattedPayments);
+      setPayments(formattedPayments);
+    } catch (error) {
+      console.warn('Error loading payments from Supabase:', error);
+      throw error;
+    }
   };
 
   const loadFeeConfig = async () => {
-    const { data, error } = await supabase
-      .from('fee_config')
-      .select('*');
+    try {
+      const { data, error } = await supabase
+        .from('fee_config')
+        .select('*');
 
-    if (error) throw error;
+      if (error) throw error;
 
-    const developmentFees: Record<string, number> = {};
-    const busStops: Record<string, number> = {};
+      const developmentFees: Record<string, number> = {};
+      const busStops: Record<string, number> = {};
 
-    data.forEach(config => {
-      if (config.config_type === 'development_fee') {
-        developmentFees[config.config_key] = config.config_value;
-      } else if (config.config_type === 'bus_stop') {
-        busStops[config.config_key] = config.config_value;
-      }
-    });
+      data.forEach(config => {
+        if (config.config_type === 'development_fee') {
+          developmentFees[config.config_key] = config.config_value;
+        } else if (config.config_type === 'bus_stop') {
+          busStops[config.config_key] = config.config_value;
+        }
+      });
 
-    setFeeConfig({ developmentFees, busStops });
+      setFeeConfig({ developmentFees, busStops });
+    } catch (error) {
+      console.warn('Error loading fee config from Supabase:', error);
+      throw error;
+    }
   };
 
   const addStudent = async (student: Omit<Student, 'id'>) => {
