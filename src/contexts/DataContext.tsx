@@ -175,36 +175,48 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const sendSMS = (mobile: string, message: string) => {
-    // Enhanced SMS sending with multiple service options
+    const savedProvider = localStorage.getItem('smsProvider') || 'twilio';
+    const savedCredentials = localStorage.getItem('smsCredentials');
+    
+    if (!savedCredentials) {
+      console.log('SMS credentials not configured, skipping SMS notification...');
+      return;
+    }
+
+    const credentials = JSON.parse(savedCredentials);
+    
     try {
-      // Option 1: Using Twilio (most popular)
-      sendViaTwilio(mobile, message);
-      
-      // Option 2: Using TextLocal (India-specific)
-      // sendViaTextLocal(mobile, message);
-      
-      // Option 3: Using MSG91 (India-specific)
-      // sendViaMSG91(mobile, message);
-      
-      // Option 4: Using TextBee (India-specific)
-      // sendViaTextBee(mobile, message);
+      switch (savedProvider) {
+        case 'twilio':
+          sendViaTwilio(mobile, message, credentials.twilio);
+          break;
+        case 'textlocal':
+          sendViaTextLocal(mobile, message, credentials.textlocal);
+          break;
+        case 'msg91':
+          sendViaMSG91(mobile, message, credentials.msg91);
+          break;
+        case 'textbee':
+          sendViaTextBee(mobile, message, credentials.textbee);
+          break;
+        default:
+          console.log(`Unknown SMS provider: ${savedProvider}`);
+          return;
+      }
       
       console.log(`✅ SMS sent successfully to ${mobile}`);
     } catch (error) {
       console.error(`❌ SMS failed to ${mobile}:`, error);
-      // Fallback: Show notification to user
-      alert(`SMS notification failed for ${mobile}. Please inform parent manually.`);
+      // Silent failure - don't interrupt payment flow
+      console.log('SMS notification failed, but payment was successful');
     }
   };
 
   // Twilio SMS Integration
-  const sendViaTwilio = async (mobile: string, message: string) => {
-    const savedCredentials = localStorage.getItem('smsCredentials');
-    const credentials = savedCredentials ? JSON.parse(savedCredentials) : null;
-    
-    const TWILIO_ACCOUNT_SID = credentials?.twilio?.accountSid;
-    const TWILIO_AUTH_TOKEN = credentials?.twilio?.authToken;
-    const TWILIO_PHONE_NUMBER = credentials?.twilio?.phoneNumber;
+  const sendViaTwilio = async (mobile: string, message: string, credentials: any) => {
+    const TWILIO_ACCOUNT_SID = credentials?.accountSid;
+    const TWILIO_AUTH_TOKEN = credentials?.authToken;
+    const TWILIO_PHONE_NUMBER = credentials?.phoneNumber;
 
     if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
       throw new Error('Twilio credentials not configured');
@@ -229,12 +241,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // TextLocal SMS Integration (India)
-  const sendViaTextLocal = async (mobile: string, message: string) => {
-    const savedCredentials = localStorage.getItem('smsCredentials');
-    const credentials = savedCredentials ? JSON.parse(savedCredentials) : null;
-    
-    const TEXTLOCAL_API_KEY = credentials?.textlocal?.apiKey;
-    const TEXTLOCAL_SENDER = credentials?.textlocal?.sender || 'SCHOOL';
+  const sendViaTextLocal = async (mobile: string, message: string, credentials: any) => {
+    const TEXTLOCAL_API_KEY = credentials?.apiKey;
+    const TEXTLOCAL_SENDER = credentials?.sender || 'SCHOOL';
 
     if (!TEXTLOCAL_API_KEY) {
       throw new Error('TextLocal API key not configured');
@@ -260,13 +269,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // MSG91 SMS Integration (India)
-  const sendViaMSG91 = async (mobile: string, message: string) => {
-    const savedCredentials = localStorage.getItem('smsCredentials');
-    const credentials = savedCredentials ? JSON.parse(savedCredentials) : null;
-    
-    const MSG91_API_KEY = credentials?.msg91?.apiKey;
-    const MSG91_SENDER_ID = credentials?.msg91?.senderId || 'SCHOOL';
-    const MSG91_ROUTE = credentials?.msg91?.route || '4';
+  const sendViaMSG91 = async (mobile: string, message: string, credentials: any) => {
+    const MSG91_API_KEY = credentials?.apiKey;
+    const MSG91_SENDER_ID = credentials?.senderId || 'SCHOOL';
+    const MSG91_ROUTE = credentials?.route || '4';
 
     if (!MSG91_API_KEY) {
       throw new Error('MSG91 API key not configured');
@@ -293,12 +299,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // TextBee SMS Integration (India)
-  const sendViaTextBee = async (mobile: string, message: string) => {
-    const savedCredentials = localStorage.getItem('smsCredentials');
-    const credentials = savedCredentials ? JSON.parse(savedCredentials) : null;
-    
-    const TEXTBEE_API_KEY = credentials?.textbee?.apiKey;
-    const TEXTBEE_DEVICE_ID = credentials?.textbee?.deviceId;
+  const sendViaTextBee = async (mobile: string, message: string, credentials: any) => {
+    const TEXTBEE_API_KEY = credentials?.apiKey;
+    const TEXTBEE_DEVICE_ID = credentials?.deviceId;
 
     if (!TEXTBEE_API_KEY || !TEXTBEE_DEVICE_ID) {
       throw new Error('TextBee API key and Device ID not configured');
