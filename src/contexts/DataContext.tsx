@@ -62,8 +62,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [students, setStudents] = useState<Student[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [feeConfig, setFeeConfig] = useState<FeeConfiguration>({
-      senderId: 'SCHOOL',
-      deviceId: ''
+    developmentFees: {},
     busStops: {}
   });
 
