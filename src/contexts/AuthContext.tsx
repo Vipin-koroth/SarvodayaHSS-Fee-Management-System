@@ -99,14 +99,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      // Try Supabase authentication first
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: `${username}@sarvodaya.school`,
-        password: password
-      });
+      // Try Supabase authentication first if credentials exist
+      if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: `${username}@sarvodaya.school`,
+            password: password
+          });
 
-      if (data.user && !error) {
-        return true;
+          if (data.user && !error) {
+            return true;
+          }
+        } catch (supabaseError) {
+          console.log('Supabase auth failed, trying localStorage fallback:', supabaseError);
+        }
       }
     } catch (error) {
       console.log('Supabase auth failed, falling back to localStorage:', error);

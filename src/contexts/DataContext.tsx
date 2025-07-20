@@ -239,36 +239,54 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addStudent = async (student: Omit<Student, 'id'>) => {
     try {
-      const { data, error } = await supabase
-        .from('students')
-        .insert({
-          admission_no: student.admissionNo,
-          name: student.name,
-          mobile: student.mobile,
-          class: student.class,
-          division: student.division,
-          bus_stop: student.busStop,
-          bus_number: student.busNumber,
-          trip_number: student.tripNumber
-        })
-        .select()
-        .single();
+      // Try Supabase first
+      if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        try {
+          const { data, error } = await supabase
+            .from('students')
+            .insert({
+              admission_no: student.admissionNo,
+              name: student.name,
+              mobile: student.mobile,
+              class: student.class,
+              division: student.division,
+              bus_stop: student.busStop,
+              bus_number: student.busNumber,
+              trip_number: student.tripNumber
+            })
+            .select()
+            .single();
 
-      if (error) throw error;
+          if (error) throw error;
 
+          const newStudent: Student = {
+            id: data.id,
+            admissionNo: data.admission_no,
+            name: data.name,
+            mobile: data.mobile,
+            class: data.class,
+            division: data.division,
+            busStop: data.bus_stop,
+            busNumber: data.bus_number,
+            tripNumber: data.trip_number
+          };
+
+          setStudents(prev => [newStudent, ...prev]);
+          return;
+        } catch (supabaseError) {
+          console.warn('Supabase insert failed, falling back to localStorage:', supabaseError);
+        }
+      }
+
+      // Fallback to localStorage
       const newStudent: Student = {
-        id: data.id,
-        admissionNo: data.admission_no,
-        name: data.name,
-        mobile: data.mobile,
-        class: data.class,
-        division: data.division,
-        busStop: data.bus_stop,
-        busNumber: data.bus_number,
-        tripNumber: data.trip_number
+        id: Date.now().toString(),
+        ...student
       };
-
-      setStudents(prev => [newStudent, ...prev]);
+      
+      const updatedStudents = [newStudent, ...students];
+      setStudents(updatedStudents);
+      localStorage.setItem('students', JSON.stringify(updatedStudents));
     } catch (error) {
       console.error('Error adding student:', error);
       throw error;
@@ -277,26 +295,41 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateStudent = async (id: string, studentData: Partial<Student>) => {
     try {
-      const updateData: any = {};
-      if (studentData.admissionNo) updateData.admission_no = studentData.admissionNo;
-      if (studentData.name) updateData.name = studentData.name;
-      if (studentData.mobile) updateData.mobile = studentData.mobile;
-      if (studentData.class) updateData.class = studentData.class;
-      if (studentData.division) updateData.division = studentData.division;
-      if (studentData.busStop) updateData.bus_stop = studentData.busStop;
-      if (studentData.busNumber) updateData.bus_number = studentData.busNumber;
-      if (studentData.tripNumber) updateData.trip_number = studentData.tripNumber;
+      // Try Supabase first
+      if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        try {
+          const updateData: any = {};
+          if (studentData.admissionNo) updateData.admission_no = studentData.admissionNo;
+          if (studentData.name) updateData.name = studentData.name;
+          if (studentData.mobile) updateData.mobile = studentData.mobile;
+          if (studentData.class) updateData.class = studentData.class;
+          if (studentData.division) updateData.division = studentData.division;
+          if (studentData.busStop) updateData.bus_stop = studentData.busStop;
+          if (studentData.busNumber) updateData.bus_number = studentData.busNumber;
+          if (studentData.tripNumber) updateData.trip_number = studentData.tripNumber;
 
-      const { error } = await supabase
-        .from('students')
-        .update(updateData)
-        .eq('id', id);
+          const { error } = await supabase
+            .from('students')
+            .update(updateData)
+            .eq('id', id);
 
-      if (error) throw error;
+          if (error) throw error;
 
-      setStudents(prev => prev.map(student =>
+          setStudents(prev => prev.map(student =>
+            student.id === id ? { ...student, ...studentData } : student
+          ));
+          return;
+        } catch (supabaseError) {
+          console.warn('Supabase update failed, falling back to localStorage:', supabaseError);
+        }
+      }
+
+      // Fallback to localStorage
+      const updatedStudents = students.map(student =>
         student.id === id ? { ...student, ...studentData } : student
-      ));
+      );
+      setStudents(updatedStudents);
+      localStorage.setItem('students', JSON.stringify(updatedStudents));
     } catch (error) {
       console.error('Error updating student:', error);
       throw error;
@@ -305,14 +338,27 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteStudent = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('students')
-        .delete()
-        .eq('id', id);
+      // Try Supabase first
+      if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        try {
+          const { error } = await supabase
+            .from('students')
+            .delete()
+            .eq('id', id);
 
-      if (error) throw error;
+          if (error) throw error;
 
-      setStudents(prev => prev.filter(student => student.id !== id));
+          setStudents(prev => prev.filter(student => student.id !== id));
+          return;
+        } catch (supabaseError) {
+          console.warn('Supabase delete failed, falling back to localStorage:', supabaseError);
+        }
+      }
+
+      // Fallback to localStorage
+      const updatedStudents = students.filter(student => student.id !== id);
+      setStudents(updatedStudents);
+      localStorage.setItem('students', JSON.stringify(updatedStudents));
     } catch (error) {
       console.error('Error deleting student:', error);
       throw error;
@@ -321,37 +367,55 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const importStudents = async (newStudents: Omit<Student, 'id'>[]) => {
     try {
-      const insertData = newStudents.map(student => ({
-        admission_no: student.admissionNo,
-        name: student.name,
-        mobile: student.mobile,
-        class: student.class,
-        division: student.division,
-        bus_stop: student.busStop,
-        bus_number: student.busNumber,
-        trip_number: student.tripNumber
+      // Try Supabase first
+      if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        try {
+          const insertData = newStudents.map(student => ({
+            admission_no: student.admissionNo,
+            name: student.name,
+            mobile: student.mobile,
+            class: student.class,
+            division: student.division,
+            bus_stop: student.busStop,
+            bus_number: student.busNumber,
+            trip_number: student.tripNumber
+          }));
+
+          const { data, error } = await supabase
+            .from('students')
+            .insert(insertData)
+            .select();
+
+          if (error) throw error;
+
+          const formattedStudents: Student[] = data.map(student => ({
+            id: student.id,
+            admissionNo: student.admission_no,
+            name: student.name,
+            mobile: student.mobile,
+            class: student.class,
+            division: student.division,
+            busStop: student.bus_stop,
+            busNumber: student.bus_number,
+            tripNumber: student.trip_number
+          }));
+
+          setStudents(prev => [...formattedStudents, ...prev]);
+          return;
+        } catch (supabaseError) {
+          console.warn('Supabase import failed, falling back to localStorage:', supabaseError);
+        }
+      }
+
+      // Fallback to localStorage
+      const formattedStudents: Student[] = newStudents.map(student => ({
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        ...student
       }));
-
-      const { data, error } = await supabase
-        .from('students')
-        .insert(insertData)
-        .select();
-
-      if (error) throw error;
-
-      const formattedStudents: Student[] = data.map(student => ({
-        id: student.id,
-        admissionNo: student.admission_no,
-        name: student.name,
-        mobile: student.mobile,
-        class: student.class,
-        division: student.division,
-        busStop: student.bus_stop,
-        busNumber: student.bus_number,
-        tripNumber: student.trip_number
-      }));
-
-      setStudents(prev => [...formattedStudents, ...prev]);
+      
+      const updatedStudents = [...formattedStudents, ...students];
+      setStudents(updatedStudents);
+      localStorage.setItem('students', JSON.stringify(updatedStudents));
     } catch (error) {
       console.error('Error importing students:', error);
       throw error;
@@ -360,51 +424,86 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addPayment = async (payment: Omit<Payment, 'id' | 'paymentDate'>) => {
     try {
-      const { data, error } = await supabase
-        .from('payments')
-        .insert({
-          student_id: payment.studentId,
-          student_name: payment.studentName,
-          admission_no: payment.admissionNo,
-          development_fee: payment.developmentFee,
-          bus_fee: payment.busFee,
-          special_fee: payment.specialFee,
-          special_fee_type: payment.specialFeeType,
-          total_amount: payment.totalAmount,
-          payment_date: new Date().toISOString(),
-          added_by: payment.addedBy,
-          class: payment.class,
-          division: payment.division
-        })
-        .select()
-        .single();
+      let newPayment: Payment;
+      
+      // Try Supabase first
+      if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        try {
+          const { data, error } = await supabase
+            .from('payments')
+            .insert({
+              student_id: payment.studentId,
+              student_name: payment.studentName,
+              admission_no: payment.admissionNo,
+              development_fee: payment.developmentFee,
+              bus_fee: payment.busFee,
+              special_fee: payment.specialFee,
+              special_fee_type: payment.specialFeeType,
+              total_amount: payment.totalAmount,
+              payment_date: new Date().toISOString(),
+              added_by: payment.addedBy,
+              class: payment.class,
+              division: payment.division
+            })
+            .select()
+            .single();
 
-      if (error) throw error;
+          if (error) throw error;
 
-      const newPayment: Payment = {
-        id: data.id,
-        studentId: data.student_id,
-        studentName: data.student_name,
-        admissionNo: data.admission_no,
-        developmentFee: data.development_fee,
-        busFee: data.bus_fee,
-        specialFee: data.special_fee,
-        specialFeeType: data.special_fee_type,
-        totalAmount: data.total_amount,
-        paymentDate: data.payment_date,
-        addedBy: data.added_by,
-        class: data.class,
-        division: data.division
-      };
+          newPayment = {
+            id: data.id,
+            studentId: data.student_id,
+            studentName: data.student_name,
+            admissionNo: data.admission_no,
+            developmentFee: data.development_fee,
+            busFee: data.bus_fee,
+            specialFee: data.special_fee,
+            specialFeeType: data.special_fee_type,
+            totalAmount: data.total_amount,
+            paymentDate: data.payment_date,
+            addedBy: data.added_by,
+            class: data.class,
+            division: data.division
+          };
 
-      setPayments(prev => [newPayment, ...prev]);
+          setPayments(prev => [newPayment, ...prev]);
+        } catch (supabaseError) {
+          console.warn('Supabase payment insert failed, falling back to localStorage:', supabaseError);
+          
+          // Fallback to localStorage
+          newPayment = {
+            id: Date.now().toString(),
+            paymentDate: new Date().toISOString(),
+            ...payment
+          };
+          
+          const updatedPayments = [newPayment, ...payments];
+          setPayments(updatedPayments);
+          localStorage.setItem('payments', JSON.stringify(updatedPayments));
+        }
+      } else {
+        // Fallback to localStorage
+        newPayment = {
+          id: Date.now().toString(),
+          paymentDate: new Date().toISOString(),
+          ...payment
+        };
+        
+        const updatedPayments = [newPayment, ...payments];
+        setPayments(updatedPayments);
+        localStorage.setItem('payments', JSON.stringify(updatedPayments));
+      }
 
       // Send SMS notification
       const student = students.find(s => s.id === payment.studentId);
       if (student) {
         const message = `Dear Parent, Payment of ₹${payment.totalAmount} received for ${student.name} (${student.admissionNo}). Date: ${new Date().toLocaleDateString()}. Thank you! - Sarvodaya School`;
-        await sendSMS(student.mobile, message);
-        await sendWhatsApp(student.mobile, message);
+        try {
+          await sendSMS(student.mobile, message);
+          await sendWhatsApp(student.mobile, message);
+        } catch (notificationError) {
+          console.warn('Notification failed:', notificationError);
+        }
       }
     } catch (error) {
       console.error('Error adding payment:', error);
