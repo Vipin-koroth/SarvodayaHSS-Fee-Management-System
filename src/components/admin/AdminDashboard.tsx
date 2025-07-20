@@ -35,6 +35,8 @@ const AdminDashboard: React.FC = () => {
         return <PrintReceipt />;
       case 'sms-config':
         return <SMSConfiguration />;
+      case 'whatsapp-config':
+        return <WhatsAppConfiguration />;
       case 'data-management':
         return <DataManagement />;
       case 'user-management':

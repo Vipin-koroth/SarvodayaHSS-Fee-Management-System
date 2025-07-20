@@ -46,6 +46,7 @@ interface DataContextType {
   deletePayment: (id: string) => void;
   updateFeeConfig: (config: Partial<FeeConfiguration>) => void;
   sendSMS: (mobile: string, message: string) => void;
+  sendWhatsApp: (mobile: string, message: string) => void;
 }
 
 export const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -149,6 +150,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const message = `Dear Parent, Payment of ₹${payment.totalAmount} received for ${student.name} (${student.admissionNo}). Date: ${new Date().toLocaleDateString()}. Thank you! - Sarvodaya School`;
       sendSMS(student.mobile, message);
+      sendWhatsApp(student.mobile, message);
     }
   };
 
@@ -323,6 +325,148 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const sendWhatsApp = async (mobile: string, message: string) => {
+    try {
+      const savedCredentials = localStorage.getItem('whatsappCredentials');
+      const savedProvider = localStorage.getItem('whatsappProvider');
+      
+      if (!savedCredentials || !savedProvider) {
+        console.log('WhatsApp not configured, skipping...');
+        return;
+      }
+
+      const credentials = JSON.parse(savedCredentials);
+      
+      switch (savedProvider) {
+        case 'twilio':
+          await sendWhatsAppViaTwilio(mobile, message, credentials.twilio);
+          break;
+        case 'whatsapp-business':
+          await sendWhatsAppViaBusinessAPI(mobile, message, credentials.business);
+          break;
+        case 'ultramsg':
+          await sendWhatsAppViaUltraMsg(mobile, message, credentials.ultramsg);
+          break;
+        case 'callmebot':
+          await sendWhatsAppViaCallMeBot(mobile, message, credentials.callmebot);
+          break;
+        default:
+          throw new Error('Unknown WhatsApp provider');
+      }
+      
+      console.log(`✅ WhatsApp sent successfully to ${mobile}`);
+    } catch (error) {
+      console.error(`❌ WhatsApp failed to ${mobile}:`, error);
+      // Don't show alert for WhatsApp failures to avoid interrupting workflow
+    }
+  };
+
+  // Twilio WhatsApp Integration
+  const sendWhatsAppViaTwilio = async (mobile: string, message: string, credentials: any) => {
+    const { accountSid, authToken, phoneNumber } = credentials;
+    
+    if (!accountSid || !authToken || !phoneNumber) {
+      throw new Error('Twilio WhatsApp credentials not configured');
+    }
+
+    const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + btoa(`${accountSid}:${authToken}`),
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        From: `whatsapp:${phoneNumber}`,
+        To: `whatsapp:+91${mobile}`,
+        Body: message
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Twilio WhatsApp API error: ${response.status}`);
+    }
+  };
+
+  // WhatsApp Business API Integration
+  const sendWhatsAppViaBusinessAPI = async (mobile: string, message: string, credentials: any) => {
+    const { accessToken, phoneNumberId } = credentials;
+    
+    if (!accessToken || !phoneNumberId) {
+      throw new Error('WhatsApp Business API credentials not configured');
+    }
+
+    const response = await fetch(`https://graph.facebook.com/v18.0/${phoneNumberId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: `91${mobile}`,
+        type: 'text',
+        text: {
+          body: message
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`WhatsApp Business API error: ${response.status}`);
+    }
+  };
+
+  // UltraMsg WhatsApp Integration
+  const sendWhatsAppViaUltraMsg = async (mobile: string, message: string, credentials: any) => {
+    const { token, instanceId } = credentials;
+    
+    if (!token || !instanceId) {
+      throw new Error('UltraMsg credentials not configured');
+    }
+
+    const response = await fetch(`https://api.ultramsg.com/${instanceId}/messages/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        token: token,
+        to: `91${mobile}`,
+        body: message
+      })
+    });
+
+    const result = await response.json();
+    if (!response.ok || result.sent !== true) {
+      throw new Error(`UltraMsg error: ${result.error || 'Unknown error'}`);
+    }
+  };
+
+  // CallMeBot WhatsApp Integration
+  const sendWhatsAppViaCallMeBot = async (mobile: string, message: string, credentials: any) => {
+    const { apiKey } = credentials;
+    
+    if (!apiKey) {
+      throw new Error('CallMeBot API key not configured');
+    }
+
+    const response = await fetch(`https://api.callmebot.com/whatsapp.php`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    // Note: CallMeBot requires phone number to be registered first
+    // This is a simplified implementation
+    const url = `https://api.callmebot.com/whatsapp.php?phone=91${mobile}&text=${encodeURIComponent(message)}&apikey=${apiKey}`;
+    
+    const result = await fetch(url);
+    if (!result.ok) {
+      throw new Error(`CallMeBot error: ${result.status}`);
+    }
+  };
+
   const value = {
     students,
     payments,
@@ -335,7 +479,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updatePayment,
     deletePayment,
     updateFeeConfig,
-    sendSMS
+    sendSMS,
+    sendWhatsApp
   };
 
   return (

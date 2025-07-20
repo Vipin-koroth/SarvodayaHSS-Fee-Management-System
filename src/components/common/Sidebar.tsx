@@ -11,6 +11,7 @@ import {
   Shield,
   Printer,
   MessageSquare
+  MessageCircle
 } from 'lucide-react';
 
 interface SidebarProps {
