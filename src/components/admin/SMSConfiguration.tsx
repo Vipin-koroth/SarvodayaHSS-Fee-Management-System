@@ -20,7 +20,8 @@ const SMSConfiguration: React.FC = () => {
     },
     textbee: {
       apiKey: '',
-      senderId: 'SCHOOL'
+      senderId: 'SCHOOL',
+      deviceId: ''
     }
   });
   const [testNumber, setTestNumber] = useState('');
@@ -301,15 +302,14 @@ const SMSConfiguration: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sender ID
+                Device ID
               </label>
               <input
                 type="text"
-                value={credentials.textbee.senderId}
-                onChange={(e) => updateCredentials('textbee', 'senderId', e.target.value)}
+                value={credentials.textbee.deviceId}
+                onChange={(e) => updateCredentials('textbee', 'deviceId', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter Sender ID (e.g., SCHOOL)"
-                maxLength={6}
+                placeholder="Enter registered Device ID"
               />
             </div>
           </div>
@@ -396,7 +396,7 @@ const SMSConfiguration: React.FC = () => {
               <p><strong>Twilio:</strong> Sign up at twilio.com, get Account SID, Auth Token, and buy a phone number</p>
               <p><strong>TextLocal:</strong> Sign up at textlocal.in, get API key from settings</p>
               <p><strong>MSG91:</strong> Sign up at msg91.com, get API key and register sender ID</p>
-              <p><strong>TextBee:</strong> Sign up at textbee.dev, get API key from dashboard (use X-API-Key header)</p>
+              <p><strong>TextBee:</strong> Sign up at textbee.dev, get API key and register your device to get Device ID</p>
               <p><strong>Note:</strong> SMS charges apply based on your provider's pricing</p>
             </div>
           </div>

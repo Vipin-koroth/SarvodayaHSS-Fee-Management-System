@@ -62,7 +62,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [students, setStudents] = useState<Student[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [feeConfig, setFeeConfig] = useState<FeeConfiguration>({
-    developmentFees: {},
+      senderId: 'SCHOOL',
+      deviceId: ''
     busStops: {}
   });
 
@@ -296,28 +297,30 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const credentials = savedCredentials ? JSON.parse(savedCredentials) : null;
     
     const TEXTBEE_API_KEY = credentials?.textbee?.apiKey;
-    const TEXTBEE_SENDER_ID = credentials?.textbee?.senderId || 'SCHOOL';
+    const TEXTBEE_DEVICE_ID = credentials?.textbee?.deviceId;
 
-    if (!TEXTBEE_API_KEY) {
-      throw new Error('TextBee API key not configured');
+    if (!TEXTBEE_API_KEY || !TEXTBEE_DEVICE_ID) {
+      throw new Error('TextBee API key and Device ID not configured');
     }
 
-    const response = await fetch('https://api.textbee.dev/api/v1/sms/send', {
+    const response = await fetch('https://api.textbee.dev/api/v1/gateway/devices/sms', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': TEXTBEE_API_KEY,
+        'Authorization': `Bearer ${TEXTBEE_API_KEY}`,
       },
       body: JSON.stringify({
-        recipients: [`+91${mobile}`],
+        device_id: TEXTBEE_DEVICE_ID,
+        sim: 1,
+        number: mobile,
         message: message,
-        sender: TEXTBEE_SENDER_ID
+        type: 'sms'
       })
     });
 
     const result = await response.json();
-    if (!response.ok || !result.success) {
-      throw new Error(`TextBee error: ${result.error || result.message || 'Unknown error'}`);
+    if (!response.ok || result.status !== 'success') {
+      throw new Error(`TextBee error: ${result.message || result.error || 'Unknown error'}`);
     }
   };
 
